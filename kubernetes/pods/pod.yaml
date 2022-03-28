@@ -2,17 +2,45 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: postgres
-  namespace: dev  # if not specified, it will be `Default`
+  namespace: dev  # if not specified, it will be `default`
   labels:
     app: db
     tier: db-tier
 spec:
+  securityContext:  # these settings will apply to all containers of this Pod
+    runAsUser:  1000
+  serviceAccountName: my-app-sa  # custom service-account
+  # automountServiceAccountToken: false
   containers:
     - name: postgres
       image: postgres
-      env:
+      command: ["sleep"]  # overrides the Dockerfile instruction `ENTRYPOINT["sleep]`
+      args: ["10"]  # overrides the Dockerfile instruction `CMD["5"]`
+      securityContext:
+        runAsUser:  1000
+        capabilities:  # only supported at the container level
+          add:
+            - "MAC_ADMIN"
+
+      # environment variables options
+      envFrom:  # inject everything from env file
+        - configMapRef:
+            name: my_config_map  # need to be created in my_config_map.yaml
+
+        # All secrets from .yaml
+        - secretRef:
+            name: my-app-secret  # refers to my_app_secret_data.yaml
+      env:  # inject only one key-value pair
+        # Plain Key Value
         - name: POSTGRES_PASSWORD
           value: mysecretpassword
+
+        # ConfigMap
+        - name: KEY_1
+          valueFrom:
+            configMapKeyRef:
+              name: my_config_map
+              key: KEY_1
 
         # Single secret from .yaml
         - name: DB_USER
@@ -20,10 +48,14 @@ spec:
             secretKeyRef:
               name: my-app-secret  # refers to my_app_secret_data.yaml
               key: DB_USER
-      # All secrets from .yaml
-      envFrom:
-        - secretRef:
-            name: my-app-secret  # refers to my_app_secret_data.yaml
+      # Resource Requests
+      resources:
+        requests:
+          memory: "1Gi"
+          cpu: 1
+        limits:
+          memory: "2Gi"
+          cpu: 2
   volumes:
     - name: my-app-secret-volume
       secret:
