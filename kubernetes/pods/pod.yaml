@@ -56,6 +56,12 @@ spec:
         limits:
           memory: "2Gi"
           cpu: 2
+  tolerations:
+    # Use double quotes
+    - key: "app"
+      operator: "Equal"
+      value: "blue"
+      effect: "NoSchedule"
   volumes:
     - name: my-app-secret-volume
       secret:
