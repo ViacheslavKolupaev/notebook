@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: postgres
+  namespace: dev  # if not specified, it will be `Default`
+  labels:
+    app: db
+    tier: db-tier
+spec:
+  containers:
+    - name: postgres
+      image: postgres
+      env:
+        - name: POSTGRES_PASSWORD
+          value: mysecretpassword
+
+        # Single secret from .yaml
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: my-app-secret  # refers to my_app_secret_data.yaml
+              key: DB_USER
+      # All secrets from .yaml
+      envFrom:
+        - secretRef:
+            name: my-app-secret  # refers to my_app_secret_data.yaml
+  volumes:
+    - name: my-app-secret-volume
+      secret:
+        secretName: my-app-secret
+        # ls /opt/my-app-secret-volumes
+        # cat /opt/my-app-secret-volumes/DB_USER
