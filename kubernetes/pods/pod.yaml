@@ -68,3 +68,21 @@ spec:
         secretName: my-app-secret
         # ls /opt/my-app-secret-volumes
         # cat /opt/my-app-secret-volumes/DB_USER
+  nodeSelector:
+    size: Large
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: size
+                operator: Exists
+              - key: size
+                operator: In
+                values:
+                  - Large
+                  - Medium
+              - key: size
+                operator: NotIn
+                values:
+                  - Small
