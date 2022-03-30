@@ -1,29 +1,43 @@
 #!/bin/bash
 #
-# Install project initialization dependencies in the virtual environment.
-# Generate the first version of the <platform>-<py_ver>-requirements.txt file.
-# Shell Style Guide: https://google.github.io/styleguide/shellguide.html
-
+# Install project initialization dependencies in the virtual environment (venv).
+# Generate the first version of the "<platform>_<py_ver>_requirements.txt" file.
+#
 # Copyright 2022 Viacheslav Kolupaev, https://viacheslavkolupaev.ru/
+#
 
 #######################################
-# Print out usual message to STDOUT along with other status information.
+# Print a message to stdout with the date and time.
 # Arguments:
-#  Message.
+#  Text message.
 #######################################
 function log_to_stdout() {
     echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&1
 }
 
 #######################################
-# Print out error message to STDERR along with other status information.
+# Print an error message to stderr with the date and time.
 # Arguments:
-#  Message.
+#  Text message.
 #######################################
 function log_to_stderr() {
     echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&2
 }
 
+#######################################
+# Activate the virtual environment (venv).
+# Globals:
+#   PWD
+#   os_type
+#   pycharm_project_folder
+#   venv_name
+#   venv_scripts_dir
+# Arguments:
+#  None
+#   Writes progress messages to stdout and error messages to stderr.
+# Returns:
+#   0 if there are no errors, non-zero on error.
+#######################################
 function activate_venv() {
   log_to_stdout "Activating a virtual environment on the \"${os_type}\" platform..."
 
@@ -38,6 +52,21 @@ function activate_venv() {
   fi
 }
 
+#######################################
+# Determine the type of operating system to specify the correct path to the venv scripts folder.
+# The current version is designed for the following platforms only (others can be added as needed):
+#   - "msys": MSYS / Git Bash for Windows;
+#   - "linux-gnu": Linux Ubuntu / WSL.
+# Globals:
+#   OSTYPE
+#   os_type
+#   venv_scripts_dir
+# Arguments:
+#  None
+#   Writes progress messages to stdout and error messages to stderr.
+# Returns:
+#   0 if there are no errors, non-zero on error.
+#######################################
 function detect_os_type() {
   if [[ "${OSTYPE}" == 'msys' ]]; then
     os_type='windows'
@@ -55,6 +84,18 @@ function detect_os_type() {
   fi
 }
 
+#######################################
+# Install updated versions of initialization dependencies from "00_proj_init.in" into venv.
+# Globals:
+#   pycharm_project_folder
+#   venv_name
+#   venv_scripts_dir
+# Arguments:
+#  None
+#   Writes progress messages to stdout and error messages to stderr.
+# Returns:
+#   0 if there are no errors, non-zero on error.
+#######################################
 function install_upgrade_proj_init_dependencies() {
     log_to_stdout 'Installing project initialization dependencies...'
     log_to_stdout '--------------------------------------------------'
@@ -69,6 +110,18 @@ function install_upgrade_proj_init_dependencies() {
     fi
 }
 
+#######################################
+# Compile "<platform>_<py_ver>_requirements.txt" from dependencies specified in "00_proj_init.in"
+# Globals:
+#   os_type
+#   pycharm_project_folder
+#   python_version
+# Arguments:
+#  None
+#   Writes progress messages to stdout and error messages to stderr.
+# Returns:
+#   0 if there are no errors, non-zero on error.
+#######################################
 function compile_requirements_file() {
     log_to_stdout 'Compiling the resulting project dependency file...'
     log_to_stdout '--------------------------------------------------'
@@ -83,6 +136,19 @@ function compile_requirements_file() {
     fi
 }
 
+#######################################
+# Synchronize project dependencies in venv with file "<platform>_<py_ver>_requirements.txt".
+# Globals:
+#   os_type
+#   pycharm_project_folder
+#   python_version
+# Arguments:
+#  None
+# Outputs:
+#   Writes progress messages to stdout and error messages to stderr.
+# Returns:
+#   0 if there are no errors, non-zero on error.
+#######################################
 function sync_dependencies() {
     log_to_stdout 'Project Dependency Synchronization...'
     log_to_stdout '--------------------------------------------------'
@@ -96,6 +162,14 @@ function sync_dependencies() {
     fi
 }
 
+#######################################
+# Run the main function of the script.
+# Globals:
+#   BASH_SOURCE
+#   HOME
+# Arguments:
+#  None
+#######################################
 function main() {
   # Declaring Local Variables.
   local project_name
