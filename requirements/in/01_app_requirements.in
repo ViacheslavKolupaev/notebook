@@ -1,0 +1,15 @@
+aiodns
+aiohttp
+alembic
+asyncpg
+databases[postgresql]
+fastapi
+orjson
+psycopg2-binary
+pydantic
+sentry-sdk
+sqlalchemy
+tenacity
+typeguard
+ujson
+uvicorn[standard]
