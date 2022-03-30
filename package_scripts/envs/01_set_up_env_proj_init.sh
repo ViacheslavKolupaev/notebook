@@ -6,7 +6,7 @@
 #  - "requirements/in/00_proj_init.in"
 #  - "requirements/in/01_app.in"
 #
-# Generated project dependency file: "01_app_requirements_<os_type>_py<python_version>.txt"
+# Script generated (output) project dependency file: "01_app_requirements_<os_type>_py<python_version>.txt"
 #
 # Copyright 2022 Viacheslav Kolupaev, https://viacheslavkolupaev.ru/
 #
