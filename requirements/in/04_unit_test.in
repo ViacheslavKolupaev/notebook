@@ -9,6 +9,6 @@ pytest-order
 coverage
 hypothesis
 typeguard
-httpx
+httpx<=0.17.1
 requests
 python-dateutil

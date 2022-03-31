@@ -46,7 +46,7 @@ greenlet==1.1.2
     # via sqlalchemy
 h11==0.13.0
     # via uvicorn
-httptools==0.4.0
+httptools==0.3.0
     # via uvicorn
 idna==3.3
     # via
@@ -97,7 +97,7 @@ ujson==5.1.0
     # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/01_app.in
 urllib3==1.26.9
     # via sentry-sdk
-uvicorn[standard]==0.17.6
+uvicorn[standard]==0.17.5
     # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/01_app.in
 uvloop==0.16.0
     # via uvicorn

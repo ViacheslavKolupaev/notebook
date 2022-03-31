@@ -12,4 +12,4 @@ sqlalchemy
 tenacity
 typeguard
 ujson
-uvicorn[standard]
+uvicorn[standard]<=0.17.5
