@@ -1,12 +1,13 @@
 #!/bin/bash
 #
-# Install the application's dependencies into the virtual environment (venv).
+# Install the application's dependencies into the virtual environment (venv) of the project.
 #
 # Files with incoming project dependency requirements:
 #  - "requirements/in/00_proj_init.in"
 #  - "requirements/in/01_app.in"
 #
-# Script generated (output) project dependency file: "01_app_requirements_<os_type>_py<python_version>.txt"
+# Script generated (output) project dependency file(s):
+#  - "01_app_requirements_<os_type>_py<python_version>.txt"
 #
 # Copyright 2022 Viacheslav Kolupaev, https://viacheslavkolupaev.ru/
 #
@@ -106,8 +107,8 @@ function install_upgrade_proj_init_dependencies() {
   log_to_stdout 'Installing project initialization dependencies...'
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
-  if ! ${pycharm_project_folder}/${venv_name}/${venv_scripts_dir}/python -m pip install --upgrade \
-    --requirement ${pycharm_project_folder}/requirements/in/00_proj_init.in; then
+  if ! "${pycharm_project_folder}"/"${venv_name}"/${venv_scripts_dir}/python -m pip install --upgrade \
+    --requirement "${pycharm_project_folder}"/requirements/in/00_proj_init.in; then
     log_to_stderr 'Error installing project initialization dependencies. Exit.'
     exit 1
   else
@@ -137,8 +138,8 @@ function compile_requirements_file() {
 
   log_to_stdout "Compiling the resulting project dependency file: ${req_file_full_path}"
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
-  if ! pip-compile ${pycharm_project_folder}/requirements/in/${req_file_name}.in \
-    --output-file=- >${req_file_full_path}; then
+  if ! pip-compile "${pycharm_project_folder}"/requirements/in/"${req_file_name}".in \
+    --output-file=- >"${req_file_full_path}"; then
     log_to_stderr 'Error compiling resulting project dependency file. Exit.'
     exit 1
   else
@@ -169,7 +170,7 @@ function sync_dependencies() {
   log_to_stdout "Synchronizing the project's venv with the generated dependency file: ${req_file_full_path}"
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
-  if ! pip-sync ${req_file_full_path}; then
+  if ! pip-sync "${req_file_full_path}"; then
     log_to_stderr 'Error syncing project dependencies. Exit.'
     exit 1
   else
@@ -198,7 +199,7 @@ function main() {
   readonly venv_name="venv_py${python_version}"
 
   local script_basename
-  script_basename=$(basename ${BASH_SOURCE[0]##*/})
+  script_basename=$(basename "${BASH_SOURCE[0]##*/}")
   readonly script_basename
 
   local pycharm_project_folder
