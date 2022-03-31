@@ -1,13 +1,14 @@
 #!/bin/bash
 #
-# Install the application's dependencies into the virtual environment (venv) of the project.
+# Install "app" dependencies into the virtual environment (venv) of the project.
 #
 # Files with incoming project dependency requirements:
 #  - "requirements/in/00_proj_init.in"
 #  - "requirements/in/01_app.in"
 #
 # Script compiled (output) project dependency file(s):
-#  - "01_app_requirements_<os_type>_py<python_version>.txt"
+#  - "/requirements.txt"
+#  - "requirements/compiled/01_app_requirements_<os_type>_py<python_version>.txt"
 #
 # Copyright 2022 Viacheslav Kolupaev, https://viacheslavkolupaev.ru/
 #
