@@ -1,0 +1,14 @@
+-c ../../requirements.txt
+
+pytest
+pytest-asyncio
+pytest-cov
+pytest-timeout
+pytest-aiohttp
+pytest-order
+coverage
+hypothesis
+typeguard
+httpx
+requests
+python-dateutil
