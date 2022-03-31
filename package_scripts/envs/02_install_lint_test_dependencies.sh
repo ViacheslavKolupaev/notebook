@@ -5,8 +5,8 @@
 # Files with incoming project dependency requirements:
 #  - "requirements/in/02_lint_test.in"
 #
-# Script generated (output) project dependency file(s):
-#  - "requirements/generated/02_lint_test_requirements_<os_type>_py<python_version>.txt"
+# Script compiled (output) project dependency file(s):
+#  - "requirements/compiled/02_lint_test_requirements_<os_type>_py<python_version>.txt"
 #
 # Copyright 2022 Viacheslav Kolupaev, https://viacheslavkolupaev.ru/
 #
@@ -34,7 +34,7 @@ function log_to_stderr() {
 # Globals:
 #   PWD
 #   os_type
-#   pycharm_project_folder
+#   project_root
 #   venv_name
 #   venv_scripts_dir
 # Arguments:
@@ -46,7 +46,7 @@ function log_to_stderr() {
 function activate_venv() {
   log_to_stdout "Activating a virtual environment on the \"${os_type}\" platform..."
 
-  cd "${pycharm_project_folder}/${venv_name}/${venv_scripts_dir}" || exit 1
+  cd "${project_root}/${venv_name}/${venv_scripts_dir}" || exit 1
   log_to_stdout "Current pwd: ${PWD}"
 
   if ! source activate; then
@@ -90,14 +90,12 @@ function detect_os_type() {
 }
 
 #######################################
-# Compile "<req_file_name>_requirements_<os_type>_py<python_version>.txt".
-# Compilation is based on the file "<req_file_name>.in".
+# Compile "/requirements/compiled/<req_in_file_name>_requirements_<os_type>_py<python_version>.txt".
+# Compilation is based on the file "<req_in_file_name>.in".
 # Globals:
-#   os_type
-#   pycharm_project_folder
-#   python_version
-#   req_file_name
-#   req_file_full_path
+#   project_root
+#   req_in_file_name
+#   req_compiled_file_full_path
 # Arguments:
 #  None
 #   Writes progress messages to stdout and error messages to stderr.
@@ -105,28 +103,26 @@ function detect_os_type() {
 #   0 if there are no errors, non-zero on error.
 #######################################
 function compile_requirements_file() {
-  log_to_stdout "Compiling the resulting project dependency file: ${req_file_full_path}"
+  log_to_stdout "Compiling the resulting project dependency file: ${req_compiled_file_full_path}"
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
-  if ! pip-compile "${pycharm_project_folder}"/requirements/in/"${req_file_name}".in \
-    --output-file=- >"${req_file_full_path}"; then
+  if ! pip-compile "${project_root}"/requirements/in/"${req_in_file_name}".in \
+    --output-file=- >"${req_compiled_file_full_path}"; then
     log_to_stderr 'Error compiling resulting project dependency file. Exit.'
     exit 1
   else
     log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
-    log_to_stdout "The resulting project dependency file was successfully compiled: ${req_file_full_path}"
+    log_to_stdout "The resulting project dependency file was successfully compiled: ${req_compiled_file_full_path}"
   fi
 }
 
 #######################################
-# Synchronize project dependencies with the specified compiled dependency files.
+# Synchronize project dependencies with the specified compiled dependency file(s).
 # The following files are being synchronized:
-#  - "/01_app_requirements_<os_type>_py<python_version>.txt"
-#  - "/requirements/generated/<req_file_name>_requirements_<os_type>_py<python_version>.txt"
+#  - "/requirements.txt"
+#  - "/requirements/compiled/<req_in_file_name>_requirements_<os_type>_py<python_version>.txt"
 # Globals:
-#   os_type
-#   pycharm_project_folder
-#   python_version
-#   req_file_name
+#   project_root
+#   req_compiled_file_full_path
 # Arguments:
 #  None
 # Outputs:
@@ -135,19 +131,15 @@ function compile_requirements_file() {
 #   0 if there are no errors, non-zero on error.
 #######################################
 function sync_dependencies() {
-  local req_file_01_app_full_path
-  req_file_01_app_full_path="${pycharm_project_folder}/01_app_requirements_${os_type}_py${python_version}.txt"
-  readonly req_file_01_app_full_path
-
-  log_to_stdout "Synchronizing the project's venv with the generated dependency file: ${req_file_full_path}"
+  log_to_stdout "Synchronizing project dependencies with the specified requirements file(s)..."
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
-  if ! pip-sync "${req_file_01_app_full_path}" "${req_file_full_path}"; then
+  if ! pip-sync "${project_root}/requirements.txt" "${req_compiled_file_full_path}"; then
     log_to_stderr 'Error syncing project dependencies. Exit.'
     exit 1
   else
     log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
-    log_to_stdout "The project venv was successfully synchronized with the dependency file: ${req_file_full_path}"
+    log_to_stdout "The project's venv dependencies were successfully synced to the specified requirements file(s)."
   fi
 }
 
@@ -160,48 +152,46 @@ function sync_dependencies() {
 #  None
 #######################################
 function main() {
-  # Declaring Local Variables.
-  local project_name
-  readonly project_name='notebook'
-
-  local python_version
-  readonly python_version='310'
-
-  local venv_name
-  readonly venv_name="venv_py${python_version}"
-
+  # 1. Declaring Local Variables.
   local script_basename
-  script_basename=$(basename "${BASH_SOURCE[0]##*/}")
+  script_basename=$(basename "${BASH_SOURCE[0]##*/}")  # don't change
   readonly script_basename
 
-  local pycharm_project_folder
-  pycharm_project_folder="${HOME}/PycharmProjects/${project_name}"
-  readonly pycharm_project_folder
+  local project_name
+  readonly project_name='notebook'  # enter your project name
 
-  local req_file_name
-  req_file_name="02_lint_test"
-  readonly req_file_name
+  local project_root
+  project_root="${HOME}/PycharmProjects/${project_name}"  # change the path if necessary
+  readonly project_root
+
+  local python_version
+  readonly python_version='310'  # specify your Python interpreter version: 39, 310, etc.
+
+  local venv_name
+  readonly venv_name="venv_py${python_version}"  # for example: "venv_py310"; provide your venv name, if necessary
+
+  local req_in_file_name
+  req_in_file_name="02_lint_test"  # incoming dependency file name
+  readonly req_in_file_name
 
   local os_type
-  os_type='unknown'
+  os_type='unknown'  # operating system type to be determined later
 
   local venv_scripts_dir
-  venv_scripts_dir='unknown'
+  venv_scripts_dir='unknown'  # different on Linux and Windows
 
-
+  # 2. Execution of script logic.
   log_to_stdout "${script_basename}: START SCRIPT EXECUTION"
+  detect_os_type "$@"  # modifies the "os_type" variable
 
-  # Execution of nested functions.
-  detect_os_type "$@"
-
-  local req_file_full_path
-  local req_file_full_path="${pycharm_project_folder}/requirements/generated/"
-  req_file_full_path+="${req_file_name}_requirements_${os_type}_py${python_version}.txt"
-  readonly req_file_full_path
+  # Full path where the compiled dependency file will be saved. Requires operating system type.
+  local req_compiled_file_full_path
+  req_compiled_file_full_path="${project_root}/requirements/compiled/"
+  req_compiled_file_full_path+="${req_in_file_name}_requirements_${os_type}_py${python_version}.txt"
+  readonly req_compiled_file_full_path
 
   compile_requirements_file "$@"
   sync_dependencies "$@"
-
   log_to_stdout "${script_basename}: END OF SCRIPT EXECUTION"
 }
 
