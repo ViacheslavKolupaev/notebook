@@ -144,6 +144,32 @@ function sync_dependencies() {
 }
 
 #######################################
+# Install all suggested mypy stub packages using pip.
+# Globals:
+#   PWD
+#   project_root
+# Arguments:
+#  None
+#######################################
+function install_mypy_stub_packages() {
+  log_to_stdout "Installing mypy stub packages..."
+
+  cd "${project_root}" || exit 1
+  log_to_stdout "Current pwd: ${PWD}"
+
+  if [ ! -d "${project_root}/.mypy_cache" ]; then
+    log_to_stdout "There is no \".mypy_cache\" directory. Mypy hasn't started yet."
+  fi
+
+  if ! yes | mypy --install-types; then
+    log_to_stderr 'Failed to install mypy stubs. Exit.'
+    exit 1
+  else
+    log_to_stdout "Mypy stubs installed successfully."
+  fi
+}
+
+#######################################
 # Run the main function of the script.
 # Globals:
 #   BASH_SOURCE
@@ -192,6 +218,7 @@ function main() {
 
   compile_requirements_file "$@"
   sync_dependencies "$@"
+  install_mypy_stub_packages "$@"
   log_to_stdout "${script_basename}: END OF SCRIPT EXECUTION"
 }
 
