@@ -1,4 +1,4 @@
--c ../../requirements.txt
+-c ../compiled/01_app_requirements.txt
 
 pytest
 pytest-asyncio
