@@ -8,7 +8,7 @@
 #
 # Script compiled (output) project dependency file(s):
 #  - "/requirements.txt"
-#  - "requirements/compiled/01_app_requirements_<os_type>_py<python_version>.txt"
+#  - "requirements/compiled/01_app_requirements.txt"
 #
 # Copyright 2022 Viacheslav Kolupaev, https://viacheslavkolupaev.ru/
 #
@@ -119,7 +119,7 @@ function install_upgrade_proj_init_dependencies() {
 }
 
 #######################################
-# Compile "/requirements/compiled/<req_in_file_name>_requirements_<os_type>_py<python_version>.txt".
+# Compile "/requirements/compiled/<req_in_file_name>_requirements.txt".
 # Compilation is based on the file "<req_in_file_name>.in".
 # Globals:
 #   project_root
@@ -134,7 +134,8 @@ function install_upgrade_proj_init_dependencies() {
 function compile_requirements_file() {
   log_to_stdout "Compiling the resulting project dependency file: ${req_compiled_file_full_path}"
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
-  if ! pip-compile "${project_root}"/requirements/in/"${req_in_file_name}".in \
+  if ! pip-compile \
+    "${project_root}"/requirements/in/"${req_in_file_name}".in \
     --output-file=- >"${req_compiled_file_full_path}"; then
     log_to_stderr 'Error compiling resulting project dependency file. Exit.'
     exit 1
@@ -171,7 +172,7 @@ function copy_compiled_file_to_project_root() {
 #######################################
 # Synchronize project dependencies with the specified compiled dependency file(s).
 # The following files are being synchronized:
-#  - "/requirements.txt"
+#  - "requirements/compiled/01_app_requirements.txt"
 # Globals:
 #   project_root
 # Arguments:
@@ -185,7 +186,7 @@ function sync_dependencies() {
   log_to_stdout "Synchronizing project dependencies with the specified requirements file(s)..."
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
-  if ! pip-sync "${project_root}/requirements.txt"; then
+  if ! pip-sync "${req_compiled_file_full_path}"; then
     log_to_stderr 'Error syncing project dependencies. Exit.'
     exit 1
   else
@@ -225,6 +226,11 @@ function main() {
   req_in_file_name="01_app"  # incoming dependency file name
   readonly req_in_file_name
 
+  # Full path where the compiled dependency file will be saved. Requires operating system type.
+  local req_compiled_file_full_path
+  req_compiled_file_full_path="${project_root}/requirements/compiled/${req_in_file_name}_requirements.txt"
+  readonly req_compiled_file_full_path
+
   local os_type
   os_type='unknown'  # operating system type to be determined later
 
@@ -233,18 +239,13 @@ function main() {
 
   # 2. Execution of script logic.
   log_to_stdout "${script_basename}: START SCRIPT EXECUTION"
+
   detect_os_type "$@"  # modifies the "os_type" variable
-
-  # Full path where the compiled dependency file will be saved. Requires operating system type.
-  local req_compiled_file_full_path
-  req_compiled_file_full_path="${project_root}/requirements/compiled/"
-  req_compiled_file_full_path+="${req_in_file_name}_requirements_${os_type}_py${python_version}.txt"
-  readonly req_compiled_file_full_path
-
   install_upgrade_proj_init_dependencies "$@"
   compile_requirements_file "$@"
   copy_compiled_file_to_project_root "$@"
   sync_dependencies "$@"
+
   log_to_stdout "${script_basename}: END OF SCRIPT EXECUTION"
 }
 
