@@ -1,0 +1,8 @@
+-c ../compiled/01_app_requirements.txt
+-c ../compiled/02_lint_test_requirements.txt
+-c ../compiled/03_type_test_requirements.txt
+-c ../compiled/04_unit_test_requirements.txt
+-c ../compiled/05_docs_requirements.txt
+
+isort
+pre-commit
