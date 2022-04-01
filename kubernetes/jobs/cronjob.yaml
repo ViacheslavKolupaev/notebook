@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: reporting-cron-job
+spec:  # section for CronJob
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:  # section for Job
+      completions: 3  # required number of successful completions
+      parallelism: 3  # number of pods created at the same time; are created sequentially by default
+      template:
+        spec:  # section for POD
+          containers:
+            - name: reporting-tool
+              image: reporting-tool
+          restartPolicy: Never
