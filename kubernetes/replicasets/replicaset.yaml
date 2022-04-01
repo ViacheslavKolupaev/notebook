@@ -3,7 +3,11 @@ kind: ReplicaSet
 metadata:
   name: myapp-replicaset
   labels:
-    app: myapp
+    app: myapp  # labels of the ReplicaSet itself
+    function: front-end
+  annotations:  # used for information purposes
+    name: Viacheslav Kolupaev
+    buildversion: 0.1
 spec:
   selector:
     matchLabels:
@@ -13,7 +17,7 @@ spec:
     metadata:
       name: nginx-2
       labels:
-        app: myapp
+        app: myapp  # labels of the pod
     spec:
       containers:
         - name: nginx
