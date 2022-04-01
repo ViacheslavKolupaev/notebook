@@ -91,7 +91,9 @@ function detect_os_type() {
 
 #######################################
 # Compile "/requirements/compiled/<req_in_file_name>_requirements_<os_type>_py<python_version>.txt".
-# Compilation is based on the file "<req_in_file_name>.in".
+# Compilation is based on the following dependency files:
+#  - "/requirements/in/01_app.in"
+#  - "/requirements/in/<req_in_file_name>.in"
 # Globals:
 #   project_root
 #   req_in_file_name
