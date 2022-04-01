@@ -3,6 +3,8 @@ kind: Job
 metadata:
   name: math-add-job
 spec:
+  completions: 3  # required number of successful completions
+  parallelism: 3  # number of pods created at the same time; are created sequentially by default
   template:
     spec:
       containers:
