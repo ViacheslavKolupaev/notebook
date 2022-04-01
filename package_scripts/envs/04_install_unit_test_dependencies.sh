@@ -105,7 +105,9 @@ function detect_os_type() {
 function compile_requirements_file() {
   log_to_stdout "Compiling the resulting project dependency file: ${req_compiled_file_full_path}"
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
-  if ! pip-compile "${project_root}"/requirements/in/"${req_in_file_name}".in \
+  if ! pip-compile \
+    "${project_root}"/requirements/in/01_app.in `# All base project dependencies are required for the tests to work.` \
+    "${project_root}"/requirements/in/"${req_in_file_name}".in `# Dependencies specific to unit tests.` \
     --output-file=- >"${req_compiled_file_full_path}"; then
     log_to_stderr 'Error compiling resulting project dependency file. Exit.'
     exit 1
