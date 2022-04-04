@@ -108,9 +108,9 @@ function compile_requirements_file() {
   log_to_stdout "Compiling the resulting project dependency file: ${req_compiled_file_full_path}"
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
   if ! pip-compile \
-    "${project_root}"/requirements/in/01_app.in `# All base project dependencies are required for the tests to work.` \
-    "${project_root}"/requirements/in/"${req_in_file_name}".in `# Dependencies specific to unit tests.` \
-    --output-file=- >"${req_compiled_file_full_path}"; then
+      "${project_root}"/requirements/in/01_app.in `# Application dependencies are required for tests to work.` \
+      "${project_root}"/requirements/in/"${req_in_file_name}".in `# Dependencies specific to unit-tests.` \
+      --output-file=- >"${req_compiled_file_full_path}"; then
     log_to_stderr 'Error compiling resulting project dependency file. Exit.'
     exit 1
   else
@@ -139,8 +139,8 @@ function sync_dependencies() {
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
   if ! pip-sync \
-    "${project_root}/requirements/compiled/01_app_requirements.txt" \
-     "${req_compiled_file_full_path}"; then
+      "${project_root}/requirements/compiled/01_app_requirements.txt" \
+      "${req_compiled_file_full_path}"; then
     log_to_stderr 'Error syncing project dependencies. Exit.'
     exit 1
   else
@@ -193,9 +193,11 @@ function main() {
 
   # 2. Execution of script logic.
   log_to_stdout "${script_basename}: START SCRIPT EXECUTION"
+
   detect_os_type "$@"  # modifies the "os_type" variable
   compile_requirements_file "$@"
   sync_dependencies "$@"
+
   log_to_stdout "${script_basename}: END OF SCRIPT EXECUTION"
 }
 

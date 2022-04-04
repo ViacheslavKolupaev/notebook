@@ -109,7 +109,7 @@ function install_upgrade_proj_init_dependencies() {
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
   if ! "${project_root}"/"${venv_name}"/${venv_scripts_dir}/python -m pip install --upgrade \
-    --requirement "${project_root}"/requirements/in/00_proj_init.in; then
+      --requirement "${project_root}"/requirements/in/00_proj_init.in; then
     log_to_stderr 'Error installing project initialization dependencies. Exit.'
     exit 1
   else
@@ -135,8 +135,8 @@ function compile_requirements_file() {
   log_to_stdout "Compiling the resulting project dependency file: ${req_compiled_file_full_path}"
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
   if ! pip-compile \
-    "${project_root}"/requirements/in/"${req_in_file_name}".in \
-    --output-file=- >"${req_compiled_file_full_path}"; then
+      "${project_root}"/requirements/in/"${req_in_file_name}".in \
+      --output-file=- >"${req_compiled_file_full_path}"; then
     log_to_stderr 'Error compiling resulting project dependency file. Exit.'
     exit 1
   else
