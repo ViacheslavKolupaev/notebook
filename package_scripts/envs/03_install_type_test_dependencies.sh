@@ -6,7 +6,7 @@
 #  - "requirements/in/03_type_test.in"
 #
 # Script compiled (output) project dependency file(s):
-#  - "requirements/compiled/03_type_test_requirements_<os_type>_py<python_version>.txt"
+#  - "requirements/compiled/03_type_test_requirements.txt"
 #
 # Copyright 2022 Viacheslav Kolupaev, https://viacheslavkolupaev.ru/
 #
@@ -90,7 +90,7 @@ function detect_os_type() {
 }
 
 #######################################
-# Compile "/requirements/compiled/<req_in_file_name>_requirements_<os_type>_py<python_version>.txt".
+# Compile "/requirements/compiled/<req_in_file_name>_requirements.txt".
 # Compilation is based on the file "<req_in_file_name>.in".
 # Globals:
 #   project_root
@@ -118,8 +118,8 @@ function compile_requirements_file() {
 #######################################
 # Synchronize project dependencies with the specified compiled dependency file(s).
 # The following files are being synchronized:
-#  - "/requirements.txt"
-#  - "/requirements/compiled/<req_in_file_name>_requirements_<os_type>_py<python_version>.txt"
+#  - "/requirements/compiled/01_app_requirements.txt"
+#  - "/requirements/compiled/<req_in_file_name>_requirements.txt"
 # Globals:
 #   project_root
 #   req_compiled_file_full_path
@@ -134,7 +134,9 @@ function sync_dependencies() {
   log_to_stdout "Synchronizing project dependencies with the specified requirements file(s)..."
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
-  if ! pip-sync "${project_root}/requirements.txt" "${req_compiled_file_full_path}"; then
+  if ! pip-sync \
+    "${project_root}/requirements/compiled/01_app_requirements.txt" \
+    "${req_compiled_file_full_path}"; then
     log_to_stderr 'Error syncing project dependencies. Exit.'
     exit 1
   else
@@ -200,6 +202,11 @@ function main() {
   req_in_file_name="03_type_test"  # incoming dependency file name
   readonly req_in_file_name
 
+  # Full path where the compiled dependency file will be saved. Requires operating system type.
+  local req_compiled_file_full_path
+  req_compiled_file_full_path="${project_root}/requirements/compiled/${req_in_file_name}_requirements.txt"
+  readonly req_compiled_file_full_path
+
   local os_type
   os_type='unknown'  # operating system type to be determined later
 
@@ -209,13 +216,6 @@ function main() {
   # 2. Execution of script logic.
   log_to_stdout "${script_basename}: START SCRIPT EXECUTION"
   detect_os_type "$@"  # modifies the "os_type" variable
-
-  # Full path where the compiled dependency file will be saved. Requires operating system type.
-  local req_compiled_file_full_path
-  req_compiled_file_full_path="${project_root}/requirements/compiled/"
-  req_compiled_file_full_path+="${req_in_file_name}_requirements_${os_type}_py${python_version}.txt"
-  readonly req_compiled_file_full_path
-
   compile_requirements_file "$@"
   sync_dependencies "$@"
   install_mypy_stub_packages "$@"
