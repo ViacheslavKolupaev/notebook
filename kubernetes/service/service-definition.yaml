@@ -5,8 +5,9 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 80
-      targetPort: 80
-      nodePort: 30004
+    - port: 80  # Service port inside the node
+      targetPort: 80 # POD port inside node
+      nodePort: 30004  # Node external port; 30000 - 32767
   selector:
-    app: myapp  # see deployment.yaml → spec → template → metadata → labels → app
+    app: web-store  # see deployment.yaml → spec → template → metadata → labels → app
+    type: front-end
