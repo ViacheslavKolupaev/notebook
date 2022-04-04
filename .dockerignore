@@ -1,0 +1,16 @@
+# Where to place this file: https://github.com/moby/buildkit/releases/tag/dockerfile%2F1.1.0
+# Docs: https://docs.docker.com/engine/reference/builder/#dockerignore-file
+# !file — exclude from context.
+# *!file — include in context.
+
+# Ignore everything
+*
+
+# Allow files and folders with a pattern starting with !
+!requirements.txt
+!docker-entrypoint.sh
+!alembic.ini
+!alembic_generate_and_stamp_version_table.py
+!app/*
+!tests/*
+!alembic/*
