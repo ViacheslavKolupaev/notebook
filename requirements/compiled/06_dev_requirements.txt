@@ -18,10 +18,20 @@ isort==5.10.1
     #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/06_dev.in
 nodeenv==1.6.0
     # via pre-commit
+packaging==21.3
+    # via
+    #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/04_unit_test_requirements.txt
+    #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/05_docs_requirements.txt
+    #   setuptools-scm
 platformdirs==2.5.1
     # via virtualenv
 pre-commit==2.18.1
     # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/06_dev.in
+pyparsing==3.0.7
+    # via
+    #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/04_unit_test_requirements.txt
+    #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/05_docs_requirements.txt
+    #   packaging
 pyyaml==6.0
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
@@ -29,6 +39,8 @@ pyyaml==6.0
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/04_unit_test_requirements.txt
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/05_docs_requirements.txt
     #   pre-commit
+setuptools-scm==6.4.2
+    # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/06_dev.in
 six==1.16.0
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/02_lint_test_requirements.txt
@@ -37,5 +49,13 @@ six==1.16.0
     #   virtualenv
 toml==0.10.2
     # via pre-commit
+tomli==2.0.1
+    # via
+    #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/03_type_test_requirements.txt
+    #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/04_unit_test_requirements.txt
+    #   setuptools-scm
 virtualenv==20.14.0
     # via pre-commit
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools

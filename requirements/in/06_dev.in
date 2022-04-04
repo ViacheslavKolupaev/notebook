@@ -6,3 +6,4 @@
 
 isort
 pre-commit
+setuptools-scm
