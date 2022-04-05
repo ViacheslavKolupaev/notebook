@@ -11,6 +11,6 @@
 !docker-entrypoint.sh
 !alembic.ini
 !alembic_generate_and_stamp_version_table.py
-!app/*
+!src/*
 !tests/*
 !alembic/*

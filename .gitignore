@@ -429,5 +429,5 @@ secrets/
 *.pub
 
 # Project Files
-/app/version.py
+/src/version.py
 /tests/sql_queries/
