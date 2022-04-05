@@ -1,0 +1,4 @@
+prune kubernetes
+prune package_scripts
+prune tests
+prune requirements
