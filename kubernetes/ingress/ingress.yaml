@@ -13,14 +13,14 @@ spec:
         paths:
           - backend:
               service:
-                name: wear-service
+                name: wear-service  # specify the Service name
                 port:
                   number: 8080
             path: /wear
             pathType: Prefix
           - backend:
               service:
-                name: video-service
+                name: video-service  # specify the Service name
                 port:
                   number: 8080
             path: /watch
