@@ -4,7 +4,7 @@ metadata:
   name: math-add-job
 spec:
   completions: 3  # required number of successful completions
-  parallelism: 3  # number of pods created at the same time; are created sequentially by default
+  parallelism: 3  # number of pod created at the same time; are created sequentially by default
   backoffLimit: 15 # specify the number of retries before considering a Job as failed.
   template:
     spec:

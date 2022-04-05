@@ -9,7 +9,7 @@ metadata:
 spec:
   securityContext:  # these settings will apply to all containers of this Pod
     runAsUser:  1000
-  serviceAccountName: my-app-sa  # custom service-account
+  serviceAccountName: my-src-sa  # custom service-account
   # automountServiceAccountToken: false
   containers:
     - name: webapp
@@ -32,7 +32,7 @@ spec:
         exec:
           command:
             - cat
-            - /app/is_ready
+            - /src/is_ready
 
         # Delay and repeat settings.
         initialDelaySeconds: 10
@@ -54,7 +54,7 @@ spec:
         exec:
           command:
             - cat
-            - /app/is_healthy
+            - /src/is_healthy
 
         # Delay and repeat settings.
         initialDelaySeconds: 10
@@ -108,16 +108,16 @@ spec:
   restartPolicy: Always  # Always (default) / Never / OnFailure
   tolerations:
     # Use double quotes
-    - key: "app"
+    - key: "src"
       operator: "Equal"
       value: "blue"
       effect: "NoSchedule"
   volumes:
-    - name: my-app-secret-volume
+    - name: my-src-secret-volume
       secret:
         secretName: my-app-secret
-        # ls /opt/my-app-secret-volumes
-        # cat /opt/my-app-secret-volumes/DB_USER
+        # ls /opt/my-src-secret-volumes
+        # cat /opt/my-src-secret-volumes/DB_USER
   nodeSelector:
     size: Large
   affinity:

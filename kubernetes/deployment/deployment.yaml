@@ -18,7 +18,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchExpressions:
-                  - key: app
+                  - key: src
                     operator: In
                     values:
                       - web-store
@@ -27,11 +27,11 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchExpressions:
-                  - key: app
+                  - key: src
                     operator: In
                     values:
                       - store
               topologyKey: "kubernetes.io/hostname"
       containers:
-        - name: web-app
+        - name: web-src
           image: nginx:1.16-alpine
