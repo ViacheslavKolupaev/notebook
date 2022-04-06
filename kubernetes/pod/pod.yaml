@@ -105,6 +105,9 @@ spec:
         limits:
           memory: "2Gi"
           cpu: 2
+      volumeMounts:
+        - mountPath: "/opt/dir_1"
+          name: dir_1
   restartPolicy: Always  # Always (default) / Never / OnFailure
   tolerations:
     # Use double quotes
@@ -118,6 +121,9 @@ spec:
         secretName: my-app-secret
         # ls /opt/my-src-secret-volumes
         # cat /opt/my-src-secret-volumes/DB_USER
+    - name: mypd
+      persistentVolumeClaim:
+        claimName: myclaim
   nodeSelector:
     size: Large
   affinity:
