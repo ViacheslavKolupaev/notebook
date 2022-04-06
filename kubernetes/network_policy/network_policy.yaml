@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: db-policy
+spec:
+  podSelector:
+    matchLabels:
+      role: db
+  policyTypes:
+  - Ingress
+  ingress:
+    - from:
+      - podSelector:  # the "-" symbol indicates the start of a new rule
+          matchLabels:
+            name: api-pod
+        namespaceSelector:  # if you add a "-" symbol, then this will be another rule
+          matchLabels:
+            name: prod
+      - ipBlock:  # the "-" symbol indicates the start of a new rule
+          cidr: 192.168.1.5/32
+      ports:
+        - protocol: TCP
+          port: 3306
+  egress:
+    - to:
+      - ipBlock: # the "-" symbol indicates the start of a new rule
+          cidr: 192.168.1.5/32
+      ports:
+        - protocol: TCP
+          port: 80
