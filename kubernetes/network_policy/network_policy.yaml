@@ -2,12 +2,14 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: db-policy
+  namespace: default
 spec:
   podSelector:
     matchLabels:
       role: db
   policyTypes:
   - Ingress
+  - Egress
   ingress:
     - from:
       - podSelector:  # the "-" symbol indicates the start of a new rule
@@ -28,3 +30,27 @@ spec:
       ports:
         - protocol: TCP
           port: 80
+
+    - to:
+        - podSelector:
+            matchLabels:
+              name: mysql
+      ports:
+        - protocol: TCP
+          port: 3306
+
+    - to:
+        - podSelector:
+            matchLabels:
+              name: payroll
+      ports:
+        - protocol: TCP
+          port: 8080
+
+    # To ensure that the internal DNS resolution works from the internal pod.
+    # The kube-dns service is exposed on port 53.
+    - ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
