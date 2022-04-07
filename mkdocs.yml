@@ -100,17 +100,18 @@ markdown_extensions:
   - pymdownx.superfences
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
   - tables
-  - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
   - md_in_html
   - def_list
   - footnotes
   - attr_list
   - pymdownx.tasklist:
       custom_checkbox: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
 nav:
   - Index: index.md
   - Unit-Tests:
