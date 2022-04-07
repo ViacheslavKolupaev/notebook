@@ -20,4 +20,11 @@ spec:
       containers:
         - name: mysql
           image: mysql
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: data-volume
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: data-volume
 ...
