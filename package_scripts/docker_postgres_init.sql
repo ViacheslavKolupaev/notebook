@@ -1,0 +1,4 @@
+CREATE SCHEMA IF NOT EXISTS boilerplate;
+CREATE ROLE analytics NOLOGIN;
+CREATE ROLE qa_engineers NOLOGIN;
+CREATE ROLE software_engineers NOLOGIN;
