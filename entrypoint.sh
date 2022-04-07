@@ -39,7 +39,6 @@ function run_python_app() {
   fi
 }
 
-
 #######################################
 # Run the main function of the script.
 # Globals:
