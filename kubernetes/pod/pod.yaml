@@ -144,3 +144,5 @@ spec:
                 operator: NotIn
                 values:
                   - Small
+  subdomain: mysql-h  # for HeadlessService
+  hostname: mysql-pod  # for HeadlessService
