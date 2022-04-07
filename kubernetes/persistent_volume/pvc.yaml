@@ -6,6 +6,7 @@ metadata:
 spec:
   accessModes:
     -  ReadWriteOnce
+  storageClassName: local-storage  # google-storage, etc.
   resources:
     requests:
       storage: 500Mi
