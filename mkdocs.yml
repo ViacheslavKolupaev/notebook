@@ -79,9 +79,9 @@ plugins:
             heading_level: 2
             members_order: "source"
       custom_templates: templates
-      watch:
-        - <specify the path to the module from the project root>
-        - <specify the path to the directory from the project root>
+#      watch:
+#        - <specify the path to the module from the project root>
+#        - <specify the path to the directory from the project root>
   # https://github.com/timvink/mkdocs-git-revision-date-localized-plugin
   #  - git-revision-date-localized:
   #      type: date
