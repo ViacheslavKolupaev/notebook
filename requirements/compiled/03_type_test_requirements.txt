@@ -18,7 +18,7 @@ pydantic==1.9.0
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/03_type_test.in
-sqlalchemy[mypy]==1.4.34
+sqlalchemy[mypy]==1.4.35
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/03_type_test.in

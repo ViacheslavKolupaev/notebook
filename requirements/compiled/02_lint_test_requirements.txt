@@ -18,7 +18,7 @@ darglint==1.8.1
     # via wemake-python-styleguide
 docutils==0.18.1
     # via restructuredtext-lint
-eradicate==2.0.0
+eradicate==2.1.0
     # via flake8-eradicate
 flake8==4.0.1
     # via

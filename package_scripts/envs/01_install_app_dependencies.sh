@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Install "app" dependencies into the virtual environment (venv) of the project.
+# Install "src" dependencies into the virtual environment (venv) of the project.
 #
 # Files with incoming project dependency requirements:
 #  - "requirements/in/00_proj_init.in"
@@ -79,12 +79,10 @@ function detect_os_type() {
     os_type='windows'
     log_to_stdout 'Detected OS: MSYS / Git Bash for Windows. Continue.'
     venv_scripts_dir='Scripts'
-    activate_venv "$@"
   elif [[ "${OSTYPE}" == 'linux-gnu'* ]]; then
     os_type='ubuntu'
     log_to_stdout 'Detected OS: Linux Ubuntu / WSL. Continue.'
     venv_scripts_dir='bin'
-    activate_venv "$@"
   else
     log_to_stderr 'Detected OS: Unknown. Exit.'
     exit 1
@@ -241,6 +239,7 @@ function main() {
   log_to_stdout "${script_basename}: START SCRIPT EXECUTION"
 
   detect_os_type "$@"  # modifies the "os_type" variable
+  activate_venv "$@"
   install_upgrade_proj_init_dependencies "$@"
   compile_requirements_file "$@"
   copy_compiled_file_to_project_root "$@"

@@ -77,12 +77,10 @@ function detect_os_type() {
     os_type='windows'
     log_to_stdout 'Detected OS: MSYS / Git Bash for Windows. Continue.'
     venv_scripts_dir='Scripts'
-    activate_venv "$@"
   elif [[ "${OSTYPE}" == 'linux-gnu'* ]]; then
     os_type='ubuntu'
     log_to_stdout 'Detected OS: Linux Ubuntu / WSL. Continue.'
     venv_scripts_dir='bin'
-    activate_venv "$@"
   else
     log_to_stderr 'Detected OS: Unknown. Exit.'
     exit 1
@@ -192,6 +190,7 @@ function main() {
   log_to_stdout "${script_basename}: START SCRIPT EXECUTION"
 
   detect_os_type "$@"  # modifies the "os_type" variable
+  activate_venv "$@"
   compile_requirements_file "$@"
   sync_dependencies "$@"
 
