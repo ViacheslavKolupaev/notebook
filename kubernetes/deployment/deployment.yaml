@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -35,3 +36,4 @@ spec:
       containers:
         - name: web-src
           image: nginx:1.16-alpine
+...
