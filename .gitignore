@@ -1,4 +1,3 @@
-# Created by .ignore support plugin (hsz.mobi)
 ### GPG template
 secring.*
 
@@ -196,7 +195,6 @@ xmlReport/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-*.sql
 *.sqlite
 
 # Flask stuff:
@@ -356,7 +354,7 @@ $RECYCLE.BIN/
 *.jar
 *.rar
 *.zip
-#*.gz
+*.gz
 *.gzip
 *.tgz
 *.bzip
@@ -414,20 +412,18 @@ $RECYCLE.BIN/
 # Thumbnails
 ._*
 
-### My settings
+### Project specific settings
+# SonarQube
+.sonar
+.scannerwork/
+
 # Datasets
 *.csv
 datasets/
 
-# SonaqQube
-.sonar
-.scannerwork/
+# Project files and folders without category
+*.pub
+src/boilerplate/_version.py
 
-# Project Folders
 backup/
 secrets/
-*.pub
-
-# Project Files
-/src/version.py
-/tests/sql_queries/
