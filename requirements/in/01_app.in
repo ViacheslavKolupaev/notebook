@@ -6,7 +6,7 @@ databases[postgresql]
 fastapi
 orjson
 psycopg2-binary
-pydantic
+pydantic[dotenv]
 sentry-sdk
 sqlalchemy
 tenacity

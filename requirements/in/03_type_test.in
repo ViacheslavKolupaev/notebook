@@ -1,6 +1,8 @@
 -c ../compiled/01_app_requirements.txt
 
-mypy
-types-psycopg2
+# See: https://pydantic-docs.helpmanual.io/mypy_plugin/#enabling-the-plugin
+mypy==0.930
+
 pydantic
+types-psycopg2
 sqlalchemy[mypy]
