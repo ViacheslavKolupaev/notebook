@@ -1,9 +1,13 @@
+# Read configs from .env files and shell environment at the same time.
+# Keep development, staging and production configs separate.
+# Convert variable types automatically in the appropriate cases, e.g. string to integer conversion.
+
 import errno
 import math
 import os
 from enum import Enum
 from ipaddress import IPv4Address
-from typing import Optional, Union
+from typing import Optional, Union, Final
 from pathlib import Path
 
 from pydantic import (
@@ -16,6 +20,7 @@ from pydantic import (
     PositiveInt,
     PostgresDsn,
     constr,
+    SecretStr, conint,
 )
 
 def get_path_to_dotenv_file(dotenv_filename: str) -> Path:
@@ -35,8 +40,8 @@ class EnvState(str, Enum):
     production = 'production'
 
 
-class AppConfig(BaseModel):
-    """Application configurations.
+class AppInternalLogicConfig(BaseModel):
+    """Application internal logic config.
 
     Class defines the config variables required for API’s internal logic.
     """
@@ -65,59 +70,59 @@ class GlobalConfig(BaseSettings):
         environment variables will always take priority over values loaded from a dotenv file.
         ```
     """
-    # Create an Application Configuration Instance
-    APP_CONFIG: AppConfig = AppConfig()
-
-    # Service config.
-    ENV_STATE: EnvState = Field(env="SENTRY_ENVIRONMENT")
-    SERVICE_NAME: str = 'boilerplate'
-    ROOT_PATH: Optional[str] = ""
-    API_VERSION: constr(regex=r'^v\d+$') = 'v1'  # type: ignore # v1, v12, v123
-    IDEMPOTENCY_KEY_VALIDITY_TIME_IN_SECONDS: PositiveInt = 5 * 60
-    IS_DEBUG: bool = Field(default=False)
-    CI_COMMIT_SHA: str = Field(default=None)  # git commit hash.
+    # General application config.
+    APP_INTERNAL_LOGIC_CONFIG: AppInternalLogicConfig = AppInternalLogicConfig()
+    APP_NAME: constr(min_length=1) = Field(default='boilerplate', const=True)
+    APP_ENV_STATE: EnvState = EnvState.development
+    APP_ROOT_PATH: Optional[constr()] = ""
+    APP_API_VERSION: constr(regex=r'^v\d+$') = 'v1'  # type: ignore # v1, v12, v123
+    APP_API_ACCESS_HTTP_BEARER_TOKEN: Optional[SecretStr]
+    APP_CI_COMMIT_SHA: constr(min_length=1) = "development_ci_commit_sha"  # git commit hash.
+    APP_IDEMPOTENCY_KEY_VALIDITY_TIME_IN_SECONDS: PositiveInt = 5 * 60
 
     # Uvicorn config.
-    SERVICE_PROTOCOL: constr(regex=r'^(http|https)$') = Field(default='http')  # type: ignore # http, https
-    SERVICE_HOST: IPv4Address = Field(default='0.0.0.0')
-    SERVICE_PORT: PositiveInt = Field(default=50001)
-
-    # Security config.
-    API_ACCESS_HTTP_BEARER_TOKEN: constr(min_length=1) = Field(default=None)
+    SERVICE_PROTOCOL: constr(regex=r'^(http|https)$') = 'http'  # type: ignore
+    SERVICE_HOST: IPv4Address = '0.0.0.0'
+    SERVICE_PORT: conint(ge=50000, le=60000) = 50000
 
     # Database config.
-    DB_DRIVER: str = Field(default='postgresql')
-    DB_HOST: str = Field(default=None)
-    DB_PORT: int = Field(default=None)
-    DB_USER: str = Field(default=None)
-    DB_PASSWORD: str = Field(default=None)
-    DB_DATABASE: str = Field(default=None)
-    DB_SCHEMA: Optional[str] = Field(default=None)
-    DB_DSN: Optional[PostgresDsn] = Field(default=None)
+    DB_DRIVER: Optional[constr(min_length=1)] = 'postgresql'
+    DB_HOST: Optional[constr(min_length=1)] = 'localhost'
+    DB_PORT: Optional[conint(ge=0)] = 5432
+    DB_USER: Optional[SecretStr]
+    DB_PASSWORD: Optional[SecretStr]
+    DB_DATABASE: Optional[constr(min_length=1)] = APP_NAME
+    DB_SCHEMA: Optional[constr(min_length=1)] = "app_work_data"
+    DB_DSN: Optional[PostgresDsn]
 
-    # Sentry config.
-    SENTRY_DSN: HttpUrl
-    SENTRY_ENVIRONMENT: EnvState
-    SENTRY_RELEASE: str = Field(
-        env="CI_COMMIT_SHA",
-        default=os.environ.get("SENTRY_RELEASE", default="development_release_01")
+    # Sentry config : https://docs.sentry.io/product/sentry-basics/dsn-explainer/
+    SENTRY_DSN: Optional[HttpUrl]
+    SENTRY_RELEASE: Optional[constr(min_length=1)] = Field(
+        env="APP_CI_COMMIT_SHA",
+        default=os.environ.get("SENTRY_RELEASE", default="development_release_00")
     )
+    SENTRY_ENVIRONMENT: EnvState = Field(env="ENV_STATE")
 
-    # Elastic APM config.
-    APM_PORT: int = Field(default=8200)
-    APM_HOST: constr(min_length=1) = "enter-a-valid-host-address"
-    APM_SCHEME: constr(regex=r'^(http|https)$') = Field(default="http")
+    # Elastic APM Python Agent config: https://www.elastic.co/guide/en/apm/agent/python/current/index.html.
+    ELASTIC_APM_SCHEME: Optional[constr(regex=r'^(http|https)$')]
+    ELASTIC_APM_HOST: Optional[constr(min_length=1)]
+    ELASTIC_APM_PORT: Optional[conint(ge=0)]
 
     # Aiohttp config.
+    HTTP_HEADERS_CONTENT_TYPE_APP_JSON: constr(min_length=1) = 'application/json'
     AIOHTTP_SESSION_TIMEOUT_SEC: PositiveFloat = 2 * 60.0
-    HTTP_HEADERS_CONTENT_TYPE_APP_JSON: str = 'application/json'
 
     # Tenacity retry config.
-    STOP_AFTER_DELAY_SECONDS: PositiveInt = math.ceil(AIOHTTP_SESSION_TIMEOUT_SEC)
-    STOP_AFTER_ATTEMPT: PositiveInt = 10
-    WAIT_FIXED: NonNegativeInt = 5
-    WAIT_RANDOM_MIN: NonNegativeInt = 0
-    WAIT_RANDOM_MAX: PositiveInt = 5
+    TENACITY_STOP_AFTER_DELAY_SECONDS: PositiveInt = math.ceil(AIOHTTP_SESSION_TIMEOUT_SEC)
+    TENACITY_STOP_AFTER_ATTEMPT: PositiveInt = 10
+    TENACITY_WAIT_FIXED: NonNegativeInt = 5
+    TENACITY_WAIT_RANDOM_MIN: NonNegativeInt = 0
+    TENACITY_WAIT_RANDOM_MAX: PositiveInt = 5
+
+    # Docker config
+    DOCKER_CI_REGISTRY_IMAGE: constr(min_length=1) = APP_NAME
+    DOCKER_IMAGE_TAG: constr(min_length=1) = 'latest'
+    DOCKER_CI_PROJECT_NAME: constr(min_length=1) = APP_NAME
 
     class Config():
         """Loads the dotenv file.
@@ -136,8 +141,8 @@ class DevelopmentConfig(GlobalConfig):
     """
 
     # Service config.
-    IDEMPOTENCY_KEY_VALIDITY_TIME_IN_SECONDS: PositiveInt = 30
-    IS_DEBUG: bool = Field(default=True)
+    IS_DEBUG: bool = True
+    APP_IDEMPOTENCY_KEY_VALIDITY_TIME_IN_SECONDS: PositiveInt = 15
 
     # Database config.
     DB_HOST: constr(min_length=1) = Field(default='localhost')  # type: ignore
@@ -153,7 +158,7 @@ class StagingConfig(GlobalConfig):
     specific to the staging environment. It inherits all the variables defined in the `GlobalConfig class`.
     """
     # Application config.
-    IS_DEBUG: bool = Field(default=True)
+    IS_DEBUG: bool = True
 
     class Config():
         # env_prefix: str = "STAGING_"
@@ -166,6 +171,7 @@ class ProductionConfig(GlobalConfig):
     `ProductionConfig` class also inherits from the `GlobalConfig` class, and it can define additional variables
     specific to the production environment. It inherits all the variables defined in the `GlobalConfig class`.
     """
+    IS_DEBUG: bool = False
 
     class Config():
         # env_prefix: str = "PROD_"
@@ -196,12 +202,16 @@ class FactoryConfig:
             raise ValueError("Incorrect environment variable 'ENV_STATE': %s.", self.env_state)
 
 
-config = FactoryConfig(env_state=GlobalConfig().ENV_STATE)()
+config = FactoryConfig(env_state=GlobalConfig().APP_ENV_STATE)()
 
 
 def main() -> None:
     print("FactoryConfig: {factory_config}".format(factory_config=config.json()))
-    print("AppConfig: {app_config}".format(app_config=config.APP_CONFIG.json()))
+    print(
+        "AppInternalLogicConfig: {app_internal_logic_config}".format(
+            app_internal_logic_config=config.APP_INTERNAL_LOGIC_CONFIG.json()
+        )
+    )
 
 
 if __name__ == '__main__':
