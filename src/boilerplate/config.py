@@ -7,10 +7,10 @@ Features of the module:
      e.g. string to integer conversion.
 
 Use the `AppInternalLogicConfig` class to parameterize the application's internal logic.
-Getting access to configs:
+Getting access to configs from Python code:
+
 ```python
 from config import config
-
 print(config.RANDOM_SEED)
 ```
 
@@ -18,8 +18,8 @@ Changing the `GlobalConfig`, `DevelopmentConfig`, `StagingConfig` and `Productio
 classes must be done in conjunction with DevOps engineers responsible for the CI/CD of
 our team and this project in particular: `Bitbucket`, `Jenkins`, `GitLab`, etc.
 
-The module was developed using `Pydantic Settings management`:
-https://pydantic-docs.helpmanual.io/usage/settings/
+The module was developed using [Pydantic Settings management](
+https://pydantic-docs.helpmanual.io/usage/settings/).
 """
 
 import errno
@@ -31,7 +31,7 @@ from typing import Optional, Union
 
 import pydantic
 
-from src.boilerplate.schemas.common import EnvState
+from src.boilerplate.schemas.common import EnvState  # type: ignore[import]
 
 
 def _get_path_to_dotenv_file(dotenv_filename: str, num_of_parent_dirs_up: int) -> Path:
@@ -69,23 +69,25 @@ class GlobalConfig(pydantic.BaseSettings, AppInternalLogicConfig):
     In this class, the variables are loaded from the `.env` file. However, if there is a
     shell environment variable having the same name, that will take precedence.
 
-    The class `GlobalConfig` inherits from Pydantic’s `pydantic.BaseSettings` which helps
-    to load and read the variables from the `.env file`. The `.env` file itself is loaded
-    in the nested `Config` class.
+    The class `GlobalConfig` inherits from Pydantic’s `BaseSettings` which helps to load
+    and read the variables from the `.env file`. The `.env` file itself is loaded in
+    the nested `Config` class.
 
     Although the environment variables are loaded from the `.env` file, Pydantic also
     loads your actual shell environment variables at the same time.
 
     From Pydantic’s [documentation](https://pydantic-docs.helpmanual.io/usage/settings/):
-        ```
-        Even when using a `.env` file, `pydantic` will still read environment variables
-        as well as the `.env` file, environment variables will always take priority over
-        values loaded from a dotenv file.
-        ```
+
+    ```text
+    Even when using a `.env` file, `pydantic` will still read environment variables
+    as well as the `.env` file, environment variables will always take priority over
+    values loaded from a dotenv file.
+    ```
     """
 
     # General application config.
     _DEFAULT_APP_NAME_VALUE: str = 'boilerplate'
+
     APP_NAME: str = pydantic.Field(default=_DEFAULT_APP_NAME_VALUE, const=True, min_length=1)
     APP_ENV_STATE: EnvState = EnvState.development
     APP_ROOT_PATH: str = ''
@@ -149,15 +151,16 @@ class GlobalConfig(pydantic.BaseSettings, AppInternalLogicConfig):
 class DevelopmentConfig(GlobalConfig):
     """Development configurations.
 
-    `DevelopmentConfig` class inherits from the `GlobalConfig` class, and it can define additional variables
-    specific to the development environment. It inherits all the variables defined in the `GlobalConfig` class.
+    `DevelopmentConfig` class inherits from the `GlobalConfig` class, and it can define
+    additional variables specific to the development environment. It inherits all the
+    variables defined in the `GlobalConfig` class.
     """
 
-    # Service config.
+    # Defining new attributes that are not in the `GlobalConfig` class.
     IS_DEBUG: bool = True
-    APP_IDEMPOTENCY_KEY_VALIDITY_TIME_IN_SECONDS: pydantic.PositiveInt = 15
 
-    # Database config.
+    # Redefining attributes defined earlier in the `GlobalConfig` class.
+    APP_IDEMPOTENCY_KEY_VALIDITY_TIME_SECONDS: pydantic.PositiveInt = 15
     DB_HOST: str = pydantic.Field(default='localhost', min_length=1)
 
     class Config(object):
@@ -169,11 +172,12 @@ class DevelopmentConfig(GlobalConfig):
 class StagingConfig(GlobalConfig):
     """Staging configurations.
 
-    `StagingConfig` class also inherits from the `GlobalConfig` class, and it can define additional variables
-    specific to the staging environment. It inherits all the variables defined in the `GlobalConfig class`.
+    `StagingConfig` class also inherits from the `GlobalConfig` class, and it can define
+    additional variables specific to the staging environment. It inherits all the
+    variables defined in the `GlobalConfig class`.
     """
 
-    # Application config.
+    # Defining new attributes that are not in the `GlobalConfig` class.
     IS_DEBUG: bool = True
 
     class Config(object):
@@ -185,10 +189,12 @@ class StagingConfig(GlobalConfig):
 class ProductionConfig(GlobalConfig):
     """Production configurations.
 
-    `ProductionConfig` class also inherits from the `GlobalConfig` class, and it can define additional variables
-    specific to the production environment. It inherits all the variables defined in the `GlobalConfig class`.
+    `ProductionConfig` class also inherits from the `GlobalConfig` class, and it can
+    define additional variables specific to the production environment. It inherits all
+    the variables defined in the `GlobalConfig class`.
     """
 
+    # Defining new attributes that are not in the `GlobalConfig` class.
     IS_DEBUG: bool = False
 
     class Config(object):
@@ -200,28 +206,30 @@ class ProductionConfig(GlobalConfig):
 class FactoryConfig(object):
     """Returns a config instance.
 
-    `FactoryConfig` is the controller class that dictates which config class should be activated based on the
-    environment state defined as `SENTRY_ENVIRONMENT`(aka `ENV_STATE`) in the `.env` file.
+    `FactoryConfig` is the controller class that dictates which config class should be
+    activated based on the environment state defined as `APP_ENV_STATE` in the `.env` file.
 
-    If it finds `GlobalConfig().ENV_STATE="development"` then the control flow statements in the `FactoryConfig` class
-    will activate the development configs (`DevelopmentConfig`).
+    If it finds `GlobalConfig().APP_ENV_STATE="development"` then the control flow
+    statements in the `FactoryConfig` class will activate the development configs —
+    `DevelopmentConfig`.
     """
 
-    def __init__(self, env_state: EnvState) -> None:
+    def __init__(self, app_env_state: EnvState) -> None:
         """Customize the class instance immediately after its creation."""
-        self.env_state = env_state
+        self.app_env_state = app_env_state
 
     def __call__(self) -> Union[StagingConfig, ProductionConfig, DevelopmentConfig]:
         """Get the application config depending on the environment."""
-        if self.env_state == EnvState.staging:
+        if self.app_env_state == EnvState.staging:
             return StagingConfig()
-        elif self.env_state == EnvState.production:
+        elif self.app_env_state == EnvState.production:
             return ProductionConfig()
-        elif self.env_state == EnvState.development:
+        elif self.app_env_state == EnvState.development:
             return DevelopmentConfig()
         raise ValueError(
-            "Incorrect environment variable 'APP_ENV_STATE': {env_state}.".format(env_state=self.env_state),
+            "Incorrect environment variable 'APP_ENV_STATE': {app_env_state}.".
+            format(app_env_state=self.app_env_state),
         )
 
 
-config = FactoryConfig(env_state=GlobalConfig().APP_ENV_STATE)()
+config = FactoryConfig(app_env_state=GlobalConfig().APP_ENV_STATE)()
