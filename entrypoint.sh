@@ -31,7 +31,7 @@ function log_to_stderr() {
 function run_python_app() {
   log_to_stdout "Running a Python application inside a Docker container..."
 
-  if ! python3 "src/boilerplate/main.py"; then
+  if ! python3 "src/boilerplate/server.py"; then
     log_to_stderr "Error starting Python application."
     exit 1
   else
