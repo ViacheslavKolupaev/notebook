@@ -1,32 +1,47 @@
-# Read configs from .env files and shell environment at the same time.
-# Keep development, staging and production configs separate.
-# Convert variable types automatically in the appropriate cases, e.g. string to integer conversion.
+"""Application config.
+
+Features of the module:
+  1. Read configs from `.env` files and shell environment at the same time.
+  2. Keep `development`, `staging` and `production` configs separate.
+  3. Convert variable types automatically in the appropriate cases,
+     e.g. string to integer conversion.
+
+Use the `AppInternalLogicConfig` class to parameterize the application's internal logic.
+Getting access to configs:
+```python
+from config import config
+
+print(config.RANDOM_SEED)
+```
+
+Changing the `GlobalConfig`, `DevelopmentConfig`, `StagingConfig` and `ProductionConfig`
+classes must be done in conjunction with DevOps engineers responsible for the CI/CD of
+our team and this project in particular: `Bitbucket`, `Jenkins`, `GitLab`, etc.
+
+The module was developed using `Pydantic Settings management`:
+https://pydantic-docs.helpmanual.io/usage/settings/
+"""
 
 import errno
 import math
 import os
-from enum import Enum
 from ipaddress import IPv4Address
 from pathlib import Path
 from typing import Optional, Union
 
-from pydantic import (
-    BaseModel,
-    BaseSettings,
-    Field,
-    HttpUrl,
-    NonNegativeInt,
-    PositiveFloat,
-    PositiveInt,
-    PostgresDsn,
-    SecretStr,
-    conint,
-    constr,
-)
+import pydantic
+
+from src.boilerplate.schemas.common import EnvState
 
 
-def get_path_to_dotenv_file(dotenv_filename: str) -> Path:
-    path_to_dotenv_file = Path(__file__).resolve().parents[2].joinpath(dotenv_filename)
+def _get_path_to_dotenv_file(dotenv_filename: str, num_of_parent_dirs_up: int) -> Path:
+    """Get the path to the `.env` file.
+
+    This is a helper function.
+    The path is calculated relative to the location of this module.
+    """
+    path_to_dotenv_file = Path(__file__).resolve().parents[num_of_parent_dirs_up].joinpath(dotenv_filename)
+
     if not path_to_dotenv_file.exists():
         raise FileNotFoundError(
             errno.ENOENT,
@@ -36,101 +51,98 @@ def get_path_to_dotenv_file(dotenv_filename: str) -> Path:
     return path_to_dotenv_file
 
 
-class EnvState(str, Enum):
-    development = 'development'
-    staging = 'staging'
-    production = 'production'
-
-
-class AppInternalLogicConfig(BaseModel):
+class AppInternalLogicConfig(pydantic.BaseModel):
     """Application internal logic config.
 
-    Class defines the config variables required for API’s internal logic.
+    Use this class to parameterize application logic.
     """
 
     RANDOM_SEED: int = 42
 
 
-class GlobalConfig(BaseSettings):
+class GlobalConfig(pydantic.BaseSettings, AppInternalLogicConfig):
     """Global configurations.
 
-    `GlobalConfig` defines the variables that propagate through other environment classes and the attributes of this
-    class are globally accessible from all other environments.
+    `GlobalConfig` defines the variables that propagate through other environment classes
+    and the attributes of this class are globally accessible from all other environments.
 
-    In this class, the variables are loaded from the `.env` file. However, if there is a shell environment variable
-    having the same name, that will take precedence.
+    In this class, the variables are loaded from the `.env` file. However, if there is a
+    shell environment variable having the same name, that will take precedence.
 
-    The class `GlobalConfig` inherits from Pydantic’s `BaseSettings` which helps to load and read the variables from
-    the `.env file`. The `.env` file itself is loaded in the nested `Config` class.
+    The class `GlobalConfig` inherits from Pydantic’s `pydantic.BaseSettings` which helps
+    to load and read the variables from the `.env file`. The `.env` file itself is loaded
+    in the nested `Config` class.
 
-    Although the environment variables are loaded from the `.env` file, Pydantic also loads your actual shell
-    environment variables at the same time.
+    Although the environment variables are loaded from the `.env` file, Pydantic also
+    loads your actual shell environment variables at the same time.
 
     From Pydantic’s [documentation](https://pydantic-docs.helpmanual.io/usage/settings/):
         ```
-        Even when using a `.env` file, `pydantic` will still read environment variables as well as the `.env` file,
-        environment variables will always take priority over values loaded from a dotenv file.
+        Even when using a `.env` file, `pydantic` will still read environment variables
+        as well as the `.env` file, environment variables will always take priority over
+        values loaded from a dotenv file.
         ```
     """
 
     # General application config.
     _DEFAULT_APP_NAME_VALUE: str = 'boilerplate'
-    APP_INTERNAL_LOGIC_CONFIG: AppInternalLogicConfig = AppInternalLogicConfig()
-    APP_NAME: str = Field(default=_DEFAULT_APP_NAME_VALUE, const=True, min_length=1)
+    APP_NAME: str = pydantic.Field(default=_DEFAULT_APP_NAME_VALUE, const=True, min_length=1)
     APP_ENV_STATE: EnvState = EnvState.development
     APP_ROOT_PATH: str = ''
-    APP_API_VERSION: str = Field(default='v1', regex=r'^v\d+$')  # v1, v12, v123
-    APP_API_ACCESS_HTTP_BEARER_TOKEN: Optional[SecretStr]
-    APP_CI_COMMIT_SHA: str = Field(default='development_commit_sha', min_length=1)  # git commit hash.
-    APP_IDEMPOTENCY_KEY_VALIDITY_TIME_SECONDS: PositiveInt = 5 * 60
-    APP_HTTP_HEADERS_CONTENT_TYPE_APP_JSON: str = Field(default='application/json', min_length=1)
+    APP_API_VERSION: str = pydantic.Field(default='v1', regex=r'^v\d+$')  # v1, v12, v123
+    APP_API_ACCESS_HTTP_BEARER_TOKEN: Optional[pydantic.SecretStr]
+    APP_CI_COMMIT_SHA: str = pydantic.Field(default='development_commit_sha', min_length=1)  # git commit hash.
+    APP_IDEMPOTENCY_KEY_VALIDITY_TIME_SECONDS: pydantic.PositiveInt = 5 * 60
+    APP_HTTP_HEADERS_CONTENT_TYPE_APP_JSON: str = pydantic.Field(default='application/json', min_length=1)
 
     # Uvicorn config.
-    SERVICE_PROTOCOL: str = Field(default='http', regex=r'^(http|https)$')
-    SERVICE_HOST: IPv4Address = IPv4Address('0.0.0.0')
-    SERVICE_PORT: int = Field(default=50000, ge=50000, le=60000)
+    SERVICE_PROTOCOL: str = pydantic.Field(default='http', regex='^(http|https)$')
+    SERVICE_HOST: IPv4Address = IPv4Address('127.0.0.1')
+    SERVICE_PORT: int = pydantic.Field(default=50000, ge=50000, le=60000)
 
     # Database config.
-    DB_DRIVER: str = Field(default='postgresql', min_length=1)
-    DB_HOST: str = Field(default='localhost', min_length=1)
-    DB_PORT: int = Field(default=5432, ge=0)
-    DB_USER: SecretStr = Field(min_length=1)
-    DB_PASSWORD: SecretStr = Field(min_length=1)
-    DB_DATABASE: str = Field(default='boilerplate', min_length=1)
-    DB_SCHEMA: str = Field(default='app_work_data', min_length=1)
-    DB_DSN: Optional[PostgresDsn]
+    DB_DRIVER: str = pydantic.Field(default='postgresql', min_length=1)
+    DB_HOST: str = pydantic.Field(default='localhost', min_length=1)
+    DB_PORT: int = pydantic.Field(default=5432, ge=0)
+    DB_USER: pydantic.SecretStr = pydantic.Field(min_length=1)
+    DB_PASSWORD: pydantic.SecretStr = pydantic.Field(min_length=1)
+    DB_DATABASE: str = pydantic.Field(default='boilerplate', min_length=1)
+    DB_SCHEMA: str = pydantic.Field(default='app_work_data', min_length=1)
+    DB_DSN: Optional[pydantic.PostgresDsn]
 
     # Sentry config : https://docs.sentry.io/product/sentry-basics/dsn-explainer/
-    SENTRY_DSN: Optional[HttpUrl]
-    SENTRY_ENVIRONMENT: EnvState = Field(env='APP_ENV_STATE', default=EnvState.development, min_length=1)
-    SENTRY_RELEASE: Optional[str] = Field(env='APP_CI_COMMIT_SHA', default='development_release', min_length=1)
+    SENTRY_DSN: Optional[pydantic.HttpUrl]
+    SENTRY_ENVIRONMENT: EnvState = pydantic.Field(env='APP_ENV_STATE', default=EnvState.development, min_length=1)
+    SENTRY_RELEASE: Optional[str] = pydantic.Field(env='APP_CI_COMMIT_SHA', default='development_release', min_length=1)
 
     # Elastic APM Python Agent config: https://www.elastic.co/guide/en/apm/agent/python/current/index.html
-    ELASTIC_APM_SCHEME: Optional[str] = Field(default='http', regex=r'^(http|https)$')
-    ELASTIC_APM_HOST: Optional[str] = Field(min_length=1)
-    ELASTIC_APM_PORT: Optional[int] = Field(default=8200, ge=0)
+    ELASTIC_APM_SCHEME: Optional[str] = pydantic.Field(default='http', regex='^(http|https)$')
+    ELASTIC_APM_HOST: Optional[str] = pydantic.Field(min_length=1)
+    ELASTIC_APM_PORT: Optional[int] = pydantic.Field(default=8200, ge=0)
 
     # Aiohttp config.
-    AIOHTTP_SESSION_TIMEOUT_SECONDS: PositiveFloat = 2 * 60.0
+    AIOHTTP_SESSION_TIMEOUT_SECONDS: pydantic.PositiveFloat = 2 * 60.0
 
     # Tenacity retry config.
-    TENACITY_STOP_AFTER_DELAY_SECONDS: PositiveInt = math.ceil(AIOHTTP_SESSION_TIMEOUT_SECONDS)
-    TENACITY_STOP_AFTER_ATTEMPT: PositiveInt = 10
-    TENACITY_WAIT_FIXED: NonNegativeInt = 5
-    TENACITY_WAIT_RANDOM_MIN: NonNegativeInt = 0
-    TENACITY_WAIT_RANDOM_MAX: PositiveInt = 5
+    TENACITY_STOP_AFTER_DELAY_SECONDS: pydantic.PositiveInt = math.ceil(AIOHTTP_SESSION_TIMEOUT_SECONDS)
+    TENACITY_STOP_AFTER_ATTEMPT: pydantic.PositiveInt = 10
+    TENACITY_WAIT_FIXED: pydantic.NonNegativeInt = 5
+    TENACITY_WAIT_RANDOM_MIN: pydantic.NonNegativeInt = 0
+    TENACITY_WAIT_RANDOM_MAX: pydantic.PositiveInt = 5
 
     # Docker config
-    DOCKER_CI_REGISTRY_IMAGE: str = Field(default=_DEFAULT_APP_NAME_VALUE, min_length=1)
-    DOCKER_IMAGE_TAG: str = Field(default='latest', min_length=1)
-    DOCKER_CI_PROJECT_NAME: str = Field(default=_DEFAULT_APP_NAME_VALUE, min_length=1)
+    DOCKER_CI_REGISTRY_IMAGE: str = pydantic.Field(default=_DEFAULT_APP_NAME_VALUE, min_length=1)
+    DOCKER_IMAGE_TAG: str = pydantic.Field(default='latest', min_length=1)
+    DOCKER_CI_PROJECT_NAME: str = pydantic.Field(default=_DEFAULT_APP_NAME_VALUE, min_length=1)
 
-    class Config():
-        """Loads the dotenv file.
+    class Config(object):
+        """Pydantic Model Config.
 
-        Environment variables will always take priority over values loaded from a dotenv file.
+        Loads the dotenv file. Environment variables will always take priority over values
+        loaded from a dotenv file.
         """
-        env_file: Path = get_path_to_dotenv_file(dotenv_filename='.env')
+
+        env_file: Path = _get_path_to_dotenv_file(dotenv_filename='.env', num_of_parent_dirs_up=2)
         anystr_strip_whitespace = True
 
 
@@ -143,14 +155,16 @@ class DevelopmentConfig(GlobalConfig):
 
     # Service config.
     IS_DEBUG: bool = True
-    APP_IDEMPOTENCY_KEY_VALIDITY_TIME_IN_SECONDS: PositiveInt = 15
+    APP_IDEMPOTENCY_KEY_VALIDITY_TIME_IN_SECONDS: pydantic.PositiveInt = 15
 
     # Database config.
-    DB_HOST: constr(min_length=1) = Field(default='localhost')  # type: ignore
+    DB_HOST: str = pydantic.Field(default='localhost', min_length=1)
 
-    class Config():
-        # env_prefix: str = "DEV_"
+    class Config(object):
+        """Pydantic Model Config."""
+
         anystr_strip_whitespace = True
+
 
 class StagingConfig(GlobalConfig):
     """Staging configurations.
@@ -158,11 +172,13 @@ class StagingConfig(GlobalConfig):
     `StagingConfig` class also inherits from the `GlobalConfig` class, and it can define additional variables
     specific to the staging environment. It inherits all the variables defined in the `GlobalConfig class`.
     """
+
     # Application config.
     IS_DEBUG: bool = True
 
-    class Config():
-        # env_prefix: str = "STAGING_"
+    class Config(object):
+        """Pydantic Model Config."""
+
         anystr_strip_whitespace = True
 
 
@@ -172,14 +188,16 @@ class ProductionConfig(GlobalConfig):
     `ProductionConfig` class also inherits from the `GlobalConfig` class, and it can define additional variables
     specific to the production environment. It inherits all the variables defined in the `GlobalConfig class`.
     """
+
     IS_DEBUG: bool = False
 
-    class Config():
-        # env_prefix: str = "PROD_"
+    class Config(object):
+        """Pydantic Model Config."""
+
         anystr_strip_whitespace = True
 
 
-class FactoryConfig:
+class FactoryConfig(object):
     """Returns a config instance.
 
     `FactoryConfig` is the controller class that dictates which config class should be activated based on the
@@ -190,30 +208,20 @@ class FactoryConfig:
     """
 
     def __init__(self, env_state: EnvState) -> None:
+        """Customize the class instance immediately after its creation."""
         self.env_state = env_state
 
     def __call__(self) -> Union[StagingConfig, ProductionConfig, DevelopmentConfig]:
+        """Get the application config depending on the environment."""
         if self.env_state == EnvState.staging:
             return StagingConfig()
         elif self.env_state == EnvState.production:
             return ProductionConfig()
         elif self.env_state == EnvState.development:
             return DevelopmentConfig()
-        else:
-            raise ValueError("Incorrect environment variable 'ENV_STATE': %s.", self.env_state)
+        raise ValueError(
+            "Incorrect environment variable 'APP_ENV_STATE': {env_state}.".format(env_state=self.env_state),
+        )
 
 
 config = FactoryConfig(env_state=GlobalConfig().APP_ENV_STATE)()
-
-
-def main() -> None:
-    print("FactoryConfig: {factory_config}".format(factory_config=config.json()))
-    print(
-        "AppInternalLogicConfig: {app_internal_logic_config}".format(
-            app_internal_logic_config=config.APP_INTERNAL_LOGIC_CONFIG.json()
-        )
-    )
-
-
-if __name__ == '__main__':
-    main()
