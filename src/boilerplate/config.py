@@ -98,9 +98,9 @@ class GlobalConfig(pydantic.BaseSettings, AppInternalLogicConfig):
     APP_HTTP_HEADERS_CONTENT_TYPE_JSON: str = pydantic.Field(default='application/json', min_length=1)
 
     # Uvicorn config.
-    SERVICE_PROTOCOL: str = pydantic.Field(default='http', regex='^(http|https)$')
-    SERVICE_HOST: IPv4Address = IPv4Address('127.0.0.1')
-    SERVICE_PORT: int = pydantic.Field(default=50000, ge=50000, le=60000)
+    ASGI_PROTOCOL: str = pydantic.Field(default='http', regex='^(http|https)$')
+    ASGI_HOST: IPv4Address = IPv4Address('127.0.0.1')
+    ASGI_PORT: int = pydantic.Field(default=50000, ge=50000, le=60000)
 
     # Database config.
     DB_DRIVER: str = pydantic.Field(default='postgresql', min_length=1)
