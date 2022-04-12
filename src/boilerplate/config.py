@@ -95,7 +95,7 @@ class GlobalConfig(pydantic.BaseSettings, AppInternalLogicConfig):
     APP_API_ACCESS_HTTP_BEARER_TOKEN: Optional[pydantic.SecretStr]
     APP_CI_COMMIT_SHA: str = pydantic.Field(default='development_commit_sha', min_length=1)  # git commit hash.
     APP_IDEMPOTENCY_KEY_VALIDITY_TIME_SECONDS: pydantic.PositiveInt = 5 * 60
-    APP_HTTP_HEADERS_CONTENT_TYPE_APP_JSON: str = pydantic.Field(default='application/json', min_length=1)
+    APP_HTTP_HEADERS_CONTENT_TYPE_JSON: str = pydantic.Field(default='application/json', min_length=1)
 
     # Uvicorn config.
     SERVICE_PROTOCOL: str = pydantic.Field(default='http', regex='^(http|https)$')
