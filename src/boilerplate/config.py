@@ -7,8 +7,8 @@ import math
 import os
 from enum import Enum
 from ipaddress import IPv4Address
-from typing import Optional, Union, Final
 from pathlib import Path
+from typing import Optional, Union
 
 from pydantic import (
     BaseModel,
@@ -19,9 +19,11 @@ from pydantic import (
     PositiveFloat,
     PositiveInt,
     PostgresDsn,
+    SecretStr,
+    conint,
     constr,
-    SecretStr, conint,
 )
+
 
 def get_path_to_dotenv_file(dotenv_filename: str) -> Path:
     path_to_dotenv_file = Path(__file__).resolve().parents[2].joinpath(dotenv_filename)
@@ -70,59 +72,58 @@ class GlobalConfig(BaseSettings):
         environment variables will always take priority over values loaded from a dotenv file.
         ```
     """
+
     # General application config.
+    _DEFAULT_APP_NAME_VALUE: str = 'boilerplate'
     APP_INTERNAL_LOGIC_CONFIG: AppInternalLogicConfig = AppInternalLogicConfig()
-    APP_NAME: constr(min_length=1) = Field(default='boilerplate', const=True)
+    APP_NAME: str = Field(default=_DEFAULT_APP_NAME_VALUE, const=True, min_length=1)
     APP_ENV_STATE: EnvState = EnvState.development
-    APP_ROOT_PATH: Optional[constr()] = ""
-    APP_API_VERSION: constr(regex=r'^v\d+$') = 'v1'  # type: ignore # v1, v12, v123
+    APP_ROOT_PATH: str = ''
+    APP_API_VERSION: str = Field(default='v1', regex=r'^v\d+$')  # v1, v12, v123
     APP_API_ACCESS_HTTP_BEARER_TOKEN: Optional[SecretStr]
-    APP_CI_COMMIT_SHA: constr(min_length=1) = "development_ci_commit_sha"  # git commit hash.
-    APP_IDEMPOTENCY_KEY_VALIDITY_TIME_IN_SECONDS: PositiveInt = 5 * 60
+    APP_CI_COMMIT_SHA: str = Field(default='development_commit_sha', min_length=1)  # git commit hash.
+    APP_IDEMPOTENCY_KEY_VALIDITY_TIME_SECONDS: PositiveInt = 5 * 60
+    APP_HTTP_HEADERS_CONTENT_TYPE_APP_JSON: str = Field(default='application/json', min_length=1)
 
     # Uvicorn config.
-    SERVICE_PROTOCOL: constr(regex=r'^(http|https)$') = 'http'  # type: ignore
-    SERVICE_HOST: IPv4Address = '0.0.0.0'
-    SERVICE_PORT: conint(ge=50000, le=60000) = 50000
+    SERVICE_PROTOCOL: str = Field(default='http', regex=r'^(http|https)$')
+    SERVICE_HOST: IPv4Address = IPv4Address('0.0.0.0')
+    SERVICE_PORT: int = Field(default=50000, ge=50000, le=60000)
 
     # Database config.
-    DB_DRIVER: Optional[constr(min_length=1)] = 'postgresql'
-    DB_HOST: Optional[constr(min_length=1)] = 'localhost'
-    DB_PORT: Optional[conint(ge=0)] = 5432
-    DB_USER: Optional[SecretStr]
-    DB_PASSWORD: Optional[SecretStr]
-    DB_DATABASE: Optional[constr(min_length=1)] = APP_NAME
-    DB_SCHEMA: Optional[constr(min_length=1)] = "app_work_data"
+    DB_DRIVER: str = Field(default='postgresql', min_length=1)
+    DB_HOST: str = Field(default='localhost', min_length=1)
+    DB_PORT: int = Field(default=5432, ge=0)
+    DB_USER: SecretStr = Field(min_length=1)
+    DB_PASSWORD: SecretStr = Field(min_length=1)
+    DB_DATABASE: str = Field(default='boilerplate', min_length=1)
+    DB_SCHEMA: str = Field(default='app_work_data', min_length=1)
     DB_DSN: Optional[PostgresDsn]
 
     # Sentry config : https://docs.sentry.io/product/sentry-basics/dsn-explainer/
     SENTRY_DSN: Optional[HttpUrl]
-    SENTRY_RELEASE: Optional[constr(min_length=1)] = Field(
-        env="APP_CI_COMMIT_SHA",
-        default=os.environ.get("SENTRY_RELEASE", default="development_release_00")
-    )
-    SENTRY_ENVIRONMENT: EnvState = Field(env="ENV_STATE")
+    SENTRY_ENVIRONMENT: EnvState = Field(env='APP_ENV_STATE', default=EnvState.development, min_length=1)
+    SENTRY_RELEASE: Optional[str] = Field(env='APP_CI_COMMIT_SHA', default='development_release', min_length=1)
 
-    # Elastic APM Python Agent config: https://www.elastic.co/guide/en/apm/agent/python/current/index.html.
-    ELASTIC_APM_SCHEME: Optional[constr(regex=r'^(http|https)$')]
-    ELASTIC_APM_HOST: Optional[constr(min_length=1)]
-    ELASTIC_APM_PORT: Optional[conint(ge=0)]
+    # Elastic APM Python Agent config: https://www.elastic.co/guide/en/apm/agent/python/current/index.html
+    ELASTIC_APM_SCHEME: Optional[str] = Field(default='http', regex=r'^(http|https)$')
+    ELASTIC_APM_HOST: Optional[str] = Field(min_length=1)
+    ELASTIC_APM_PORT: Optional[int] = Field(default=8200, ge=0)
 
     # Aiohttp config.
-    HTTP_HEADERS_CONTENT_TYPE_APP_JSON: constr(min_length=1) = 'application/json'
-    AIOHTTP_SESSION_TIMEOUT_SEC: PositiveFloat = 2 * 60.0
+    AIOHTTP_SESSION_TIMEOUT_SECONDS: PositiveFloat = 2 * 60.0
 
     # Tenacity retry config.
-    TENACITY_STOP_AFTER_DELAY_SECONDS: PositiveInt = math.ceil(AIOHTTP_SESSION_TIMEOUT_SEC)
+    TENACITY_STOP_AFTER_DELAY_SECONDS: PositiveInt = math.ceil(AIOHTTP_SESSION_TIMEOUT_SECONDS)
     TENACITY_STOP_AFTER_ATTEMPT: PositiveInt = 10
     TENACITY_WAIT_FIXED: NonNegativeInt = 5
     TENACITY_WAIT_RANDOM_MIN: NonNegativeInt = 0
     TENACITY_WAIT_RANDOM_MAX: PositiveInt = 5
 
     # Docker config
-    DOCKER_CI_REGISTRY_IMAGE: constr(min_length=1) = APP_NAME
-    DOCKER_IMAGE_TAG: constr(min_length=1) = 'latest'
-    DOCKER_CI_PROJECT_NAME: constr(min_length=1) = APP_NAME
+    DOCKER_CI_REGISTRY_IMAGE: str = Field(default=_DEFAULT_APP_NAME_VALUE, min_length=1)
+    DOCKER_IMAGE_TAG: str = Field(default='latest', min_length=1)
+    DOCKER_CI_PROJECT_NAME: str = Field(default=_DEFAULT_APP_NAME_VALUE, min_length=1)
 
     class Config():
         """Loads the dotenv file.
