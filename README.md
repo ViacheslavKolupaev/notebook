@@ -1,97 +1,156 @@
 # README: notebook
 
 ## TODO
-### Application
-1. Python modules
-
-2. Logging with `ELK`:
+### Application development
+1. Environment management and service files
+   - [ ] `package_scripts`
+     - [ ] `docker`
+       - [ ] `00_docker_build_local.sh` — (re)build container locally.
+       - [ ] `01_docker_run_local.sh` — run container locally.
+       - [ ] `02_docker_compose_run_local.sh` — run `docker-compose.yaml` locally.
+       - [ ] `03_docker_run_postgres.sh` — run `PostgreSQL` DB locally in a container.
+     - [x] `envs`
+       - [x] `01_install_app_dependencies.sh`
+       - [x] `02_install_lint_test_dependencies.sh`
+       - [x] `03_install_type_test_dependencies.sh`
+       - [x] `04_install_unit_test_dependencies.sh`
+       - [x] `05_install_docs_dependencies.sh`
+       - [x] `06_install_dev_dependencies.sh`
+           - [x] `build_run_docs.sh`
+           - [x] `docker_postgres_init.sql`
+           - [ ] `send_asynchronous_http_requests.sh`
+           - [ ] `alembic_stamp.sh`
+     - [x] `requirements`
+       - [x] `compiled`
+         - [x] `01_app_requirements.txt`
+         - [x] `02_lint_test_requirements.txt`
+         - [x] `03_type_test_requirements.txt`
+         - [x] `04_unit_test_requirements.txt`
+         - [x] `05_docs_requirements.txt`
+         - [x] `06_dev_requirements.txt`
+       - [x] `in`
+         - [x] `00_proj_init.in`
+         - [x] `01_app.in`
+         - [x] `02_lint_test.in`
+         - [x] `03_type_test.in`
+         - [x] `04_unit_test.in`
+         - [x] `05_docs.in`
+         - [x] `06_dev.in`
+   - [ ] `docs`
+     - [ ] `unit_tests`
+       - [ ] `unit_test_example_01.md` — Develop an example page with auto-documentation of a module with unit tests.
+     - [ ] `features`
+       - [ ] `feature_example_01.md` — Develop an example of a page with auto-documentation of a module with business
+         logic.
+     - [x] `index.md`
+   - [x] `.dockerignore`
+   - [x] `.editorconfig`
+   - [x] `.env`
+   - [x] `.gitattributes`
+   - [x] `.gitignore`
+   - [ ] `.gitlab-ci.yml`
+   - [ ] `.pre-commit-config.yaml`
+   - [ ] `alembic.ini`
+   - [ ] `alembic_generate_and_stamp_version_table.py`
+   - [x] `Dockerfile`
+   - [x] `entrypoint.sh`
+   - [x] `MANIFEST.in`
+   - [x] `mkdocs.yml`
+   - [x] `pyproject.toml`
+   - [x] `pytest.ini`
+   - [ ] `README.md`
+   - [x] `requirements.txt`
+   - [x] `setup.cfg`
+   - [ ] `.coverage`
+   - [ ] `coverage.xml`
+   - [ ] `report.xml`
+   - [ ] `docker-compose.yml`
+   - [ ] `prometheus.yml`
+2. Python application:
+   1. Batch version
+      - [ ] `app.py`
+   2. Online version (`FastAPI`)
+      - [ ] `app.py`
+      - [ ] `task_processing.py`
+      - [ ] `dependencies.py`
+      - [ ] `routers`
+      - [ ] `schemas`
+3. Logging with `ELK`:
    - [ ] Learn about ELK infrastructure.
    - [ ] Develop `custom_logger.py` (`Fluent Bit`, plain text vs `structlog`).
-3. Exception monitoring with `Sentry` or `Elastic APM`:
+4. Exception monitoring with `Sentry` and/or `Elastic APM`:
    - [ ] Learn about the Sentry infrastructure in different environments. Provide network connectivity.
-   - [ ] Develop `sentry_agent.py` or `elastic_apm_agent.py`.
+   - [ ] Develop `sentry_agent.py` and/or `elastic_apm_agent.py`.
    - [ ] Register as middleware in the application.
-4. Shell scripts
-   - [ ] Script for sending asynchronous HTTP requests to pplication endpoints.
-   - [ ] Script to execute `alembic_generate_and_stamp_version_table.py`
-5. ASGI server:
+6. ASGI server:
    - [ ] Develop module `server.py`.
    - [ ] In case of high RPS values. Learn how to configure `Uvicorn` in conjunction with `Gunicorn`.
-6. Working with the database:
+7. Working with the database:
    - [ ] Develop module `db.py`: metadata, database table schemas, etc.
    - [ ] Develop module `db_privileges.py`.
    - [ ] Develop pydantic data schemas for CRUD operations.
    - [ ] Develop modules with asynchronous CRUD operations for database tables.
    - [ ] Development of a module for creating an instance of the `CRUD` class.
-7. REST API client:
+8. REST API client:
    - [ ] Develop class `RESTSession`.
    - [ ] Develop class `RESTHelpers`.
-   - [ ] Разработать класс `APIError`.
+   - [ ] Develop class  `APIError`.
    - [ ] Develop a typical module for asynchronous method invocation of a third-party REST API.
    - [ ] Develop a typical module for asynchronously sending a callback.
-8. Testing with `pytest`:
+9. Testing with `pytest`:
    - [ ] Develop a typical `tests` directory hierarchy.
    - [ ] Develop `conftest.py`.
    - [ ] Develop sample method, class and module with application unit tests.
-9. Migrations with `alembic`:
-    - [ ] Develop `alembic.ini`.
-    - [ ] Develop `env.py`.
-    - [ ] Develop `alembic_generate_and_stamp_version_table.py`.
-    - [ ] Develop an example schema migration.
-    - [ ] Develop an example of data migration.
-    - [ ] Develop an example stairway test for migrations.
-10. Documentation
-    1. `README.md`
-      - Typical feature planning artifacts:
-        - [ ] Feature testing plan.
-        - [ ] Feature development plan. Assessment of possible risks and methods of their management.
-      - Code development requirements:
-        - [ ] REST API design.
-        - [ ] Design of modules, classes, methods.
-        - [ ] Object naming.
-        - [ ] Type annotation and static type analysis.
-        - [ ] Working with the Database from the application.
-        - [ ] How to design, test, and apply migrations.
-        - [ ] Code formatting check.
-        - [ ] Application parameterization. Working with secrets.
-        - [ ] Application logging.
-        - [ ] Application testing.
-        - [ ] Application documentation: `Documentation as Code`, `Swagger`. Thoughtful and helpful comments.
-        - [ ] When is it appropriate to refactor code, and when not.
-      - Organization of team work:
-        - [ ] Rules for working with issues in Jira.
-        - [ ] Git branch rules.
-        - [ ] Git commit rules: atomic commits, commit comments, etc.
-        - [ ] Code review process. Process of delivering code to the `staging` environment.
-      - Useful links:
-        - [ ] Links to internal project resources in different environments.
-        - [ ] Links to external resources that may be useful for solving the problems of the project.
-      - IDE settings to be done.
-        - [ ] Installing the Python interpreter and project dependencies.
-        - [ ] Connecting to databases.
-        - [ ] Access to the code repository.
-        - [ ] Getting the `.env` file.
-        - [ ] Connecting a task management plugin to Jira.
-    2. Project autodocumentation
-      - [ ] Develop `mkdocs.yaml`
-      - [ ] Develop an example of a page with auto-documentation of a module with business logic.
-      - [ ] Develop an example page with auto-documentation of a module with unit tests.
+10. Migrations with `alembic`:
+     - [ ] Develop `alembic.ini`.
+     - [ ] Develop `env.py`.
+     - [ ] Develop `alembic_generate_and_stamp_version_table.py`.
+     - [ ] Develop an example schema migration.
+     - [ ] Develop an example of data migration.
+     - [ ] Develop an example stairway test for migrations.
 
-11. Deployment tools
-     1. `Jira`:
-        - [ ] Kanban board columns should follow the development process.
-        - [ ] Creating fields for artifacts in tasks. Workflow automation.
-     2. Integration with CI
-        - [ ]`.gitlab-ci.yaml` or `Jenkinsfile (Declarative Pipeline)`
-        - [ ] Customization of CI settings.
-     3. `Docker`
-         - Manifests
-           - [ ] `docker-compose.yaml`
-         - Shell scripts
-             - [ ] (re)build container locally;
-             - [ ] run container locally;
-             - [ ] run `docker-compose.yaml` locally;
-             - [ ] run `PostgreSQL` DB locally in a container.
+### `README.md`
+1. Typical feature planning artifacts:
+   - [ ] Feature testing plan.
+   - [ ] Feature development plan. Assessment of possible risks and methods of their management.
+2. Code development requirements:
+   - [ ] REST API design.
+   - [ ] Design of modules, classes, methods.
+   - [ ] Object naming.
+   - [ ] Type annotation and static type analysis.
+   - [ ] Working with the Database from the application.
+   - [ ] How to design, test, and apply migrations.
+   - [ ] Code formatting check.
+   - [ ] Application parameterization. Working with secrets.
+   - [ ] Application logging.
+   - [ ] Application testing.
+   - [ ] Application documentation: `Documentation as Code`, `Swagger`. Thoughtful and helpful comments.
+   - [ ] When is it appropriate to refactor code, and when not.
+3. Organization of team work:
+   - [ ] Rules for working with issues in Jira.
+   - [ ] Git branch rules.
+   - [ ] Git commit rules: atomic commits, commit comments, etc.
+   - [ ] Code review process. Process of delivering code to the `staging` environment.
+4. Useful links:
+   - [ ] Links to internal project resources in different environments.
+   - [ ] Links to external resources that may be useful for solving the problems of the project.
+5. IDE settings to be done.
+   - [ ] Installing the Python interpreter and project dependencies.
+   - [ ] Connecting to databases.
+   - [ ] Access to the code repository.
+   - [ ] Getting the `.env` file.
+   - [ ] Connecting a task management plugin to Jira.
+
+### Teamwork tools and CI/CD
+ 1. Development process:
+    - [ ] `Jira` Kanban board columns should follow the development process.
+    - [ ] Creating fields for artifacts in tasks. Workflow automation.
+ 2. Continuous Integration: `GitLab` or `Jenkins`:
+    - [ ] `.gitlab-ci.yaml` or `Jenkinsfile` (Declarative Pipeline).
+    - [ ] Customization of project settings in the CI system.
+ 3. Continuous Deployment:
+    - [ ] Learn CD infrastructure and integration methods.
+    - [ ] Set up code delivery to `staging` and `production` environments.
 
 ## Some useful commands
 
