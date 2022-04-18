@@ -66,6 +66,8 @@
    - [ ] `report.xml`
    - [ ] `docker-compose.yml`
    - [ ] `prometheus.yml`
+   - [ ] `Jenkinsfile`
+   - [ ] `jenkins_properties.groovy`
 2. Python application:
    1. Batch version
       - [ ] `app.py`
