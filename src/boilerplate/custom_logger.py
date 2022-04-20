@@ -1,18 +1,19 @@
 """Logger configuration file."""
 
-#  Copyright (c) 2022. Viacheslav Kolupaev,  https://viacheslavkolupaev.ru/
+#  Copyright (c) 2022. Viacheslav Kolupaev,  https://vkolupaev.com/
 #
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
 #
-#      https://www.apache.org/licenses/LICENSE-2.0
+#       https://www.apache.org/licenses/LICENSE-2.0
 #
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+#
 
 import json
 import logging
@@ -26,38 +27,62 @@ from src.boilerplate.config import config
 
 
 class CustomAdapter(logging.LoggerAdapter):
-    """Prepends fields from MetadataOpt to the beginning of log messages."""
+    """
+    An adapter for loggers which makes it easier to specify contextual information
+    in logging output.
+
+    Prepend fields from MetadataOpt to the beginning of log messages.
+    """
+
+    def _prepend_dict_vals_to_str(self, prepend_str: str, extra: dict):
+        for key, val in extra.items():
+            prepend_str += '{key}: {val} | '.format(key=key, val=str(val))
+
+        return prepend_str
 
     @typechecked()
     def process(self, msg: str, kwargs: Any) -> tuple[str, dict]:
+        """
+        Process the logging message and keyword arguments passed in to a logging call
+        to insert contextual information.
+
+        Return the message and kwargs modified (or not) to suit your needs.
+        """
         prepend_str = ''
 
-        if isinstance(self.extra, dict) and self.extra:
-            for key, val in self.extra.items():
-                prepend_str += '{key}: {val} | '.format(key=key, val=str(val))
+        if self.extra:
+            if isinstance(self.extra, dict):
+                prepend_str = self._prepend_dict_vals_to_str(
+                    prepend_str=prepend_str,
+                    extra=self.extra,
+                )
+            else:
+                raise TypeError('Incorrect type of "extra" argument. Dictionary expected.')
+
+        if 'extra' in kwargs and kwargs['extra']:
+            if isinstance(kwargs['extra'], dict):
+                prepend_str = self._prepend_dict_vals_to_str(
+                    prepend_str=prepend_str,
+                    extra=kwargs['extra'],
+                )
+            else:
+                raise TypeError('Incorrect type of "extra" argument. Dictionary expected.')
 
         return prepend_str + '%s' % (msg), kwargs
 
-class LoggerWithMetadata():
+    # def make_error(self, msg: str, extra: Union[MetadataOpt, MetadataMan, dict], *args, **kwargs) -> None:
+    #     self.error(msg, *args, **kwargs)
 
-    @typechecked()
-    def __init__(self, name: Optional[str]) -> None:
-        self._logger_name: Optional[str] = name
 
+class LoggerWithMetadata(object):
+
+
+    def __init__(self) -> None:
+        self._logger_name: Optional[str] = None
         self._metadata: MetadataOpt = MetadataOpt()
-        self.extra: MetadataOpt = MetadataOpt()
-
-        self._default_stacklevel: int = 5
-        self._logger_w_metadata: Union[CustomAdapter, logging.Logger] = self._get_logger()
-
-
-    @typechecked()
-    def _get_logger(self) -> Union[CustomAdapter, logging.Logger]:
-        if not self._logger_name:
-            return self.get_root_logger_w_metadata()
-
-        return self.get_module_logger_w_metadata()
-
+        self.extra: Optional[Union[MetadataOpt, dict]] = None
+        # self._default_stacklevel: int = 5
+        # self._logger_w_metadata: Union[CustomAdapter, logging.Logger] = self._get_logger()
 
     def get_formatter(self) -> logging.Formatter:
 
@@ -82,33 +107,27 @@ class LoggerWithMetadata():
         return log_message_formatter_in_str
 
     @typechecked()
-    def get_root_logger_w_metadata(
-        self,
-        # *,
-        # logger_name: Optional[str],
-        # extra: Union[MetadataMan, MetadataOpt],
-    ) -> Union[CustomAdapter, logging.Logger]:
-        """Get logger with prepared handlers and extra dict."""
-
-        logger: logging.Logger = logging.getLogger(self._logger_name)
+    def get_root_logger(self) -> logging.Logger:
+        """Get root logger."""
+        root_logger: logging.Logger = logging.getLogger(name=None)
 
         console_handler: logging.StreamHandler = logging.StreamHandler(sys.stdout)
         error_handler: logging.StreamHandler = logging.StreamHandler(sys.stderr)
 
-        logger.logThreads = False
-        logger.logProcesses = False
+        root_logger.logThreads = False
+        root_logger.logProcesses = False
         logging.logMultiprocessing = False
-        logger.propagate = False
+        root_logger.propagate = False
 
         if config.APP_ENV_STATE in (EnvState.development, EnvState.staging):
-            logger.setLevel(logging.DEBUG)
+            root_logger.setLevel(logging.DEBUG)
             console_handler.setLevel(logging.DEBUG)
         else:
-            logger.setLevel(logging.INFO)
+            root_logger.setLevel(logging.INFO)
             console_handler.setLevel(logging.INFO)
 
             # See: https://docs.python.org/3/howto/logging.html#exceptions-raised-during-logging
-            logger.raiseExceptions = False
+            root_logger.raiseExceptions = False
 
         error_handler.setLevel(logging.ERROR)
 
@@ -120,24 +139,15 @@ class LoggerWithMetadata():
         console_handler.setFormatter(formatter)
         error_handler.setFormatter(formatter)
 
-        logger.addHandler(console_handler)
-        logger.addHandler(error_handler)
+        root_logger.addHandler(console_handler)
+        root_logger.addHandler(error_handler)
 
-        if self.extra:
-            adapter = CustomAdapter(logger, self.extra.dict())
-            return adapter
-        else:
-            return logger
+        return root_logger
 
-    def get_module_logger_w_metadata(
-        self,
-        # *,
-        # logger_name: Optional[str],
-        # extra: Union[MetadataMan, MetadataOpt],
-    ) -> Union[CustomAdapter, logging.Logger]:
+    def get_module_logger(self, name: str) -> CustomAdapter:
         """Get logger with prepared handlers and extra dict."""
 
-        logger: logging.Logger = logging.getLogger(self._logger_name)
+        logger: logging.Logger = logging.getLogger(name=name)
 
         logger.logThreads = False
         logger.logProcesses = False
@@ -152,82 +162,79 @@ class LoggerWithMetadata():
             # See: https://docs.python.org/3/howto/logging.html#exceptions-raised-during-logging
             logger.raiseExceptions = False
 
-        if self.extra:
-            adapter = CustomAdapter(logger, self.extra.dict())
-            return adapter
-        else:
-            return logger
-
-    @typechecked()
-    def log(
-        self,
-        level: int,
-        msg: str,
-        extra: Optional[Union[MetadataOpt, MetadataMan]] = None,
-        *args,
-        **kwargs,
-    ) -> None:
-        stacklevel = kwargs.pop('stacklevel', self._default_stacklevel)
-        if extra:
-            self.extra = extra
-            self._logger_w_metadata.extra = extra.dict()
-        self._logger_w_metadata.log(level, msg, *args, stacklevel=stacklevel, **kwargs)
+        return CustomAdapter(logger=logger, extra={'key_1': 'val_1'})
 
 
-    @typechecked()
-    def debug(self, msg: str, extra: Union[MetadataOpt, MetadataMan], *args, **kwargs) -> None:
-        stacklevel = kwargs.pop('stacklevel', self._default_stacklevel)
-        self.extra = extra
-        self._logger_w_metadata.extra = extra.dict()
-        self._logger_w_metadata.debug(msg, *args, stacklevel=stacklevel, **kwargs)
-
-
-    @typechecked()
-    def info(self, msg: str, extra: Optional[Union[MetadataOpt, MetadataMan]] = None, *args, **kwargs) -> None:
-        stacklevel = kwargs.pop('stacklevel', self._default_stacklevel)
-        if extra:
-            self.extra = extra
-            self._logger_w_metadata.extra = extra.dict()
-        self._logger_w_metadata.info(msg, *args, stacklevel=stacklevel, **kwargs)
-
-
-    @typechecked()
-    def warning(self, msg: str, extra: Union[MetadataOpt, MetadataMan], *args, **kwargs) -> None:
-        stacklevel = kwargs.pop('stacklevel', self._default_stacklevel)
-        self.extra = extra
-        self._logger_w_metadata.extra = extra.dict()
-        self._logger_w_metadata.warning(msg, *args, stacklevel=stacklevel, **kwargs)
-
-
-    @typechecked()
-    def error(self, msg: str, extra: Union[MetadataOpt, MetadataMan], *args, **kwargs) -> None:
-        stacklevel = kwargs.pop('stacklevel', self._default_stacklevel)
-        self.extra = extra
-        self._logger_w_metadata.extra = extra.dict()
-        self._logger_w_metadata.error(msg, *args, stacklevel=stacklevel, **kwargs)
-
-
-    @typechecked()
-    def critical(self, msg: str, extra: Union[MetadataOpt, MetadataMan], *args, **kwargs) -> None:
-        stacklevel = kwargs.pop('stacklevel', self._default_stacklevel)
-        self.extra = extra
-        self._logger_w_metadata.extra = extra.dict()
-        self._logger_w_metadata.critical(msg, *args, stacklevel=stacklevel, **kwargs)
-
-
-    @typechecked()
-    def exception(
-            self,
-            msg: str,
-            extra: Union[MetadataOpt, MetadataMan],
-            exc_info: Union[bool, Exception] = True,
-            *args,
-            **kwargs
-    ) ->  None:
-        stacklevel = kwargs.pop('stacklevel', self._default_stacklevel)
-        self.extra = extra
-        self._logger_w_metadata.extra = extra.dict()
-        self._logger_w_metadata.exception(msg, exc_info=exc_info, stacklevel=stacklevel, *args, **kwargs)
+    # @typechecked()
+    # def log(
+    #     self,
+    #     level: int,
+    #     msg: str,
+    #     extra: Optional[Union[MetadataOpt, MetadataMan]] = None,
+    #     *args,
+    #     **kwargs,
+    # ) -> None:
+    #     stacklevel = kwargs.pop('stacklevel', self._default_stacklevel)
+    #     if extra:
+    #         self.extra = extra
+    #         self._logger_w_metadata.extra = extra.dict()
+    #     self._logger_w_metadata.log(level, msg, *args, stacklevel=stacklevel, **kwargs)
+    #
+    #
+    # @typechecked()
+    # def debug(self, msg: str, extra: Union[MetadataOpt, MetadataMan], *args, **kwargs) -> None:
+    #     stacklevel = kwargs.pop('stacklevel', self._default_stacklevel)
+    #     self.extra = extra
+    #     self._logger_w_metadata.extra = extra.dict()
+    #     self._logger_w_metadata.debug(msg, *args, stacklevel=stacklevel, **kwargs)
+    #
+    #
+    # @typechecked()
+    # def info(self, msg: str, extra: Optional[Union[MetadataOpt, MetadataMan]] = None, *args, **kwargs) -> None:
+    #     stacklevel = kwargs.pop('stacklevel', self._default_stacklevel)
+    #     if extra:
+    #         self.extra = extra
+    #         self._logger_w_metadata.extra = extra.dict()
+    #     self._logger_w_metadata.info(msg, *args, stacklevel=stacklevel, **kwargs)
+    #
+    #
+    # @typechecked()
+    # def warning(self, msg: str, extra: Union[MetadataOpt, MetadataMan], *args, **kwargs) -> None:
+    #     stacklevel = kwargs.pop('stacklevel', self._default_stacklevel)
+    #     self.extra = extra
+    #     self._logger_w_metadata.extra = extra.dict()
+    #     self._logger_w_metadata.warning(msg, *args, stacklevel=stacklevel, **kwargs)
+    #
+    #
+    # @typechecked()
+    # def error(self, msg: str, extra: Union[MetadataOpt, MetadataMan], *args, **kwargs) -> None:
+    #     stacklevel = kwargs.pop('stacklevel', self._default_stacklevel)
+    #     self.extra = extra
+    #     self._logger_w_metadata.extra = extra.dict()
+    #     self._logger_w_metadata.error(msg, *args, stacklevel=stacklevel, **kwargs)
+    #
+    #
+    # @typechecked()
+    # def critical(self, msg: str, extra: Union[MetadataOpt, MetadataMan], *args, **kwargs) -> None:
+    #     stacklevel = kwargs.pop('stacklevel', self._default_stacklevel)
+    #     self.extra = extra
+    #     self._logger_w_metadata.extra = extra.dict()
+    #     self._logger_w_metadata.critical(msg, *args, stacklevel=stacklevel, **kwargs)
+    #
+    #
+    # @typechecked()
+    # def exception(
+    #         self,
+    #         msg: str,
+    #         extra: Union[MetadataOpt, MetadataMan],
+    #         exc_info: Union[bool, Exception] = True,
+    #         *args,
+    #         **kwargs
+    # ) ->  None:
+    #     stacklevel = kwargs.pop('stacklevel', self._default_stacklevel)
+    #     self.extra = extra
+    #     self._logger_w_metadata.extra = extra.dict()
+    #     self._logger_w_metadata.exception(msg, exc_info=exc_info, stacklevel=stacklevel, *args, **kwargs)
 
 
 class LevelFilter(logging.Filter):
