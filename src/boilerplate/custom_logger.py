@@ -1,6 +1,6 @@
 """Logger configuration file."""
 
-#  Copyright (c) 2022. Viacheslav Kolupaev,  https://vkolupaev.com/
+#  Copyright (c) 2022. Viacheslav Kolupaev, https://vkolupaev.com/
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
