@@ -42,7 +42,8 @@ class CustomAdapter(logging.LoggerAdapter):
 
     @typechecked()
     def process(self, msg: str, kwargs: Any) -> tuple[str, dict]:
-        """
+        """Process the logging message.
+
         Process the logging message and keyword arguments passed in to a logging call
         to insert contextual information.
 
@@ -50,6 +51,9 @@ class CustomAdapter(logging.LoggerAdapter):
         """
         prepend_str = ''
 
+        # This is the presence check and handling of the `extra` keyword argument
+        # when the adapter class is instantiated, for example:
+        # `CustomAdapter(logger=some_logger, extra=some_dict)`
         if self.extra:
             if isinstance(self.extra, dict):
                 prepend_str = self._prepend_dict_vals_to_str(
@@ -57,8 +61,15 @@ class CustomAdapter(logging.LoggerAdapter):
                     extra=self.extra,
                 )
             else:
-                raise TypeError('Incorrect type of "extra" argument. Dictionary expected.')
+                err_msg = (
+                    'Incorrect type of the "extra" keyword argument in the ' +
+                    '"CustomAdapter" constructor: {type_of_extra}. Dictionary expected.'
+                ).format(type_of_extra=type(self.extra))
+                raise TypeError(err_msg)
 
+        # This is the presence check and handling of the `extra` keyword argument
+        # when calling the module's logger method, for example:
+        # `_module_logger.debug(msg='some_message', extra=some_dict)`
         if 'extra' in kwargs and kwargs['extra']:
             if isinstance(kwargs['extra'], dict):
                 prepend_str = self._prepend_dict_vals_to_str(
@@ -66,9 +77,15 @@ class CustomAdapter(logging.LoggerAdapter):
                     extra=kwargs['extra'],
                 )
             else:
-                raise TypeError('Incorrect type of "extra" argument. Dictionary expected.')
+                err_msg = (
+                    'Incorrect type of the "extra" keyword argument in the module ' +
+                    'logger method call: {type_of_extra}. Dictionary expected.'
+                ).format(type_of_extra=type(kwargs['extra']))
+                raise TypeError(err_msg)
 
-        return prepend_str + '%s' % (msg), kwargs
+        processed_msg = prepend_str + '{msg}'.format(msg=msg)
+
+        return processed_msg, kwargs
 
     # def make_error(self, msg: str, extra: Union[MetadataOpt, MetadataMan, dict], *args, **kwargs) -> None:
     #     self.error(msg, *args, **kwargs)
