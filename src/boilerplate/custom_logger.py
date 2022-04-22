@@ -1,5 +1,3 @@
-"""Logger configuration file."""
-
 #  Copyright (c) 2022. Viacheslav Kolupaev, https://vkolupaev.com/
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,23 +12,38 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-import json
+"""Custom application logger.
+
+Use this module to log the events of your Python application to `stdout` and/or `stderr`.
+
+The module contains three classes:
+
+  * `CustomLogger` — use this class to get loggers.
+  * `CustomAdapter` — helper class.
+  * `LevelFilter` — helper class.
+
+Todo:
+    * Improve the module for sending json messages to Apache Kafka.
+    * Refine docstrings for a clearer understanding.
+
+"""
+
 import logging
 import sys
-from typing import Any, Optional, Tuple, Union
+from typing import Any, Final, TypeAlias
 
 from typeguard import typechecked
 
 from src.boilerplate.config import config
-from src.boilerplate.schemas.common import EnvState, MetadataOpt  # type: ignore[import]
+from src.boilerplate.schemas.common import EnvState  # type: ignore[import]
+
+allowed_dict_val_types: TypeAlias = str | int | float | bool
 
 
 class CustomAdapter(logging.LoggerAdapter):  # type: ignore[type-arg]
-    """An adapter for loggers.
+    """Custom adapter for logger.
 
-    Makes it easier to specify contextual information in logging output.
-
-    Adds the keys and values from the "extra" keyword argument dictionary to the
+    Adds the keys and values from the `extra` keyword argument dictionary to the
     beginning of the log messages.
     """
 
@@ -39,9 +52,21 @@ class CustomAdapter(logging.LoggerAdapter):  # type: ignore[type-arg]
         """Process the logging message.
 
         Process the logging message and keyword arguments passed in to a logging call
-        to insert contextual information.
+        to insert contextual information. Contextual information is passed through
+        `extra` keyword arguments.
 
-        Return the message and kwargs modified (or not) to suit your needs.
+        Args:
+            msg: Logging message `logging.LogRecord.msg` passed in to a logging call.
+            kwargs: Keyword arguments passed in to a logging call.
+
+        Returns:
+            * Log message with data from `extra` dictionaries added to its beginning.
+            * Keyword arguments passed in to a logging call without any changes being made
+              to them.
+
+        Raises:
+            TypeError: If the received `extra` keyword argument is not of type `dict`.
+
         """
         prepend_str = ''
 
@@ -90,55 +115,140 @@ class CustomAdapter(logging.LoggerAdapter):  # type: ignore[type-arg]
 
 
 class LevelFilter(logging.Filter):
+    """Filter log records by their level."""
 
+    @typechecked()
     def __init__(self, low: int, high: int) -> None:
+        """Perform custom instantiation of the class.
+
+        Args:
+            low: log records below this level will be filtered
+            high: log records above this level will be filtered
+
+        """
         self._low = low
         self._high = high
-        logging.Filter.__init__(self)
+        self._validate_arguments()
+        super().__init__()
 
     def filter(self, record: logging.LogRecord) -> bool:
-        if self._low <= record.levelno <= self._high:
-            return True
-        return False
+        """Apply filters to log entries before passing them to handlers.
+
+        In the current implementation, log entries are filtered only by their level.
+
+        Args:
+            record: A LogRecord instance represents an event being logged.
+
+        Returns:
+            * if `True`, the record will be processed (passed to handlers);
+            * if `False`, no further processing of the record occurs.
+
+        """
+        return self._low <= record.levelno <= self._high
+
+    def _validate_arguments(self) -> None:
+        # See: https://docs.python.org/3/howto/logging.html#logging-levels
+        allowed_levels: Final[set[int]] = {10, 20, 30, 40, 50}
+
+        if self._low not in allowed_levels or self._high not in allowed_levels:
+            raise ValueError(
+                'An invalid "high" or "low" argument value was received. ' +
+                'Allowed values: {allowed_levels}'.format(allowed_levels=allowed_levels),
+            )
+
+        if self._low > self._high:
+            raise ValueError('The value of the "low" argument must be <= "high".')
 
 
 class CustomLogger(object):
+    """Custom application logger.
 
+    Usage:
+        * Use the `get_root_logger` method to get the `root` logger at the root of your
+          application.
+        * Use the `get_module_logger` method to get the logger in any child application
+          module.
 
-    def _get_root_logger_formatter(self) -> logging.Formatter:
+    """
 
-        log_message_in_dict = {
-            "timestamp": "%(asctime)s",
-            "level": "%(levelname)s",
-            "name": "%(name)s",
-            "funcName": "%(funcName)s",
-            "lineno": "%(lineno)d",
-            "message": "%(message)s"
-        }
-        log_message_formatter_in_dict = logging.Formatter(
-            json.dumps({**log_message_in_dict})
+    def get_root_logger(self) -> logging.Logger:
+        """Get root logger.
+
+        Initialize the `root` logger in only one place, for example here:
+        `src/boilerplate/__init__.py`.
+
+        Examples:
+            ```
+            from src.boilerplate.custom_logger import CustomLogger
+            _root_logger = CustomLogger().get_root_logger()
+            _root_logger.info('The root logger has been initialized.')
+            ```
+
+        Returns:
+            Root logger. The method is idempotent because the `logging.getLogger`
+            method it calls is idempotent.
+
+        """
+        root_logger = logging.getLogger(name=None)
+        root_logger = self._configure_logger(logger=root_logger)
+
+        formatter = self.get_root_logger_formatter()
+        console_handler = self._get_root_logger_console_handler(formatter=formatter)
+        error_handler = self._get_root_logger_error_handler(formatter=formatter)
+        root_logger.addHandler(console_handler)
+        root_logger.addHandler(error_handler)
+
+        return root_logger
+
+    @typechecked()
+    def get_module_logger(
+        self,
+        name: str,
+        module_extra: dict[str, allowed_dict_val_types] | None = None,
+    ) -> CustomAdapter:
+        """Get logger with prepared handlers and extra dict."""
+        if module_extra is None:
+            module_extra = {
+                'env_state': config.APP_ENV_STATE.name,
+                'commit_sha': config.APP_CI_COMMIT_SHA,
+            }
+
+        module_logger = logging.getLogger(name=name)
+        module_logger = self._configure_logger(logger=module_logger)
+
+        return CustomAdapter(logger=module_logger, extra=module_extra)
+
+    def get_root_logger_formatter(self) -> logging.Formatter:
+        """Get a formatter for the root logger.
+
+        The method adds some attributes to the `LogRecord`. For a complete list of
+        attributes, see the `logging` [documentation](
+        https://docs.python.org/3/library/logging.html#logrecord-attributes).
+
+        Returns:
+            New instance of `Formatter` class with log message pattern applied.
+
+        """
+        log_message_pattern = (
+            '{asctime} | ' +
+            '{levelname}:{levelno} | ' +
+            '{relativeCreated:.0f} | ' +
+            '{filename} | ' +
+            '{funcName}:{lineno:d} | ' +
+            '{message}'
         )
 
-        log_message_in_str = \
-            "%(asctime)s | %(levelname)s:%(levelno)s | %(relativeCreated)d | %(filename)s | %(funcName)s:%(lineno)d | " \
-            "%(message)s"
-
-        log_message_formatter_in_str = logging.Formatter(log_message_in_str)
-
-        return log_message_formatter_in_str
-
+        return logging.Formatter(fmt=log_message_pattern, style='{')
 
     def _configure_logger(self, logger: logging.Logger) -> logging.Logger:
         logger.logThreads = False
         logger.logProcesses = False
         logger.logMultiprocessing = False
 
-        if logger.name == 'root':
-            logger.propagate = False
-        else:
-            logger.propagate = True
+        is_root = bool(logger.name == 'root')
+        logger.propagate = not (is_root)
 
-        if config.APP_ENV_STATE in (EnvState.development, EnvState.staging):
+        if config.APP_ENV_STATE in {EnvState.development, EnvState.staging}:
             logger.setLevel(logging.DEBUG)
         else:
             logger.setLevel(logging.INFO)
@@ -148,23 +258,21 @@ class CustomLogger(object):
 
         return logger
 
-
     def _get_root_logger_console_handler(
         self,
         formatter: logging.Formatter,
     ) -> logging.StreamHandler:  # type: ignore[type-arg]
         console_handler = logging.StreamHandler(stream=sys.stdout)
 
-        if config.APP_ENV_STATE in (EnvState.development, EnvState.staging):
+        if config.APP_ENV_STATE in {EnvState.development, EnvState.staging}:
             console_handler.setLevel(logging.DEBUG)
         else:
             console_handler.setLevel(logging.INFO)
 
-        console_handler.addFilter(LevelFilter(low=10, high=30))
+        console_handler.addFilter(LevelFilter(low=logging.DEBUG, high=logging.WARNING))
         console_handler.setFormatter(formatter)
 
         return console_handler
-
 
     def _get_root_logger_error_handler(
         self,
@@ -172,35 +280,7 @@ class CustomLogger(object):
     ) -> logging.StreamHandler:  # type: ignore[type-arg]
         error_handler = logging.StreamHandler(stream=sys.stderr)
         error_handler.setLevel(logging.ERROR)
-        error_handler.addFilter(LevelFilter(low=40, high=50))
+        error_handler.addFilter(LevelFilter(low=logging.ERROR, high=logging.CRITICAL))
         error_handler.setFormatter(formatter)
 
         return error_handler
-
-
-    def get_root_logger(self) -> logging.Logger:
-        """Get root logger."""
-        root_logger = logging.getLogger(name=None)
-        root_logger = self._configure_logger(logger=root_logger)
-
-        formatter = self._get_root_logger_formatter()
-        console_handler = self._get_root_logger_console_handler(formatter=formatter)
-        error_handler = self._get_root_logger_error_handler(formatter=formatter)
-        root_logger.addHandler(console_handler)
-        root_logger.addHandler(error_handler)
-
-        return root_logger
-
-
-    @typechecked()
-    def get_module_logger(
-        self,
-        name: str,
-        module_extra: Optional[dict[str, Any]] = None,
-    ) -> CustomAdapter:
-        """Get logger with prepared handlers and extra dict."""
-        module_logger = logging.getLogger(name=name)
-        module_logger = self._configure_logger(logger=module_logger)
-        adapter = CustomAdapter(logger=module_logger, extra=module_extra)
-
-        return adapter
