@@ -1,7 +1,8 @@
 -c ../compiled/01_app_requirements.txt
 
 # See: https://pydantic-docs.helpmanual.io/mypy_plugin/#enabling-the-plugin
-mypy==0.930
+# And this: https://github.com/python/mypy/pull/12078
+mypy==0.931
 
 pydantic
 types-psycopg2

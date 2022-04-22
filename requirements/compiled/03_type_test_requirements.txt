@@ -8,7 +8,7 @@ greenlet==1.1.2
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   sqlalchemy
-mypy==0.930
+mypy==0.931
     # via
     #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/03_type_test.in
     #   sqlalchemy
