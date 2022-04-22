@@ -11,10 +11,9 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-#
 
-from src.boilerplate.custom_logger import LoggerWithMetadata
+from src.boilerplate.custom_logger import CustomLogger
 from src.boilerplate.schemas.common import MetadataOpt
 
-_root_logger = LoggerWithMetadata().get_root_logger()
+_root_logger = CustomLogger().get_root_logger()
 _root_logger.info('The root logger has been initialized.')
