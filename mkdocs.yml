@@ -59,8 +59,8 @@ plugins:
             filters: [ "!^_" ]  # exclude all members starting with _
             members: true
             inherited_members: false
-            docstring_style: "restructured-text"
-#            docstring_options:
+            docstring_style: "google"
+            docstring_options:
 #              replace_admonitions: no
             new_path_syntax: false
           rendering:
