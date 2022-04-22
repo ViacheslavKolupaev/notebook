@@ -106,7 +106,7 @@ stevedore==3.5.0
     # via bandit
 testfixtures==6.18.5
     # via flake8-isort
-typing-extensions==4.1.1
+typing-extensions==4.2.0
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   wemake-python-styleguide

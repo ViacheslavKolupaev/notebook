@@ -8,27 +8,31 @@ greenlet==1.1.2
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   sqlalchemy
-mypy==0.942
+mypy==0.930
     # via
     #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/03_type_test.in
     #   sqlalchemy
 mypy-extensions==0.4.3
     # via mypy
-pydantic==1.9.0
+pydantic[dotenv]==1.9.0
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/03_type_test.in
+python-dotenv==0.20.0
+    # via
+    #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
+    #   pydantic
 sqlalchemy[mypy]==1.4.35
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/03_type_test.in
-sqlalchemy2-stubs==0.0.2a21
+sqlalchemy2-stubs==0.0.2a22
     # via sqlalchemy
 tomli==2.0.1
     # via mypy
-types-psycopg2==2.9.9
+types-psycopg2==2.9.13
     # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/03_type_test.in
-typing-extensions==4.1.1
+typing-extensions==4.2.0
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   mypy

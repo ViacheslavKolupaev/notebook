@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=- /home/vkolupaev/PycharmProjects/notebook/requirements/in/06_dev.in
 #
-bleach==4.1.0
+bleach==5.0.0
     # via readme-renderer
 build==0.7.0
     # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/06_dev.in
@@ -70,14 +70,13 @@ packaging==21.3
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/04_unit_test_requirements.txt
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/05_docs_requirements.txt
-    #   bleach
     #   build
     #   setuptools-scm
 pep517==0.12.0
     # via build
 pkginfo==1.8.2
     # via twine
-platformdirs==2.5.1
+platformdirs==2.5.2
     # via virtualenv
 pre-commit==2.18.1
     # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/06_dev.in
@@ -93,7 +92,7 @@ pygments==2.11.2
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/05_docs_requirements.txt
     #   readme-renderer
     #   rich
-pyparsing==3.0.7
+pyparsing==3.0.8
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/04_unit_test_requirements.txt
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/05_docs_requirements.txt
@@ -105,7 +104,7 @@ pyyaml==6.0
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/04_unit_test_requirements.txt
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/05_docs_requirements.txt
     #   pre-commit
-readme-renderer==34.0
+readme-renderer==35.0
     # via twine
 requests==2.27.1
     # via
@@ -120,7 +119,7 @@ rfc3986[idna2008]==1.5.0
     #   twine
 rich==12.2.0
     # via twine
-secretstorage==3.3.1
+secretstorage==3.3.2
     # via keyring
 setuptools-scm==6.4.2
     # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/06_dev.in
@@ -149,7 +148,7 @@ urllib3==1.26.9
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/05_docs_requirements.txt
     #   requests
     #   twine
-virtualenv==20.14.0
+virtualenv==20.14.1
     # via pre-commit
 webencodings==0.5.1
     # via bleach
