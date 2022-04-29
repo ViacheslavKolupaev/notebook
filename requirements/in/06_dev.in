@@ -9,3 +9,4 @@ pre-commit
 setuptools-scm
 twine
 build
+bandit

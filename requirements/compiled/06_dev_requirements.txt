@@ -4,6 +4,10 @@
 #
 #    pip-compile --output-file=- /home/vkolupaev/PycharmProjects/notebook/requirements/in/06_dev.in
 #
+bandit==1.7.4
+    # via
+    #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/02_lint_test_requirements.txt
+    #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/06_dev.in
 bleach==5.0.0
     # via readme-renderer
 build==0.7.0
@@ -30,7 +34,7 @@ charset-normalizer==2.0.12
     #   requests
 commonmark==0.9.1
     # via rich
-cryptography==36.0.2
+cryptography==37.0.1
     # via secretstorage
 distlib==0.3.4
     # via virtualenv
@@ -40,7 +44,15 @@ docutils==0.18.1
     #   readme-renderer
 filelock==3.6.0
     # via virtualenv
-identify==2.4.12
+gitdb==4.0.9
+    # via
+    #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/02_lint_test_requirements.txt
+    #   gitpython
+gitpython==3.1.27
+    # via
+    #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/02_lint_test_requirements.txt
+    #   bandit
+identify==2.5.0
     # via pre-commit
 idna==3.3
     # via
@@ -72,6 +84,10 @@ packaging==21.3
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/05_docs_requirements.txt
     #   build
     #   setuptools-scm
+pbr==5.8.1
+    # via
+    #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/02_lint_test_requirements.txt
+    #   stevedore
 pep517==0.12.0
     # via build
 pkginfo==1.8.2
@@ -103,6 +119,7 @@ pyyaml==6.0
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/02_lint_test_requirements.txt
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/04_unit_test_requirements.txt
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/05_docs_requirements.txt
+    #   bandit
     #   pre-commit
 readme-renderer==35.0
     # via twine
@@ -117,7 +134,7 @@ rfc3986[idna2008]==1.5.0
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/04_unit_test_requirements.txt
     #   twine
-rich==12.2.0
+rich==12.3.0
     # via twine
 secretstorage==3.3.2
     # via keyring
@@ -130,6 +147,14 @@ six==1.16.0
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/05_docs_requirements.txt
     #   bleach
     #   virtualenv
+smmap==5.0.0
+    # via
+    #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/02_lint_test_requirements.txt
+    #   gitdb
+stevedore==3.5.0
+    # via
+    #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/02_lint_test_requirements.txt
+    #   bandit
 toml==0.10.2
     # via pre-commit
 tomli==2.0.1
