@@ -34,7 +34,7 @@ repos:
         entry: flake8
         args: [
             --config=setup.cfg,
-            --exit-zero  # disables to force commit
+            --exit-zero  # force exit with 0
         ]
         language: python
         types: [ python ]
@@ -43,7 +43,8 @@ repos:
     hooks:
       - id: mypy
         name: mypy
-        entry: mypy
+        verbose: true
+        entry: bash -c 'mypy "$@" || true' --  # force exit with 0
         language: python
         types: [python]
         args: []
@@ -77,7 +78,7 @@ repos:
         args: [
           -l,  # report only issues of a given severity level or higher (-l for LOW, -ll for MEDIUM, -lll for HIGH)
           --recursive,  # find and process files in subdirectories
-          --exit-zero,  # exit with 0, even with results found
+          --exit-zero,  # force exit with 0, even with results found
           --exclude docs,requirements  # comma-separated list of paths
         ]
         files: .py$
