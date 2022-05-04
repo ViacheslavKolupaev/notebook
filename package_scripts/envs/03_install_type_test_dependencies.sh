@@ -175,8 +175,8 @@ function install_mypy_stub_packages() {
   fi
 
   if ! yes | mypy --install-types; then
-    log_to_stderr 'Failed to install mypy stubs. Exit.'
-    exit 1
+    log_to_stderr 'Failed to install mypy stubs. Examine the errors and try installing manually. Continue.'
+    sleep 5
   else
     log_to_stdout "Mypy stubs installed successfully."
   fi
