@@ -41,17 +41,17 @@ flake8-bandit==3.0.0
     # via wemake-python-styleguide
 flake8-broken-line==0.4.0
     # via wemake-python-styleguide
-flake8-bugbear==22.3.23
+flake8-bugbear==22.4.25
     # via wemake-python-styleguide
 flake8-commas==2.1.0
     # via wemake-python-styleguide
 flake8-comprehensions==3.8.0
     # via wemake-python-styleguide
-flake8-debugger==4.0.0
+flake8-debugger==4.1.2
     # via wemake-python-styleguide
 flake8-docstrings==1.6.0
     # via wemake-python-styleguide
-flake8-eradicate==1.2.0
+flake8-eradicate==1.2.1
     # via wemake-python-styleguide
 flake8-isort==4.1.1
     # via wemake-python-styleguide
@@ -86,7 +86,7 @@ pydocstyle==6.1.1
     # via flake8-docstrings
 pyflakes==2.4.0
     # via flake8
-pygments==2.11.2
+pygments==2.12.0
     # via
     #   flake8-rst-docstrings
     #   wemake-python-styleguide
@@ -96,8 +96,6 @@ pyyaml==6.0
     #   bandit
 restructuredtext-lint==1.4.0
     # via flake8-rst-docstrings
-six==1.16.0
-    # via flake8-debugger
 smmap==5.0.0
     # via gitdb
 snowballstemmer==2.2.0
@@ -112,3 +110,6 @@ typing-extensions==4.2.0
     #   wemake-python-styleguide
 wemake-python-styleguide==0.16.1
     # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/02_lint_test.in
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools
