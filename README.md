@@ -170,4 +170,6 @@ mkdocs serve
 After starting the server, documentation is usually available at the following address: [http://127.0.0.1:8000/](
 http://127.0.0.1:8000/)
 
-.
+To suppress `mypy` errors: `# type: ignore[<error-id>]`.
+To suppress `bandit` reports: `# nosec <report-id>`.
+To suppress `flake8` errors: `# noqa: <error-id>`.
