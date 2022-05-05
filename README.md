@@ -10,6 +10,7 @@
        - [ ] `02_docker_compose_run_local.sh` — run `docker-compose.yaml` locally.
        - [ ] `03_docker_run_postgres.sh` — run `PostgreSQL` DB locally in a container.
      - [x] `envs`
+       - [x] `00_proj_init_run_once.sh`
        - [x] `01_install_app_dependencies.sh`
        - [x] `02_install_lint_test_dependencies.sh`
        - [x] `03_install_type_test_dependencies.sh`
@@ -49,7 +50,7 @@
    - [x] `.gitattributes`
    - [x] `.gitignore`
    - [ ] `.gitlab-ci.yml`
-   - [ ] `.pre-commit-config.yaml`
+   - [x] `.pre-commit-config.yaml`
    - [ ] `alembic.ini`
    - [ ] `alembic_generate_and_stamp_version_table.py`
    - [x] `Dockerfile`
@@ -61,9 +62,9 @@
    - [ ] `README.md`
    - [x] `requirements.txt`
    - [x] `setup.cfg`
-   - [ ] `.coverage`
+   - [x] `.coverage`
    - [ ] `coverage.xml`
-   - [ ] `report.xml`
+   - [x] `report.xml`
    - [ ] `docker-compose.yml`
    - [ ] `prometheus.yml`
    - [ ] `Jenkinsfile`
@@ -173,3 +174,5 @@ http://127.0.0.1:8000/)
 To suppress `mypy` errors: `# type: ignore[<error-id>]`.
 To suppress `bandit` reports: `# nosec <report-id>`.
 To suppress `flake8` errors: `# noqa: <error-id>`.
+
+To run `pre-commit` checks manually: `pre-commit run --all-files`
