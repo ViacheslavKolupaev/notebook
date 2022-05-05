@@ -46,3 +46,12 @@ init_forbid_extra = true
 init_typed = true
 warn_required_dynamic_aliases = true
 warn_untyped_fields = true
+
+[[tool.mypy.overrides]]
+module = [
+    "uvicorn",
+    "fastapi",
+    "typeguard",
+    "src.boilerplate.*",
+]
+ignore_missing_imports = true
