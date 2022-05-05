@@ -12,26 +12,32 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-import uvicorn
-from app import app
-from config import config
-from custom_logger import get_logger
-from schemas.common import EnvState
+"""Server for the FastAPI application.
 
-_logger = get_logger(logger_name=__name__)
-
-
-def run_server() -> None:
-    """Start the Uvicorn server.
-
-    Attention:
+Attention:
     1. The filename `server.py` is used in the Dockerfile.
     2. In `server: app`: `server` is the name of this module, `app` is the name of the
        imported FastAPI application.
-    """
-    _logger.debug('Starting the Uvicorn server...')
+"""
 
-    app = 'server:app'
+import uvicorn
+
+from src.boilerplate.app import app  # noqa: F401
+from src.boilerplate.config import config
+from src.boilerplate.custom_logger import CustomLogger
+from src.boilerplate.schemas.common import EnvState
+
+_module_logger = CustomLogger().get_module_logger(
+    name=__name__,
+    module_extra=None,  # optional data that will be added to each message of this logger
+)
+
+
+def run_server() -> None:
+    """Start the Uvicorn server."""
+    _module_logger.debug('Starting the Uvicorn server...')
+
+    app = 'server:app'  # noqa: F811, WPS442
 
     if config.APP_ENV_STATE == EnvState.development:
         uvicorn.run(
@@ -58,7 +64,11 @@ def run_server() -> None:
             reload=False,
         )
     else:
-        raise ValueError("Incorrect environment variable 'ENV_STATE': %s.", config.APP_ENV_STATE)
+        raise ValueError(
+            "Incorrect environment variable 'ENV_STATE': {app_env_state}.".format(
+                app_env_state=config.APP_ENV_STATE,
+            ),
+        )
 
 
 if __name__ == '__main__':
