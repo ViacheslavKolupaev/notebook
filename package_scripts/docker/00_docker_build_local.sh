@@ -15,6 +15,18 @@
 # limitations under the License.
 #
 
+# ########################################################################################
+# The script will create a Docker image of the application.
+#
+# Use it for local development and testing.
+# The image can be uploaded to a repository such as: DockerHub, Nexus, etc.
+#
+# If necessary, you need to replace the values of the variables in the `main()` function:
+# - project_name
+# - docker_image_name
+# - docker_image_tag.
+##########################################################################################
+
 #######################################
 # Delete the Docker image before creating an image with the same name and tag.
 # Globals:
@@ -113,7 +125,7 @@ function main() {
   readonly project_root
 
   local docker_image_name
-  readonly docker_image_name='boilerplate'
+  readonly docker_image_name='boilerplate'  # refers to `${project_root}/src/boilerplate`
 
   local docker_image_tag
   readonly docker_image_tag='latest'
