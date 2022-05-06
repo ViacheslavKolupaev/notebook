@@ -96,4 +96,4 @@ RUN chown -R app_user:app_group ${APP_ROOT}
 USER app_user
 
 # Server start.
-ENTRYPOINT ["/bin/bash", "entrypoint.sh"]
+ENTRYPOINT ["/bin/bash", "docker-entrypoint.sh"]
