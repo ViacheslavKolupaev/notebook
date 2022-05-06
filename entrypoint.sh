@@ -66,6 +66,7 @@ function main() {
   # 2. Execution of script logic.
   log_to_stdout "${script_basename}: START SCRIPT EXECUTION"
 
+  sleep 30
   run_python_app "$@"
 
   log_to_stdout "${script_basename}: END OF SCRIPT EXECUTION"
