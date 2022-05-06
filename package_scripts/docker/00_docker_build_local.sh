@@ -15,53 +15,90 @@
 # limitations under the License.
 #
 
+#######################################
+# Delete the Docker image before creating an image with the same name and tag.
+# Globals:
+#   container_id
+#   docker_image
+# Arguments:
+#  None
+#######################################
 function docker_cleanup() {
-  # TODO: finished here; finalize.
-  log_to_stdout 'Docker cleanup...'
+  log_to_stdout 'Docker pre-cleanup...'
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
+  # Getting image ID by <name>:<tag>.
   local docker_image_id
-  docker_image_id="$(docker images -q "${project_name}":"${docker_image_tag}")"
+  docker_image_id="$(docker images -q "${docker_image}")"
 
+  # Getting a list of containers created based on the image ID.
   local docker_containers_using_image_id
   docker_containers_using_image_id="$(docker ps -q --filter "ancestor=${docker_image_id}")"
 
-  if [[ -n "$docker_image_id" ]]; then
+  # Deleting an image by ID.
+  if [[ -n "${docker_image_id}" ]]; then
     log_to_stdout "Docker image exists. ID: ${docker_image_id}."
+    if ! docker rmi "${docker_image}"; then
+      log_to_stderr "Error removing Docker image: '${docker_image}'"
+      exit 1
+    else
+      log_to_stdout "Docker image removed successfully: '${docker_image}'"
+    fi
   else
-    log_to_stdout "No such Docker image: '${project_name}:${docker_image_tag}'."
+    log_to_stdout "No such Docker image: '${docker_image}'."
   fi
 
+  # Removing containers created from the image.
   if [[ -n "$docker_containers_using_image_id" ]]; then
-    log_to_stdout "There is a Docker container running from image '${project_name}:${docker_image_tag}'."
+    log_to_stdout "There is a Docker container running from image '${docker_image}'."
+    for container_id in "${docker_containers_using_image_id[@]}"; do
+      if ! docker stop "${container_id}" && docker rm "${container_id}"; then
+        log_to_stderr "Error deleting Docker container with ID '${container_id}'."
+        exit 1
+      else
+        log_to_stdout "Docker container with ID '${container_id}' was successfully deleted."
+      fi
+    done
   else
-    log_to_stdout "There is no Docker container running from '${project_name}:${docker_image_tag}' image."
-  fi
-
-  if ! docker stop "$project_name" && docker rm "$project_name"; then
-    log_to_stderr 'Error'
-    exit 1
-  else
-    log_to_stdout 'OK'
-  fi
-
-  if ! docker rmi "$project_name":"$docker_image_tag"; then
-    log_to_stderr 'Error'
-    exit 1
-  else
-    log_to_stdout 'OK'
-  fi
-
-  if ! docker image prune --force; then
-    log_to_stderr 'Error'
-    exit 1
-  else
-    log_to_stdout 'OK'
+    log_to_stdout "There is no Docker container running from '${docker_image}' image."
   fi
 
   log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
 }
 
+#######################################
+# Build a Docker image using BuildKit.
+# Globals:
+#   docker_image
+#   docker_image_name
+# Arguments:
+#  None
+#######################################
+function docker_build_image() {
+  log_to_stdout "Building the Docker image of the application: '${docker_image}'..."
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+
+  # See about DOCKER_BUILDKIT: https://github.com/moby/moby/issues/34151#issuecomment-739018493
+  if ! DOCKER_BUILDKIT=1 docker build \
+       --build-arg APP_NAME="${docker_image_name}" \
+       -t "${docker_image}" .; then
+    log_to_stderr 'Error building Docker image. Exit.'
+    exit 1
+  else
+    log_to_stdout 'Docker image successfully built.'
+  fi
+  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+}
+
+#######################################
+# Run the main function of the script.
+# Globals:
+#   BASH_SOURCE
+#   HOME
+#   PWD
+# Arguments:
+#  None
+#######################################
 function main() {
   # 1. Declaring Local Variables.
   local script_basename
@@ -75,8 +112,14 @@ function main() {
   project_root="${HOME}/PycharmProjects/${project_name}"  # change the path if necessary
   readonly project_root
 
+  local docker_image_name
+  readonly docker_image_name='boilerplate'
+
   local docker_image_tag
   readonly docker_image_tag='latest'
+
+  local docker_image
+  readonly docker_image="${docker_image_name}":"${docker_image_tag}"
 
   # 2. Import bash functions from other scripts.
 
@@ -90,6 +133,7 @@ function main() {
   log_to_stdout "Current pwd: ${PWD}"
 
   docker_cleanup "$@"
+  docker_build_image "$@"
 
   log_to_stdout "${script_basename}: END OF SCRIPT EXECUTION"
 }
