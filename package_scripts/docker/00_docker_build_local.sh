@@ -43,14 +43,10 @@ function docker_cleanup() {
   local docker_image_id
   docker_image_id="$(docker images -q "${docker_image}")"
 
-  # Getting a list of containers created based on the image ID.
-  local docker_containers_using_image_id
-  docker_containers_using_image_id="$(docker ps -q --filter "ancestor=${docker_image_id}")"
-
   # Deleting an image by ID.
   if [[ -n "${docker_image_id}" ]]; then
     log_to_stdout "Docker image exists. ID: ${docker_image_id}."
-    if ! docker rmi "${docker_image}"; then
+    if ! docker rmi --force "${docker_image}"; then
       log_to_stderr "Error removing Docker image: '${docker_image}'"
       exit 1
     else
@@ -58,21 +54,6 @@ function docker_cleanup() {
     fi
   else
     log_to_stdout "No such Docker image: '${docker_image}'."
-  fi
-
-  # Removing containers created from the image.
-  if [[ -n "$docker_containers_using_image_id" ]]; then
-    log_to_stdout "There is a Docker container running from image '${docker_image}'."
-    for container_id in "${docker_containers_using_image_id[@]}"; do
-      if ! docker stop "${container_id}" && docker rm "${container_id}"; then
-        log_to_stderr "Error deleting Docker container with ID '${container_id}'."
-        exit 1
-      else
-        log_to_stdout "Docker container with ID '${container_id}' was successfully deleted."
-      fi
-    done
-  else
-    log_to_stdout "There is no Docker container running from '${docker_image}' image."
   fi
 
   log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
