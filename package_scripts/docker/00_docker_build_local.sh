@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-# ########################################################################################
+##########################################################################################
 # The script will create a Docker image of the application.
 #
 # Use it for local development and testing.
@@ -24,7 +24,7 @@
 # If necessary, you need to replace the values of the variables in the `main()` function:
 # - project_name
 # - docker_image_name
-# - docker_image_tag.
+# - docker_image_tag
 ##########################################################################################
 
 #######################################
@@ -70,6 +70,9 @@ function docker_cleanup() {
 function docker_build_image() {
   log_to_stdout "Building the Docker image of the application: '${docker_image}'..."
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+
+  cd "${project_root}" || exit 1  # changing to the directory with the Dockerfile.
+  log_to_stdout "Current pwd: ${PWD}"
 
   # See about DOCKER_BUILDKIT: https://github.com/moby/moby/issues/34151#issuecomment-739018493
   if ! DOCKER_BUILDKIT=1 docker build \
@@ -121,9 +124,6 @@ function main() {
 
   # 3. Execution of script logic.
   log_to_stdout "${script_basename}: START SCRIPT EXECUTION"
-
-  cd "${project_root}" || exit 1
-  log_to_stdout "Current pwd: ${PWD}"
 
   docker_cleanup "$@"
   docker_build_image "$@"
