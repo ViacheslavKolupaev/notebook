@@ -209,7 +209,7 @@ class CustomLogger(object):
         """Get logger with prepared handlers and extra dict."""
         if module_extra is None:
             module_extra = {
-                'env_state': config.APP_ENV_STATE.name,
+                'env_state': config.APP_ENV_STATE,
                 'commit_sha': config.APP_CI_COMMIT_SHA,
             }
 

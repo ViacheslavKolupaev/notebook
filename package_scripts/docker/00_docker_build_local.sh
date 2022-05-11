@@ -35,7 +35,7 @@
 # Arguments:
 #  None
 #######################################
-function docker_cleanup() {
+function docker_pre_cleanup() {
   log_to_stdout 'Docker pre-cleanup...'
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
@@ -125,7 +125,7 @@ function main() {
   # 3. Execution of script logic.
   log_to_stdout "${script_basename}: START SCRIPT EXECUTION"
 
-  docker_cleanup "$@"
+  docker_pre_cleanup "$@"
   docker_build_image "$@"
 
   log_to_stdout "${script_basename}: END OF SCRIPT EXECUTION"

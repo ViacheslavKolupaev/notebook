@@ -45,10 +45,10 @@ from typing import Optional, Union
 
 import pydantic
 
-from src.boilerplate.schemas.common import EnvState  # type: ignore[import]
+from src.boilerplate.schemas.common import EnvState
 
 
-def _get_path_to_dotenv_file(dotenv_filename: str, num_of_parent_dirs_up: int) -> Path:
+def _get_path_to_dotenv_file(dotenv_filename: str, num_of_parent_dirs_up: int) -> Optional[Path]:
     """Get the path to the `.env` file.
 
     This is a helper function.
@@ -56,13 +56,9 @@ def _get_path_to_dotenv_file(dotenv_filename: str, num_of_parent_dirs_up: int) -
     """
     path_to_dotenv_file = Path(__file__).resolve().parents[num_of_parent_dirs_up].joinpath(dotenv_filename)
 
-    if not path_to_dotenv_file.exists():
-        raise FileNotFoundError(
-            errno.ENOENT,
-            os.strerror(errno.ENOENT),
-            str(path_to_dotenv_file),
-        )
-    return path_to_dotenv_file
+    if path_to_dotenv_file.exists():
+        return path_to_dotenv_file
+    return None
 
 
 class AppInternalLogicConfig(pydantic.BaseModel):
@@ -103,7 +99,7 @@ class GlobalConfig(pydantic.BaseSettings, AppInternalLogicConfig):
     _DEFAULT_APP_NAME_VALUE: str = 'boilerplate'
 
     APP_NAME: str = pydantic.Field(default=_DEFAULT_APP_NAME_VALUE, const=True, min_length=1)
-    APP_ENV_STATE: EnvState = EnvState.development
+    APP_ENV_STATE: EnvState = pydantic.Field(env='APP_ENV_STATE', default=EnvState.development, min_length=1)
     APP_ROOT_PATH: str = ''
     APP_API_VERSION: str = pydantic.Field(default='v1', regex=r'^v\d+$')  # v1, v12, v123
     APP_API_ACCESS_HTTP_BEARER_TOKEN: Optional[pydantic.SecretStr]
@@ -157,8 +153,7 @@ class GlobalConfig(pydantic.BaseSettings, AppInternalLogicConfig):
         Loads the dotenv file. Environment variables will always take priority over values
         loaded from a dotenv file.
         """
-
-        env_file: Path = _get_path_to_dotenv_file(dotenv_filename='.env', num_of_parent_dirs_up=2)
+        env_file: Optional[Path] = _get_path_to_dotenv_file(dotenv_filename='.env', num_of_parent_dirs_up=2)
         anystr_strip_whitespace = True
 
 

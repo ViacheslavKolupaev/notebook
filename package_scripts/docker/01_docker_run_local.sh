@@ -38,27 +38,18 @@
 function docker_pre_cleanup() {
   log_to_stdout 'Docker pre-cleanup...'
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
-#
-#  if ! docker stop "${docker_image_name}" && docker rm "${docker_image_name}"; then
-#    log_to_stderr "Error deleting Docker container with name '${docker_image_name}'."
-#    exit 1
-#  else
-#    log_to_stdout "Docker container with name '${docker_image_name}' was successfully deleted."
-#  fi
 
-  # Getting image ID by <name>:<tag>.
-#  local docker_image_id
-#  docker_image_id="$(docker images -q "${docker_image}")"
+  docker stop "${docker_image_name}" && docker rm "${docker_image_name}"
 
   # Getting a list of containers created based on the image ID.
   local docker_containers_using_image_id
-  docker_containers_using_image_id="$(docker ps -q --filter "ancestor=${docker_image}")"
+  docker_containers_using_image_id="$(docker ps -a -q --filter "ancestor=${docker_image}")"
 
   # Removing containers created from the image.
-  if [[ -n "$docker_containers_using_image_id" ]]; then
-    log_to_stdout "There is a Docker container running from image '${docker_image}'."
+  if [[ -n "${docker_containers_using_image_id}" ]]; then
+    log_to_stdout "Containers created from '${docker_image}' image found: ${docker_containers_using_image_id}."
     for container_id in "${docker_containers_using_image_id[@]}"; do
-      if ! docker stop "${container_id}" && docker rm "${container_id}"; then
+      if ! (docker stop "${container_id}" && docker rm "${container_id}"); then
         log_to_stderr "Error deleting Docker container with ID '${container_id}'."
         exit 1
       else
@@ -76,6 +67,7 @@ function docker_run_container() {
   log_to_stdout "Running a Docker container based on the '${docker_image}' image..."
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
+  # Docs: https://docs.docker.com/engine/reference/commandline/run/
   if ! docker run \
         --log-opt max-size=50m \
         -d \
@@ -83,7 +75,7 @@ function docker_run_container() {
         -e LANG=C.UTF-8 \
         --network="host" \
         --env IS_DEBUG=True \
-        --rm \
+        --env-file=../../.env \
         --name "${docker_image_name}" \
         "${docker_image}";
   then
