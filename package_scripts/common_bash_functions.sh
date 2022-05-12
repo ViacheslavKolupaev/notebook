@@ -28,7 +28,12 @@
 #  Text message.
 #######################################
 function log_to_stdout() {
-  echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&1
+  if [ $# -eq 0 ]
+  then
+    echo "${FUNCNAME[0]}: No arguments supplied. Continue."
+  else
+    echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&1
+  fi
 }
 
 #######################################
@@ -37,7 +42,12 @@ function log_to_stdout() {
 #  Text message.
 #######################################
 function log_to_stderr() {
-  echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&2
+  if [ $# -eq 0 ]
+  then
+    echo "${FUNCNAME[0]}: No arguments supplied. Continue."
+  else
+    echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&2
+  fi
 }
 
 #######################################
@@ -46,9 +56,15 @@ function log_to_stderr() {
 #   Docker container ID or name
 #######################################
 function docker_container_stop() {
-  local container_id_or_name
-  container_id_or_name=$1
-  readonly container_id_or_name
+  if [ $# -eq 0 ]
+  then
+    log_to_stderr "${FUNCNAME[0]}: No arguments supplied. Exit."
+    exit 1
+  else
+    local container_id_or_name
+    container_id_or_name=$1
+    readonly container_id_or_name
+  fi
 
   log_to_stdout "Stopping the '${container_id_or_name}' container..."
   if ! docker stop "${container_id_or_name}"; then
@@ -65,9 +81,15 @@ function docker_container_stop() {
 #   Docker container ID or name
 #######################################
 function docker_container_remove() {
-  local container_id_or_name
-  container_id_or_name=$1
-  readonly container_id_or_name
+  if [ $# -eq 0 ]
+  then
+    log_to_stderr "${FUNCNAME[0]}: No arguments supplied. Exit."
+    exit 1
+  else
+    local container_id_or_name
+    container_id_or_name=$1
+    readonly container_id_or_name
+  fi
 
   log_to_stdout "Removing the '${container_id_or_name}' container..."
   if ! docker rm "${container_id_or_name}"; then
@@ -84,9 +106,15 @@ function docker_container_remove() {
 #   Docker image ID or name
 #######################################
 function docker_image_remove() {
-  local image_id_or_name
-  image_id_or_name=$1
-  readonly image_id_or_name
+  if [ $# -eq 0 ]
+  then
+    log_to_stderr "${FUNCNAME[0]}: No arguments supplied. Exit."
+    exit 1
+  else
+    local image_id_or_name
+    image_id_or_name=$1
+    readonly image_id_or_name
+  fi
 
   log_to_stdout "Removing the '${image_id_or_name}' image..."
   if ! docker rmi --force "${image_id_or_name}"; then
@@ -108,7 +136,7 @@ function sync_project_dependencies() {
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
   if [ -z "$1" ] ; then
-    log_to_stderr "Argument 'req_compiled_file_full_path' was not specified in the function call. Exit."
+    log_to_stderr "${FUNCNAME[0]}: Argument 'req_compiled_file_full_path' was not specified in the function call. Exit."
     exit 1
   else
     local req_compiled_file_full_path
