@@ -15,6 +15,13 @@
 # limitations under the License.
 #
 
+##########################################################################################
+# The script provides common bash functions.
+#
+# To use it, import it into your script with the `source` command.
+##########################################################################################
+
+
 #######################################
 # Print a message to stdout with the date and time.
 # Arguments:
