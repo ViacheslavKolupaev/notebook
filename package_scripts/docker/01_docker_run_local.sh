@@ -16,55 +16,99 @@
 #
 
 # ########################################################################################
-# The script will create a Docker image of the application.
+# The script will create and run the Docker application container based on the image.
 #
 # Use it for local development and testing.
-# The image can be uploaded to a repository such as: DockerHub, Nexus, etc.
 #
 # If necessary, you need to replace the values of the variables in the `main()` function:
-# - project_name
-# - docker_image_name
-# - docker_image_tag.
+# - project_name;
+# - docker_image_name;
+# - docker_image_tag;
+# - service_port; make sure it matches the application config.
 ##########################################################################################
 
 #######################################
-# Delete the Docker image before creating an image with the same name and tag.
+# Stop and remove containers with a name equal to the image name.
+# Globals:
+#   container_id
+#   docker_image_name
+# Arguments:
+#  None
+#######################################
+function delete_containers_by_name() {
+  # Getting a list of containers with a name equal to the name of the image.
+  local container_ids
+  container_ids="$(docker ps -aq -f "name=${docker_image_name}")"
+
+  # Stop and remove containers.
+  if [[ -n "${container_ids}" ]]; then
+    log_to_stdout "Found containers named '${docker_image_name}': ${container_ids}."
+
+    for container_id in "${container_ids[@]}"; do
+      stop_container "${container_id}"
+      if [ "$(docker ps -aq -f status=exited -f id="${container_id}")" ]; then
+          remove_container "${container_id}"
+      fi
+    done
+  else
+    log_to_stdout "There are no containers named '${docker_image_name}'. Continue."
+  fi
+}
+
+#######################################
+# Stop and delete containers created from the image.
 # Globals:
 #   container_id
 #   docker_image
 # Arguments:
 #  None
 #######################################
-function docker_pre_cleanup() {
-  log_to_stdout 'Docker pre-cleanup...'
-  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+function delete_containers_by_ancestor() {
+  # Get a list of containers created based on the specified image.
+  local container_ids
+  container_ids="$(docker ps -aq -f "ancestor=${docker_image}")"
 
-  docker stop "${docker_image_name}" && docker rm "${docker_image_name}"
+  # Stop and remove containers.
+  if [[ -n "${container_ids}" ]]; then
+    log_to_stdout "Containers created from '${docker_image}' image found: ${container_ids}."
 
-  # Getting a list of containers created based on the image ID.
-  local docker_containers_using_image_id
-  docker_containers_using_image_id="$(docker ps -a -q --filter "ancestor=${docker_image}")"
-
-  # Removing containers created from the image.
-  if [[ -n "${docker_containers_using_image_id}" ]]; then
-    log_to_stdout "Containers created from '${docker_image}' image found: ${docker_containers_using_image_id}."
-    for container_id in "${docker_containers_using_image_id[@]}"; do
-      if ! (docker stop "${container_id}" && docker rm "${container_id}"); then
-        log_to_stderr "Error deleting Docker container with ID '${container_id}'."
-        exit 1
-      else
-        log_to_stdout "Docker container with ID '${container_id}' was successfully deleted."
+    for container_id in "${container_ids[@]}"; do
+      stop_container "${container_id}"
+      if [ "$(docker ps -aq -f status=exited -f id="${container_id}")" ]; then
+          remove_container "${container_id}"
       fi
     done
   else
-    log_to_stdout "There is no Docker container running from '${docker_image}' image."
+    log_to_stdout "There are no containers running from the '${docker_image}' image. Continue."
   fi
+}
+
+#######################################
+# Stop and delete running containers before starting a new one.
+# Arguments:
+#  None
+#######################################
+function docker_pre_cleanup() {
+  log_to_stdout 'STEP 1: Docker pre-cleanup...'
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+
+#  delete_containers_by_name "$@"
+  delete_containers_by_ancestor "$@"
 
   log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
 }
 
+#######################################
+# Launch a new application Docker container.
+# Globals:
+#   docker_image
+#   docker_image_name
+#   service_port
+# Arguments:
+#  None
+#######################################
 function docker_run_container() {
-  log_to_stdout "Running a Docker container based on the '${docker_image}' image..."
+  log_to_stdout "STEP 2: Running a Docker container based on the '${docker_image}' image..."
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
   # Docs: https://docs.docker.com/engine/reference/commandline/run/
@@ -76,6 +120,7 @@ function docker_run_container() {
         --network="host" \
         --env IS_DEBUG=True \
         --env-file=../../.env \
+        --rm \
         --name "${docker_image_name}" \
         "${docker_image}";
   then
