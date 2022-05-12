@@ -1,4 +1,4 @@
 setuptools
 wheel
-pip
-pip-tools
+pip==22.0.4
+pip-tools==6.5.1

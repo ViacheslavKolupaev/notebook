@@ -84,7 +84,7 @@ packaging==21.3
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/05_docs_requirements.txt
     #   build
     #   setuptools-scm
-pbr==5.8.1
+pbr==5.9.0
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/02_lint_test_requirements.txt
     #   stevedore
@@ -94,7 +94,7 @@ pkginfo==1.8.2
     # via twine
 platformdirs==2.5.2
     # via virtualenv
-pre-commit==2.18.1
+pre-commit==2.19.0
     # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/06_dev.in
 pycparser==2.21
     # via
@@ -108,7 +108,7 @@ pygments==2.12.0
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/05_docs_requirements.txt
     #   readme-renderer
     #   rich
-pyparsing==3.0.8
+pyparsing==3.0.9
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/04_unit_test_requirements.txt
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/05_docs_requirements.txt
@@ -134,7 +134,7 @@ rfc3986[idna2008]==1.5.0
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/04_unit_test_requirements.txt
     #   twine
-rich==12.3.0
+rich==12.4.1
     # via twine
 secretstorage==3.3.2
     # via keyring

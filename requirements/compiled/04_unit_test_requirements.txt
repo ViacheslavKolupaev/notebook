@@ -72,7 +72,7 @@ databases[postgresql]==0.5.5
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/01_app.in
-fastapi==0.75.2
+fastapi==0.77.1
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/01_app.in
@@ -98,7 +98,7 @@ httptools==0.3.0
     #   uvicorn
 httpx==0.17.1
     # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/04_unit_test.in
-hypothesis==6.46.2
+hypothesis==6.46.3
     # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/04_unit_test.in
 idna==3.3
     # via
@@ -149,7 +149,7 @@ pydantic[dotenv]==1.9.0
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/01_app.in
     #   fastapi
-pyparsing==3.0.8
+pyparsing==3.0.9
     # via packaging
 pytest==7.1.2
     # via
@@ -186,7 +186,7 @@ requests==2.27.1
     # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/04_unit_test.in
 rfc3986[idna2008]==1.5.0
     # via httpx
-sentry-sdk==1.5.11
+sentry-sdk==1.5.12
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/01_app.in
@@ -206,7 +206,7 @@ sqlalchemy==1.4.36
     #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/01_app.in
     #   alembic
     #   databases
-starlette==0.17.1
+starlette==0.19.1
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   fastapi
