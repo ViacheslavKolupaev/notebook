@@ -21,24 +21,6 @@
 #
 
 #######################################
-# Print a message to stdout with the date and time.
-# Arguments:
-#  Text message.
-#######################################
-function log_to_stdout() {
-  echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&1
-}
-
-#######################################
-# Print an error message to stderr with the date and time.
-# Arguments:
-#  Text message.
-#######################################
-function log_to_stderr() {
-  echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&2
-}
-
-#######################################
 # Determine the type of operating system to specify the correct path to the venv scripts folder.
 # The current version is designed for the following platforms only (others can be added as needed):
 #   - "msys": MSYS / Git Bash for Windows;
@@ -267,7 +249,11 @@ function main() {
   local missing_pkgs
   missing_pkgs=""  # don't change
 
-  # 2. Execution of script logic.
+  # 2. Import bash functions from other scripts.
+  # shellcheck source=../common_bash_functions.sh
+  source ../common_bash_functions.sh
+
+  # 3. Execution of script logic.
   log_to_stdout "${script_basename}: START SCRIPT EXECUTION"
 
   install_all_project_dependencies "$@"

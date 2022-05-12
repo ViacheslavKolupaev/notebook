@@ -25,23 +25,6 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-#######################################
-# Print a message to stdout with the date and time.
-# Arguments:
-#  Text message.
-#######################################
-function log_to_stdout() {
-  echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&1
-}
-
-#######################################
-# Print an error message to stderr with the date and time.
-# Arguments:
-#  Text message.
-#######################################
-function log_to_stderr() {
-  echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&2
-}
 
 #######################################
 # Activate the virtual environment (venv).
@@ -247,7 +230,11 @@ function main() {
   local venv_scripts_dir
   venv_scripts_dir='unknown'  # different on Linux and Windows
 
-  # 2. Execution of script logic.
+  # 2. Import bash functions from other scripts.
+  # shellcheck source=../common_bash_functions.sh
+  source ../common_bash_functions.sh
+
+  # 3. Execution of script logic.
   log_to_stdout "${script_basename}: START SCRIPT EXECUTION"
 
   detect_os_type "$@"  # modifies the "os_type" variable
