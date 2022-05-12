@@ -38,7 +38,7 @@ function log_to_stderr() {
 # Arguments:
 #   Docker container ID or name
 #######################################
-function stop_container() {
+function docker_container_stop() {
   local container_id_or_name
   container_id_or_name=$1
 
@@ -56,7 +56,7 @@ function stop_container() {
 # Arguments:
 #   Docker container ID or name
 #######################################
-function remove_container() {
+function docker_container_remove() {
   local container_id_or_name
   container_id_or_name=$1
 
@@ -66,5 +66,23 @@ function remove_container() {
     exit 1
   else
     log_to_stdout "Container '${container_id_or_name}' removed successfully. Continue."
+  fi
+}
+
+#######################################
+# description
+# Arguments:
+#   Docker image ID or name
+#######################################
+function docker_image_remove() {
+  local image_id_or_name
+  image_id_or_name=$1
+
+  log_to_stdout "Removing the '${image_id_or_name}' image..."
+  if ! docker rmi --force "${image_id_or_name}"; then
+    log_to_stderr "Error removing image '${image_id_or_name}'. Exit."
+    exit 1
+  else
+    log_to_stdout "Image '${image_id_or_name}' removed successfully. Continue."
   fi
 }
