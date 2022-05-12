@@ -22,10 +22,11 @@
 # The image can be uploaded to a repository such as: DockerHub, Nexus, etc.
 #
 # If necessary, you need to replace the values of the variables in the `main()` function:
-# - project_name
-# - docker_image_name
-# - docker_image_tag
+# - `project_name`;
+# - `docker_image_name`;
+# - `docker_image_tag`.
 ##########################################################################################
+
 
 #######################################
 # Delete the Docker image before creating an image with the same name and tag.
@@ -36,24 +37,15 @@
 #  None
 #######################################
 function docker_pre_cleanup() {
-  log_to_stdout 'Docker pre-cleanup...'
+  log_to_stdout 'STEP 1: Docker pre-cleanup...'
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
-  # Getting image ID by <name>:<tag>.
-  local docker_image_id
-  docker_image_id="$(docker images -q "${docker_image}")"
-
-  # Deleting an image by ID.
-  if [[ -n "${docker_image_id}" ]]; then
-    log_to_stdout "Docker image exists. ID: ${docker_image_id}."
-    if ! docker rmi --force "${docker_image}"; then
-      log_to_stderr "Error removing Docker image: '${docker_image}'"
-      exit 1
-    else
-      log_to_stdout "Docker image removed successfully: '${docker_image}'"
-    fi
+  # Deleting an image by <name>:<tag>.
+  if [ "$(docker images -q "${docker_image}")" ]; then
+    log_to_stdout "Docker image '${docker_image}' already exists."
+    docker_image_remove "${docker_image}"
   else
-    log_to_stdout "No such Docker image: '${docker_image}'."
+    log_to_stdout "Docker image '${docker_image}' not found. Continue."
   fi
 
   log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
@@ -68,10 +60,11 @@ function docker_pre_cleanup() {
 #  None
 #######################################
 function docker_build_image() {
-  log_to_stdout "Building the Docker image of the application: '${docker_image}'..."
+  log_to_stdout "STEP 2: Building the Docker image of the application: '${docker_image}'..."
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
-  cd "${project_root}" || exit 1  # changing to the directory with the Dockerfile.
+  log_to_stdout 'Changing to the directory with the Dockerfile...'
+  cd "${project_root}" || exit 1
   log_to_stdout "Current pwd: ${PWD}"
 
   # See about DOCKER_BUILDKIT: https://github.com/moby/moby/issues/34151#issuecomment-739018493
@@ -81,8 +74,9 @@ function docker_build_image() {
     log_to_stderr 'Error building Docker image. Exit.'
     exit 1
   else
-    log_to_stdout 'Docker image successfully built.'
+    log_to_stdout 'Docker image successfully built. Continue.'
   fi
+
   log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
 }
 
