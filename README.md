@@ -5,8 +5,8 @@
 1. Environment management and service files
    - [ ] `package_scripts`
      - [ ] `docker`
-       - [ ] `00_docker_build_local.sh` — (re)build container locally.
-       - [ ] `01_docker_run_local.sh` — run container locally.
+       - [x] `00_docker_build_local.sh` — (re)build container locally.
+       - [x] `01_docker_run_local.sh` — run container locally.
        - [ ] `02_docker_compose_run_local.sh` — run `docker-compose.yaml` locally.
        - [ ] `03_docker_run_postgres.sh` — run `PostgreSQL` DB locally in a container.
      - [x] `envs`
