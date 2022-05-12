@@ -15,16 +15,16 @@
 # limitations under the License.
 #
 
-# ########################################################################################
+##########################################################################################
 # The script will create and run the Docker application container based on the image.
 #
 # Use it for local development and testing.
 #
 # If necessary, you need to replace the values of the variables in the `main()` function:
-# - project_name;
-# - docker_image_name;
-# - docker_image_tag;
-# - service_port; make sure it matches the application config.
+# - `project_name`;
+# - `docker_image_name`;
+# - `docker_image_tag`;
+# - `service_port`; make sure it matches the application config.
 ##########################################################################################
 
 #######################################
@@ -36,7 +36,7 @@
 #  None
 #######################################
 function delete_containers_by_name() {
-  # Getting a list of containers with a name equal to the name of the image.
+  # Get a list of containers with a name equal to the name of the image.
   local container_ids
   container_ids="$(docker ps -aq -f "name=${docker_image_name}")"
 
@@ -45,9 +45,9 @@ function delete_containers_by_name() {
     log_to_stdout "Found containers named '${docker_image_name}': ${container_ids}."
 
     for container_id in "${container_ids[@]}"; do
-      stop_container "${container_id}"
+      docker_container_stop "${container_id}"
       if [ "$(docker ps -aq -f status=exited -f id="${container_id}")" ]; then
-          remove_container "${container_id}"
+          docker_container_remove "${container_id}"
       fi
     done
   else
@@ -73,9 +73,9 @@ function delete_containers_by_ancestor() {
     log_to_stdout "Containers created from '${docker_image}' image found: ${container_ids}."
 
     for container_id in "${container_ids[@]}"; do
-      stop_container "${container_id}"
+      docker_container_stop "${container_id}"
       if [ "$(docker ps -aq -f status=exited -f id="${container_id}")" ]; then
-          remove_container "${container_id}"
+          docker_container_remove "${container_id}"
       fi
     done
   else
@@ -92,7 +92,7 @@ function docker_pre_cleanup() {
   log_to_stdout 'STEP 1: Docker pre-cleanup...'
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
-#  delete_containers_by_name "$@"
+  delete_containers_by_name "$@"
   delete_containers_by_ancestor "$@"
 
   log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
@@ -127,7 +127,7 @@ function docker_run_container() {
     log_to_stderr 'Error starting container. Exit.'
     exit 1
   else
-    log_to_stdout 'Docker container started successfully.'
+    log_to_stdout 'Docker container started successfully. Continue.'
   fi
 
   log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
