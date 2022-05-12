@@ -32,3 +32,39 @@ function log_to_stdout() {
 function log_to_stderr() {
   echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&2
 }
+
+#######################################
+# Stop the Docker container.
+# Arguments:
+#   Docker container ID or name
+#######################################
+function stop_container() {
+  local container_id_or_name
+  container_id_or_name=$1
+
+  log_to_stdout "Stopping the '${container_id_or_name}' container..."
+  if ! docker stop "${container_id_or_name}"; then
+    log_to_stderr "Error stopping container '${container_id_or_name}'. Exit."
+    exit 1
+  else
+    log_to_stdout "Container '${container_id_or_name}' stopped successfully. Continue."
+  fi
+}
+
+#######################################
+# Remove the Docker container.
+# Arguments:
+#   Docker container ID or name
+#######################################
+function remove_container() {
+  local container_id_or_name
+  container_id_or_name=$1
+
+  log_to_stdout "Removing the '${container_id_or_name}' container..."
+  if ! docker rm "${container_id_or_name}"; then
+    log_to_stderr "Error removing container '${container_id_or_name}'. Exit."
+    exit 1
+  else
+    log_to_stdout "Container '${container_id_or_name}' removed successfully. Continue."
+  fi
+}
