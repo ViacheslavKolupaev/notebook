@@ -1,10 +1,5 @@
 #!/bin/bash
 #
-# Install all necessary dependencies, operating system packages and configure the project.
-#
-# Usually you need to run this script only once at the start of the project.
-#
-#
 # Copyright (c) 2022. Viacheslav Kolupaev, https://vkolupaev.com/
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +14,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #
+
+##########################################################################################
+# Install all necessary dependencies, operating system packages and configure the project.
+#
+# Usually you need to run this script only once at the start of the project.
+##########################################################################################
+
 
 #######################################
 # Determine the type of operating system to specify the correct path to the venv scripts folder.

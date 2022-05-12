@@ -1,16 +1,5 @@
 #!/bin/bash
 #
-# Install "src" dependencies into the virtual environment (venv) of the project.
-#
-# Files with incoming project dependency requirements:
-#  - "requirements/in/00_proj_init.in"
-#  - "requirements/in/01_app.in"
-#
-# Script compiled (output) project dependency file(s):
-#  - "/requirements.txt"
-#  - "requirements/compiled/01_app_requirements.txt"
-#
-#
 #  Copyright (c) 2022. Viacheslav Kolupaev, https://vkolupaev.com/
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +13,19 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+#
+
+##########################################################################################
+# Install "src" dependencies into the virtual environment (venv) of the project.
+#
+# Files with incoming project dependency requirements:
+#  - "requirements/in/00_proj_init.in"
+#  - "requirements/in/01_app.in"
+#
+# Script compiled (output) project dependency file(s):
+#  - "/requirements.txt"
+#  - "requirements/compiled/01_app_requirements.txt"
+##########################################################################################
 
 
 #######################################
