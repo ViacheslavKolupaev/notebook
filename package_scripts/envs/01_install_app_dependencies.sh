@@ -165,32 +165,6 @@ function copy_compiled_file_to_project_root() {
 }
 
 #######################################
-# Synchronize project dependencies with the specified compiled dependency file(s).
-# The following files are being synchronized:
-#  - "requirements/compiled/01_app_requirements.txt"
-# Globals:
-#   project_root
-# Arguments:
-#  None
-# Outputs:
-#   Writes progress messages to stdout and error messages to stderr.
-# Returns:
-#   0 if there are no errors, non-zero on error.
-#######################################
-function sync_dependencies() {
-  log_to_stdout "Synchronizing project dependencies with the specified requirements file(s)..."
-  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
-
-  if ! pip-sync "${req_compiled_file_full_path}"; then
-    log_to_stderr 'Error syncing project dependencies. Exit.'
-    exit 1
-  else
-    log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
-    log_to_stdout "The project's venv dependencies were successfully synced to the specified requirements file(s)."
-  fi
-}
-
-#######################################
 # Run the main function of the script.
 # Globals:
 #   BASH_SOURCE
@@ -244,7 +218,7 @@ function main() {
   install_upgrade_proj_init_dependencies "$@"
   compile_requirements_file "$@"
   copy_compiled_file_to_project_root "$@"
-  sync_dependencies "$@"
+  sync_project_dependencies "${req_compiled_file_full_path}"
 
   log_to_stdout "${script_basename}: END OF SCRIPT EXECUTION"
 }
