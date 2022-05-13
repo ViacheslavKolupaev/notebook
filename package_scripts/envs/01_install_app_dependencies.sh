@@ -218,7 +218,7 @@ function main() {
   install_upgrade_proj_init_dependencies "$@"
   compile_requirements_file "$@"
   copy_compiled_file_to_project_root "$@"
-  sync_project_dependencies "${req_compiled_file_full_path}"
+  sync_venv_with_specified_requirements_files"${req_compiled_file_full_path}"
 
   log_to_stdout "${script_basename}: END OF SCRIPT EXECUTION"
 }

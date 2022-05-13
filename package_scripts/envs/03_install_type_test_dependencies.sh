@@ -112,36 +112,6 @@ function compile_requirements_file() {
 }
 
 #######################################
-# Synchronize project dependencies with the specified compiled dependency file(s).
-# The following files are being synchronized:
-#  - "/requirements/compiled/01_app_requirements.txt"
-#  - "/requirements/compiled/<req_in_file_name>_requirements.txt"
-# Globals:
-#   project_root
-#   req_compiled_file_full_path
-# Arguments:
-#  None
-# Outputs:
-#   Writes progress messages to stdout and error messages to stderr.
-# Returns:
-#   0 if there are no errors, non-zero on error.
-#######################################
-function sync_dependencies() {
-  log_to_stdout "Synchronizing project dependencies with the specified requirements file(s)..."
-  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
-
-  if ! pip-sync \
-      "${project_root}/requirements/compiled/01_app_requirements.txt" \
-      "${req_compiled_file_full_path}"; then
-    log_to_stderr 'Error syncing project dependencies. Exit.'
-    exit 1
-  else
-    log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
-    log_to_stdout "The project's venv dependencies were successfully synced to the specified requirements file(s)."
-  fi
-}
-
-#######################################
 # Install all suggested mypy stub packages using pip.
 # Globals:
 #   PWD
@@ -219,7 +189,7 @@ function main() {
   detect_os_type "$@"  # modifies the "os_type" variable
   activate_venv "$@"
   compile_requirements_file "$@"
-  sync_dependencies "$@"
+  sync_venv_with_specified_requirements_files "${req_compiled_file_full_path}" "${project_root}"
   install_mypy_stub_packages "$@"
 
   log_to_stdout "${script_basename}: END OF SCRIPT EXECUTION"
