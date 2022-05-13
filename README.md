@@ -171,8 +171,9 @@ mkdocs serve
 After starting the server, documentation is usually available at the following address: [http://127.0.0.1:8000/](
 http://127.0.0.1:8000/)
 
-To suppress `mypy` errors: `# type: ignore[<error-id>]`.
-To suppress `bandit` reports: `# nosec <report-id>`.
-To suppress `flake8` errors: `# noqa: <error-id>`.
+Error message suppression:
+1. To suppress `mypy` errors: `# type: ignore[<error-id>]`.
+2. To suppress `bandit` reports: `# nosec <report-id>`.
+3. To suppress `flake8` errors: `# noqa: <error-id>`.
 
 To run `pre-commit` checks manually: `pre-commit run --all-files`
