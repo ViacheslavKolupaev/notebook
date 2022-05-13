@@ -245,7 +245,7 @@ function main() {
 
   local required_pkgs
   # Specify valid package names separated by spaces.
-  required_pkgs=(git-lfs)
+  required_pkgs=(git-lfs tree)
   readonly required_pkgs
 
   local missing_pkgs
