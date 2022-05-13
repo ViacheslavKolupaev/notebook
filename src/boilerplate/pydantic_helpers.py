@@ -29,8 +29,7 @@ def replace_empty_values_to_none(checked_value: Any) -> Any:
     elif isinstance(checked_value, str):
         if checked_value in {'None', ''} or not checked_value:
             return None
-    else:
-        return checked_value
+    return checked_value
 
 
 def orjson_dumps(processed_value: Any, *, default: Optional[Callable[[Any], Any]]) -> Any:
