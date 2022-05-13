@@ -20,7 +20,7 @@ alembic==1.7.7
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/01_app.in
-anyio==3.5.0
+anyio==3.6.0
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   starlette

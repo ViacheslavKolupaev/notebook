@@ -12,7 +12,7 @@ aiosignal==1.2.0
     # via aiohttp
 alembic==1.7.7
     # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/01_app.in
-anyio==3.5.0
+anyio==3.6.0
     # via
     #   starlette
     #   watchgod
