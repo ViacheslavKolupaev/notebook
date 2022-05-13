@@ -24,6 +24,8 @@
 
 #######################################
 # Print a message to stdout with the date and time.
+# Globals:
+#   FUNCNAME
 # Arguments:
 #  Text message.
 #######################################
@@ -52,6 +54,8 @@ function log_to_stderr() {
 
 #######################################
 # Stop the Docker container.
+# Globals:
+#   FUNCNAME
 # Arguments:
 #   Docker container ID or name
 #######################################
@@ -77,6 +81,8 @@ function docker_container_stop() {
 
 #######################################
 # Remove the Docker container.
+# Globals:
+#   FUNCNAME
 # Arguments:
 #   Docker container ID or name
 #######################################
@@ -101,7 +107,9 @@ function docker_container_remove() {
 }
 
 #######################################
-# description
+# Remove the Docker image.
+# Globals:
+#   FUNCNAME
 # Arguments:
 #   Docker image ID or name
 #######################################
@@ -127,6 +135,8 @@ function docker_image_remove() {
 
 #######################################
 # Synchronize the project's virtual environment with the specified requirements files.
+# Globals:
+#   FUNCNAME
 # Arguments:
 #   The full path to the compiled dependency file, with which to sync. Required.
 #   Path to the root of the project. Optional. If specified, will additionally sync with `01_app_requirements.txt`.
@@ -169,4 +179,39 @@ function sync_venv_with_specified_requirements_files() {
 
   log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
   log_to_stdout "The project virtual environment was successfully synchronized with the specified requirements files."
+}
+
+#######################################
+# Activate the project's virtual environment.
+# Globals:
+#   FUNCNAME
+#   PWD
+# Arguments:
+#   Full path to the virtual environment scripts directory (depends on OS type)
+#######################################
+function activate_virtual_environment() {
+  log_to_stdout "Activating the project's virtual environment..."
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+
+  if [ -z "$1" ] ; then
+    log_to_stderr "${FUNCNAME[0]}: Argument 'venv_scripts_dir_full_path' was not specified in the function call. Exit."
+    exit 1
+  else
+    local venv_scripts_dir_full_path
+    venv_scripts_dir_full_path=$1
+    readonly venv_scripts_dir_full_path
+    log_to_stdout "Full path to the virtual environment scripts directory: ${venv_scripts_dir_full_path}"
+  fi
+
+  cd "${project_root}/${venv_name}/${venv_scripts_dir}" || exit 1
+  cd "${venv_scripts_dir_full_path}" || exit 1
+  log_to_stdout "Current pwd: ${PWD}"
+
+  if ! source activate; then
+    log_to_stderr 'Virtual environment activation error. Exit.'
+    exit 1
+  else
+    log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+    log_to_stdout 'Virtual environment successfully activated. Continue.'
+  fi
 }
