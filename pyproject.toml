@@ -105,7 +105,7 @@ addopts = [
     "--tb=short",
     "--strict",
     "--durations=3",
-    "--cov=app",
+    "--cov=src/boilerplate",
     "--cov-report=term-missing",
     "--cov-report=xml:coverage.xml",
 #    "--cov-report=html:htmlcov",
