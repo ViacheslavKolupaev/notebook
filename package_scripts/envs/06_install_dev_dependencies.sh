@@ -111,8 +111,9 @@ function compile_requirements_file() {
   fi
 }
 
+
 #######################################
-# Synchronize project dependencies with the specified compiled dependency file(s).
+# Synchronize the project's virtual environment with all requirements files.
 # The following files are being synchronized:
 #  - "/requirements/compiled/01_app_requirements.txt"
 #  - "/requirements/compiled/02_lint_test_requirements.txt"
@@ -125,13 +126,9 @@ function compile_requirements_file() {
 #   req_compiled_file_full_path
 # Arguments:
 #  None
-# Outputs:
-#   Writes progress messages to stdout and error messages to stderr.
-# Returns:
-#   0 if there are no errors, non-zero on error.
 #######################################
-function sync_dependencies() {
-  log_to_stdout "Synchronizing project dependencies with the specified requirements file(s)..."
+function sync_venv_with_all_requirements_files() {
+  log_to_stdout "Synchronizing the project's virtual environment with all requirements files..."
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
   if ! pip-sync \
@@ -141,11 +138,11 @@ function sync_dependencies() {
       "${project_root}/requirements/compiled/04_unit_test_requirements.txt" \
       "${project_root}/requirements/compiled/05_docs_requirements.txt" \
       "${req_compiled_file_full_path}"; then
-    log_to_stderr 'Error syncing project dependencies. Exit.'
+    log_to_stderr 'Virtual environment synchronization error. Exit.'
     exit 1
   else
     log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
-    log_to_stdout "The project's venv dependencies were successfully synced to the specified requirements file(s)."
+    log_to_stdout 'The project virtual environment was successfully synchronized with all requirements files.'
   fi
 }
 
@@ -201,7 +198,7 @@ function main() {
   detect_os_type "$@"  # modifies the "os_type" variable
   activate_venv "$@"
   compile_requirements_file "$@"
-  sync_dependencies "$@"
+  sync_venv_with_all_requirements_files "$@"
 
   log_to_stdout "${script_basename}: END OF SCRIPT EXECUTION"
 }
