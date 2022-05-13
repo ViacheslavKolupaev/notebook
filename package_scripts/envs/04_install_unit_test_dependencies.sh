@@ -27,34 +27,6 @@
 
 
 #######################################
-# Activate the virtual environment (venv).
-# Globals:
-#   PWD
-#   os_type
-#   project_root
-#   venv_name
-#   venv_scripts_dir
-# Arguments:
-#  None
-#   Writes progress messages to stdout and error messages to stderr.
-# Returns:
-#   0 if there are no errors, non-zero on error.
-#######################################
-function activate_venv() {
-  log_to_stdout "Activating a virtual environment on the \"${os_type}\" platform..."
-
-  cd "${project_root}/${venv_name}/${venv_scripts_dir}" || exit 1
-  log_to_stdout "Current pwd: ${PWD}"
-
-  if ! source activate; then
-    log_to_stderr 'Failed to activate venv. Exit.'
-    exit 1
-  else
-    log_to_stdout "Virtual environment \"${venv_name}\" successfully activated."
-  fi
-}
-
-#######################################
 # Determine the type of operating system to specify the correct path to the venv scripts folder.
 # The current version is designed for the following platforms only (others can be added as needed):
 #   - "msys": MSYS / Git Bash for Windows;
@@ -164,7 +136,7 @@ function main() {
   log_to_stdout "${script_basename}: START SCRIPT EXECUTION"
 
   detect_os_type "$@"  # modifies the "os_type" variable
-  activate_venv "$@"
+  activate_virtual_environment "${project_root}/${venv_name}/${venv_scripts_dir}"
   compile_requirements_file "$@"
   sync_venv_with_specified_requirements_files "${req_compiled_file_full_path}" "${project_root}"
 

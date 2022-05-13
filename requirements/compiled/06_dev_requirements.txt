@@ -42,7 +42,7 @@ docutils==0.18.1
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/02_lint_test_requirements.txt
     #   readme-renderer
-filelock==3.6.0
+filelock==3.7.0
     # via virtualenv
 gitdb==4.0.9
     # via

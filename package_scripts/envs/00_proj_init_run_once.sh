@@ -53,34 +53,6 @@ function detect_os_type() {
 }
 
 #######################################
-# Activate the virtual environment (venv).
-# Globals:
-#   PWD
-#   os_type
-#   project_root
-#   venv_name
-#   venv_scripts_dir
-# Arguments:
-#  None
-#   Writes progress messages to stdout and error messages to stderr.
-# Returns:
-#   0 if there are no errors, non-zero on error.
-#######################################
-function activate_venv() {
-  log_to_stdout "Activating a virtual environment on the \"${os_type}\" platform..."
-
-  cd "${project_root}/${venv_name}/${venv_scripts_dir}" || exit 1
-  log_to_stdout "Current pwd: ${PWD}"
-
-  if ! source activate; then
-    log_to_stderr 'Failed to activate venv. Exit.'
-    exit 1
-  else
-    log_to_stdout "Virtual environment \"${venv_name}\" successfully activated."
-  fi
-}
-
-#######################################
 # Check if the Ubuntu operating system package is installed.
 # Arguments:
 #   Valid package name.
@@ -260,7 +232,7 @@ function main() {
 
   install_all_project_dependencies "$@"
   detect_os_type "$@"  # modifies the "os_type" variable
-  activate_venv "$@"
+  activate_virtual_environment "${project_root}/${venv_name}/${venv_scripts_dir}"
   configure_project "$@"
 
   log_to_stdout "${script_basename}: END OF SCRIPT EXECUTION"
