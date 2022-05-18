@@ -17,8 +17,11 @@
 ###########
 
 # Pull official base image.
+ARG IMAGE=python
+ARG TAG=3.10.4-slim
+
 # Not the final image, will appear as `<none>:<none>`.
-FROM python:3.10.4-slim AS compile-image
+FROM ${IMAGE}:${TAG} AS compile-image
 
 LABEL author="Viacheslav Kolupaev"
 
@@ -38,6 +41,10 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv ${VIRTUAL_ENV}
 ENV PATH="${VIRTUAL_ENV}/bin:$PATH"
 
+# `pip` configuration befor installing dependencies.
+COPY pip.conf pip.conf
+ENV PIP_CONFIG_FILE pip.conf
+
 # Install Python dependencies.
 COPY ./requirements.txt .
 RUN pip install --upgrade pip && \
@@ -50,7 +57,7 @@ RUN pip install --upgrade pip && \
 
 # Pull official base image.
 # The final image, will appear as `image_name:image_tag` (`docker build -t` option)
-FROM python:3.10.4-slim AS build-image
+FROM ${IMAGE}:${TAG} AS build-image
 
 LABEL author="Viacheslav Kolupaev"
 
