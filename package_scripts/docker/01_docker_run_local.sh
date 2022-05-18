@@ -21,7 +21,6 @@
 # Use it for local development and testing.
 #
 # If necessary, you need to replace the values of the variables in the `main()` function:
-# - `project_name`;
 # - `docker_image_name`;
 # - `docker_image_tag`;
 # - `service_port`; make sure it matches the application config.
@@ -147,13 +146,6 @@ function main() {
   local script_basename
   script_basename=$(basename "${BASH_SOURCE[0]##*/}")  # don't change
   readonly script_basename
-
-  local project_name
-  readonly project_name='notebook'  # enter your project name
-
-  local project_root
-  project_root="${HOME}/PycharmProjects/${project_name}"  # change the path if necessary
-  readonly project_root
 
   local docker_image_name
   readonly docker_image_name='boilerplate'  # refers to `${project_root}/src/boilerplate`
