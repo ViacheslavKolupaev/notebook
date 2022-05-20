@@ -109,7 +109,7 @@ class GlobalConfig(pydantic.BaseSettings, AppInternalLogicConfig):
 
     # Uvicorn config.
     ASGI_PROTOCOL: str = pydantic.Field(default='http', regex='^(http|https)$')
-    ASGI_HOST: IPv4Address = IPv4Address('127.0.0.1')
+    ASGI_HOST: IPv4Address = IPv4Address('0.0.0.0')  # do not specify the value 127.0.0.1
     ASGI_PORT: int = pydantic.Field(default=50000, ge=50000, le=60000)
 
     # Database config.
