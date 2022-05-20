@@ -114,9 +114,8 @@ function docker_run_container() {
   if ! docker run \
         --log-opt max-size=50m \
         -d \
-        -p "${service_port}":"${service_port}" \
+        --publish "${service_port}":"${service_port}" \
         -e LANG=C.UTF-8 \
-        --network="host" \
         --env IS_DEBUG=True \
         --env-file=../../.env \
         --rm \
