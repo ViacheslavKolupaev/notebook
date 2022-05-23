@@ -112,12 +112,18 @@ function docker_run_container() {
 
   # Docs: https://docs.docker.com/engine/reference/commandline/run/
   if ! docker run \
-        --log-opt max-size=50m \
+        --log-driver=local `# https://docs.docker.com/config/containers/logging/local/` \
+        --log-opt mode=non-blocking \
         -d \
         --publish "${service_port}":"${service_port}" \
-        -e LANG=C.UTF-8 \
+        --memory-reservation=50m \
+        --memory=100m \
+        --memory-swap=200m \
+        --env LANG=C.UTF-8 \
         --env IS_DEBUG=True \
         --env-file=../../.env \
+        --health-cmd='python --version || exit 1' \
+        --health-interval=2s \
         --rm \
         --name "${docker_image_name}" \
         "${docker_image}";
