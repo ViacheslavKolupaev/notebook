@@ -23,9 +23,8 @@ ARG TAG=3.10.4-slim
 # Not the final image, will appear as `<none>:<none>`.
 FROM ${IMAGE}:${TAG} AS compile-image
 
+# Adding labels.
 LABEL author="Viacheslav Kolupaev"
-
-# Label the image for cleaning after build process.
 LABEL stage=compile-image
 
 # Create a temporary folder to hold the files.
@@ -59,17 +58,19 @@ RUN pip install --upgrade pip && \
 # The final image, will appear as `image_name:image_tag` (`docker build -t` option)
 FROM ${IMAGE}:${TAG} AS build-image
 
-LABEL author="Viacheslav Kolupaev"
-
-# Label the image for cleaning after build process.
-LABEL stage=build-image
-
 # Setting the application root folder.
 ARG APP_NAME
 ENV APP_ROOT="/usr/src/${APP_NAME}"
 
-ARG CI_COMMIT_SHA
-ENV CI_COMMIT_SHA=${CI_COMMIT_SHA}
+# Setting the git revision short SHA.
+ARG VCS_REF
+ENV VCS_REF=${VCS_REF}
+
+# Adding labels.
+LABEL author="Viacheslav Kolupaev"
+LABEL stage=build-image
+LABEL app_name=${APP_NAME}
+LABEL vcs_ref=${VCS_REF}
 
 # Prevents Python from writing pyc files to disk.
 ENV PYTHONDONTWRITEBYTECODE 1
