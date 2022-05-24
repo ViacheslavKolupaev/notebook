@@ -125,7 +125,7 @@ class GlobalConfig(pydantic.BaseSettings, AppInternalLogicConfig):
     # Sentry config : https://docs.sentry.io/product/sentry-basics/dsn-explainer/
     SENTRY_DSN: Optional[pydantic.HttpUrl]
     SENTRY_ENVIRONMENT: EnvState = pydantic.Field(env='APP_ENV_STATE', default=EnvState.development, min_length=1)
-    SENTRY_RELEASE: Optional[str] = pydantic.Field(env='APP_CI_COMMIT_SHA', default='development_release', min_length=1)
+    SENTRY_RELEASE: Optional[str] = pydantic.Field(env='APP_VCS_REF', default='development_release', min_length=1)
 
     # Elastic APM Python Agent config: https://www.elastic.co/guide/en/apm/agent/python/current/index.html
     ELASTIC_APM_SCHEME: Optional[str] = pydantic.Field(default='http', regex='^(http|https)$')
