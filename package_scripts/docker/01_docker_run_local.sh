@@ -115,6 +115,7 @@ function docker_run_container() {
         --log-driver=local `# https://docs.docker.com/config/containers/logging/local/` \
         --log-opt mode=non-blocking \
         -d \
+        --restart=no \
         --publish "${service_port}":"${service_port}" \
         --memory-reservation=50m \
         --memory=100m \
