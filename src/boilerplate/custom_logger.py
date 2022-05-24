@@ -210,7 +210,7 @@ class CustomLogger(object):
         if module_extra is None:
             module_extra = {
                 'env_state': config.APP_ENV_STATE,
-                'commit_sha': config.APP_CI_COMMIT_SHA,
+                'vcs_ref': config.APP_VCS_REF,
             }
 
         module_logger = logging.getLogger(name=name)
