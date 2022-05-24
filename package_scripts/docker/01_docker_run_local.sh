@@ -88,6 +88,7 @@ function delete_containers_by_ancestor() {
 #  None
 #######################################
 function docker_pre_cleanup() {
+  echo ''
   log_to_stdout 'STEP 1: Docker pre-cleanup...'
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
@@ -95,6 +96,29 @@ function docker_pre_cleanup() {
   delete_containers_by_ancestor "$@"
 
   log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+  echo ''
+}
+
+#######################################
+# Create user-defined bridge network.
+# Globals:
+#   docker_image_name
+# Arguments:
+#  None
+#######################################
+function docker_create_user_defined_bridge_network() {
+  echo ''
+  log_to_stdout 'Creating user-defined bridge network...'
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+
+  if ! docker network create --driver bridge "${docker_image_name}"-net; then
+    log_to_stderr 'Error creating user-defined bridge network. Perhaps it already exists. Continue.'
+  else
+    log_to_stdout 'The user-defined bridge network has been successfully created. Continue.'
+  fi
+
+  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+  echo ''
 }
 
 #######################################
@@ -107,6 +131,7 @@ function docker_pre_cleanup() {
 #  None
 #######################################
 function docker_run_container() {
+  echo ''
   log_to_stdout "STEP 2: Running a Docker container based on the '${docker_image}' image..."
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
@@ -116,7 +141,9 @@ function docker_run_container() {
         --log-opt mode=non-blocking \
         -d \
         --restart=no \
+        --network="${docker_image_name}"-net \
         --publish "${service_port}":"${service_port}" \
+        --cpus="0.5" \
         --memory-reservation=50m \
         --memory=100m \
         --memory-swap=200m \
@@ -136,6 +163,7 @@ function docker_run_container() {
   fi
 
   log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+  echo ''
 }
 
 #######################################
@@ -174,6 +202,7 @@ function main() {
   log_to_stdout "${script_basename}: START SCRIPT EXECUTION"
 
   docker_pre_cleanup "$@"
+  docker_create_user_defined_bridge_network "$@"
   docker_run_container "$@"
 
   log_to_stdout "${script_basename}: END OF SCRIPT EXECUTION"
