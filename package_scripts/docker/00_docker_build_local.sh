@@ -67,9 +67,14 @@ function docker_build_image() {
   cd "${project_root}" || exit 1
   log_to_stdout "Current pwd: ${PWD}"
 
+  local git_rev_short_sha
+  git_rev_short_sha=$(git rev-parse --short HEAD)
+  log_to_stdout "git_rev_short_sha: ${git_rev_short_sha}"
+
   # See about DOCKER_BUILDKIT: https://github.com/moby/moby/issues/34151#issuecomment-739018493
   if ! DOCKER_BUILDKIT=1 docker build \
        --build-arg APP_NAME="${docker_image_name}" \
+       --build-arg VCS_REF="${git_rev_short_sha}" \
        -t "${docker_image}" .; then
     log_to_stderr 'Error building Docker image. Exit.'
     exit 1
