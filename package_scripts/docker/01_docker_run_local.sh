@@ -100,28 +100,6 @@ function docker_pre_cleanup() {
 }
 
 #######################################
-# Create user-defined bridge network.
-# Globals:
-#   docker_image_name
-# Arguments:
-#  None
-#######################################
-function docker_create_user_defined_bridge_network() {
-  echo ''
-  log_to_stdout 'Creating user-defined bridge network...'
-  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
-
-  if ! docker network create --driver bridge "${docker_image_name}"-net; then
-    log_to_stderr 'Error creating user-defined bridge network. Perhaps it already exists. Continue.'
-  else
-    log_to_stdout 'The user-defined bridge network has been successfully created. Continue.'
-  fi
-
-  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
-  echo ''
-}
-
-#######################################
 # Launch a new application Docker container.
 # Globals:
 #   docker_image
@@ -202,7 +180,7 @@ function main() {
   log_to_stdout "${script_basename}: START SCRIPT EXECUTION"
 
   docker_pre_cleanup "$@"
-  docker_create_user_defined_bridge_network "$@"
+  docker_create_user_defined_bridge_network "${docker_image_name}"
   docker_run_container "$@"
 
   log_to_stdout "${script_basename}: END OF SCRIPT EXECUTION"

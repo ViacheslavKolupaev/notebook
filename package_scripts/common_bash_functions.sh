@@ -134,6 +134,43 @@ function docker_image_remove() {
 }
 
 #######################################
+# Create user-defined bridge network.
+# Globals:
+#   FUNCNAME
+# Arguments:
+#   docker_image_name
+#######################################
+function docker_create_user_defined_bridge_network() {
+  echo ''
+  log_to_stdout 'Creating user-defined bridge network...'
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+
+  if [ -z "$1" ] ; then
+    log_to_stderr "${FUNCNAME[0]}: Argument 'docker_image_name' was not specified in the function call. Exit."
+    exit 1
+  else
+    local docker_image_name
+    docker_image_name=$1
+    readonly docker_image_name
+    log_to_stdout "Docker image name: ${docker_image_name}"
+  fi
+
+  if [ "$(docker network ls -q -f "name=${docker_image_name}-net")" ]; then
+    log_to_stdout "Docker network '${docker_image_name}-net' already exists. Continue."
+  else
+    if ! docker network create --driver bridge "${docker_image_name}"-net; then
+      log_to_stderr 'Error creating user-defined bridge network. Exit.'
+      exit 1
+    else
+      log_to_stdout "The user-defined bridge network '${docker_image_name}-net' has been created. Continue."
+    fi
+  fi
+
+  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+  echo ''
+}
+
+#######################################
 # Synchronize the project's virtual environment with the specified requirements files.
 # Globals:
 #   FUNCNAME
