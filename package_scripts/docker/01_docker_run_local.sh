@@ -26,6 +26,7 @@
 # - `service_port`; make sure it matches the application config.
 ##########################################################################################
 
+
 #######################################
 # Stop and remove containers with a name equal to the image name.
 # Globals:
@@ -34,7 +35,11 @@
 # Arguments:
 #  None
 #######################################
-function delete_containers_by_name() {
+function docker_stop_and_remove_containers_by_name() {
+  echo ''
+  log_to_stdout 'Stopping and removing containers with a name equal to the image name...'
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+
   # Get a list of containers with a name equal to the name of the image.
   local container_ids
   container_ids="$(docker ps -aq -f "name=${docker_image_name}")"
@@ -52,24 +57,32 @@ function delete_containers_by_name() {
   else
     log_to_stdout "There are no containers named '${docker_image_name}'. Continue."
   fi
+
+  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+  echo ''
 }
 
 #######################################
-# Stop and delete containers created from the image.
+# Stop and remove containers by ancestor (created from the IMAGE:TAG).
 # Globals:
 #   container_id
-#   docker_image
+#   docker_image_name
+#   docker_image_tag
 # Arguments:
 #  None
 #######################################
-function delete_containers_by_ancestor() {
+function docker_stop_and_remove_containers_by_ancestor() {
+  echo ''
+  log_to_stdout 'Stopping and removing containers created from the IMAGE:NAME...'
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+
   # Get a list of containers created based on the specified image.
   local container_ids
-  container_ids="$(docker ps -aq -f "ancestor=${docker_image}")"
+  container_ids="$(docker ps -aq -f "ancestor=${docker_image_name}:${docker_image_tag}")"
 
   # Stop and remove containers.
   if [[ -n "${container_ids}" ]]; then
-    log_to_stdout "Containers created from '${docker_image}' image found: ${container_ids}."
+    log_to_stdout "Containers created from '${docker_image_name}:${docker_image_tag}' image found: ${container_ids}."
 
     for container_id in "${container_ids[@]}"; do
       docker_container_stop "${container_id}"
@@ -78,22 +91,8 @@ function delete_containers_by_ancestor() {
       fi
     done
   else
-    log_to_stdout "There are no containers running from the '${docker_image}' image. Continue."
+    log_to_stdout "There are no containers running from the '${docker_image_name}:${docker_image_tag}' image. Continue."
   fi
-}
-
-#######################################
-# Stop and delete running containers before starting a new one.
-# Arguments:
-#  None
-#######################################
-function docker_pre_cleanup() {
-  echo ''
-  log_to_stdout 'STEP 1: Docker pre-cleanup...'
-  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
-
-  delete_containers_by_name "$@"
-  delete_containers_by_ancestor "$@"
 
   log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
   echo ''
@@ -102,37 +101,38 @@ function docker_pre_cleanup() {
 #######################################
 # Launch a new application Docker container.
 # Globals:
-#   docker_image
 #   docker_image_name
+#   docker_image_tag
 #   service_port
 # Arguments:
 #  None
 #######################################
 function docker_run_container() {
   echo ''
-  log_to_stdout "STEP 2: Running a Docker container based on the '${docker_image}' image..."
+  log_to_stdout "Running a Docker container based on the '${docker_image_name}:${docker_image_tag}' image..."
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
   # Docs: https://docs.docker.com/engine/reference/commandline/run/
+  # Usage: docker run [OPTIONS] IMAGE[:TAG|@DIGEST] [COMMAND] [ARG...]
   if ! docker run \
+        --detach \
+        --rm \
+        --restart=no \
         --log-driver=local `# https://docs.docker.com/config/containers/logging/local/` \
         --log-opt mode=non-blocking \
-        -d \
-        --restart=no \
         --network="${docker_image_name}"-net \
         --publish "${service_port}":"${service_port}" \
         --cpus="0.5" \
         --memory-reservation=50m \
         --memory=100m \
         --memory-swap=200m \
-        --env LANG=C.UTF-8 \
-        --env IS_DEBUG=True \
-        --env-file=../../.env \
         --health-cmd='python --version || exit 1' \
         --health-interval=2s \
-        --rm \
-        --name "${docker_image_name}" \
-        "${docker_image}";
+        --env LANG=C.UTF-8 \
+        --env IS_DEBUG=True  `# Not for production environment.` \
+        --env-file=../../.env  `# Double-check the path and content.` \
+        --name "${docker_image_name}"  `# Container name.` \
+        "${docker_image_name}:${docker_image_tag}"  `# The name and tag of the image to use to launch the container.`;
   then
     log_to_stderr 'Error starting container. Exit.'
     exit 1
@@ -165,9 +165,6 @@ function main() {
   local docker_image_tag
   readonly docker_image_tag='latest'
 
-  local docker_image
-  readonly docker_image="${docker_image_name}":"${docker_image_tag}"
-
   local service_port
   readonly service_port=50000
 
@@ -179,7 +176,8 @@ function main() {
   # 3. Execution of script logic.
   log_to_stdout "${script_basename}: START SCRIPT EXECUTION"
 
-  docker_pre_cleanup "$@"
+  docker_stop_and_remove_containers_by_name "$@"
+  docker_stop_and_remove_containers_by_ancestor "$@"
   docker_create_user_defined_bridge_network "${docker_image_name}"
   docker_run_container "$@"
 
