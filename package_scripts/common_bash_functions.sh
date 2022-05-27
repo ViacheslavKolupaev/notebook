@@ -134,7 +134,7 @@ function docker_image_remove() {
 }
 
 #######################################
-# Create user-defined bridge network.
+# Create user-defined bridge network with name '<docker_image_name>-net'.
 # Globals:
 #   FUNCNAME
 # Arguments:
