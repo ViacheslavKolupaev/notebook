@@ -10,3 +10,4 @@ setuptools-scm
 twine
 build
 bandit
+pendulum
