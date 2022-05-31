@@ -3,7 +3,8 @@
     "log-opts": {
         "max-size": "20m",
         "max-file": "5",
-        "compress": "true"
+        "compress": "true",
+        "mode": "non-blocking"
     },
     "features": {
         "buildkit": true
