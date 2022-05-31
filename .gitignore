@@ -443,3 +443,4 @@ src/boilerplate/_version.py
 
 backup/
 secrets/
+airflow/
