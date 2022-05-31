@@ -443,4 +443,7 @@ src/boilerplate/_version.py
 
 backup/
 secrets/
-airflow/
+
+# The trailing /* is significant
+airflow/*
+!airflow/dags/
