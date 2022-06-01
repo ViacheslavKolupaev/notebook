@@ -129,6 +129,7 @@ function docker_run_container() {
         --health-cmd='python --version || exit 1' \
         --health-interval=2s \
         --env LANG=C.UTF-8 \
+        --env APP_ENV_STATE="${APP_ENV_STATE}" \
         --env IS_DEBUG="${IS_DEBUG}"  `# Not for production environment.` \
         --env DB_USER="${DB_USER}" \
         --env DB_PASSWORD="${DB_PASSWORD}" \
@@ -173,7 +174,7 @@ function main() {
   readonly bash_scripts_dir=~/PycharmProjects/notebook/airflow/dags/bash_scripts
 
   # 2. Import bash functions from other scripts.
-  source ${bash_scripts_dir}/common_bash_functions.sh
+  source ${bash_scripts_dir}/000_common_bash_functions.sh
 
   # 3. Execution of script logic.
   log_to_stdout "${script_basename}: START SCRIPT EXECUTION"

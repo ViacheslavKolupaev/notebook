@@ -18,19 +18,56 @@ Maintainer: Viacheslav Kolupaev
 """
 
 from datetime import datetime, timedelta
+from textwrap import dedent
+
+import pendulum
 
 from airflow import DAG
 from airflow.models import Variable
 from airflow.operators.bash import BashOperator
 from airflow.providers.docker.operators.docker import DockerOperator
 
+
+def sla_callback(dag, task_list, blocking_task_list, slas, blocking_tis) -> None:
+    """Run SLA callback.
+
+    Use this function for the `sla_miss_callback` argument.
+    Docs: https://airflow.apache.org/docs/apache-airflow/stable/concepts/tasks.html#sla-miss-callback
+    """
+    print(
+        "The callback arguments are: ",
+        {
+            "dag": dag,
+            "task_list": task_list,
+            "blocking_task_list": blocking_task_list,
+            "slas": slas,
+            "blocking_tis": blocking_tis,
+        },
+    )
+
+def task_failure_alert(context) -> None:
+    print(f"Task has failed, task_instance_key_str: {context['task_instance_key_str']}")
+
+def task_success_alert(context) -> None:
+    print(f"Task has succeeded, task_instance_key_str: {context['task_instance_key_str']}")
+
+def dag_success_alert(context) -> None:
+    print(f"DAG has succeeded, run_id: {context['run_id']}")
+
 with DAG(
+    # `airflow.models.dag`: https://airflow.apache.org/docs/apache-airflow/2.3.1/_api/airflow/models/dag/index.html#airflow.models.dag.DAG
     dag_id='001_start_boilerplate_app_container',
-    description='DAG to run Docker container with boilerplate app.',
-    schedule_interval=timedelta(days=1),
+    description='DAG to run Docker container with `boilerplate` app.',
+
+    # Cron Presets: https://airflow.apache.org/docs/apache-airflow/stable/dag-run.html#cron-presets
+    schedule_interval='*/15 * * * *',
+
     timetable=None,
-    start_date=None,
+
+    # Data Interval: https://airflow.apache.org/docs/apache-airflow/stable/dag-run.html#data-interval
+    start_date=pendulum.datetime(year=2022, month=5, day=31, tz="UTC"),
     end_date=None,
+
     # These args will get passed on to each operator
     # You can override them on a per-task basis during operator initialization
     default_args={
@@ -38,25 +75,36 @@ with DAG(
         'email': ['airflow@example.com'],
         'email_on_failure': False,
         'email_on_retry': False,
-        'retries': 1,
+        'retries': 0,
         'retry_delay': timedelta(minutes=5),
+        'trigger_rule': 'always',
         # 'queue': 'bash_queue',
         # 'pool': 'backfill',
         # 'priority_weight': 10,
         # 'end_date': datetime(2016, 1, 1),
         # 'wait_for_downstream': False,
-        # 'sla': timedelta(hours=2),
-        # 'execution_timeout': timedelta(seconds=300),
-        # 'on_failure_callback': some_function,
-        # 'on_success_callback': some_other_function,
-        # 'on_retry_callback': another_function,
-        # 'sla_miss_callback': yet_another_function,
-        # 'trigger_rule': 'all_success'
+
+        # Only scheduled tasks will be checked against SLA.
+        # Manually triggered tasks will not invoke an SLA miss.
+        'sla': timedelta(minutes=5),
+
+        'execution_timeout': timedelta(minutes=6),
+
+        # Callbacks: https://airflow.apache.org/docs/apache-airflow/stable/logging-monitoring/callbacks.html
+        'on_failure_callback': task_failure_alert,
+        'on_success_callback': task_success_alert,
+        'on_retry_callback': None,
+        'sla_miss_callback': sla_callback,
     },
-    dagrun_timeout=None,
+    max_active_tasks=1,
+    max_active_runs=1,
+    default_view='graph',
+    dagrun_timeout=timedelta(minutes=10),
+    # Catchup: https://airflow.apache.org/docs/apache-airflow/stable/dag-run.html#catchup
     catchup=False,
     doc_md=None,
     params=None,
+    sla_miss_callback=sla_callback,
     tags=['vkolupaev', 'docker', 'boilerplate'],
 
 
@@ -101,8 +149,7 @@ with DAG(
     # OPTION 1.
     # Running a container using a bash script.
     t1 = BashOperator(
-        task_id='t1_start_boilerplate_app_container',
-        depends_on_past=False,
+        task_id='t1_run_container_using_bash_operator',
         dag=dag,
         bash_command='bash_scripts/001_start_boilerplate_app_container.sh',
         env=all_environment,
@@ -113,14 +160,12 @@ with DAG(
     # Running a container using `airflow.providers.docker.operators.docker`.
     # There is no argument to publish a container on some port.
     t2 = DockerOperator(
-        task_id='docker_run',
-        depends_on_past=False,
-        trigger_rule='always',
+        task_id='t2_run_container_using_docker_operator',
         dag=dag,
         image='boilerplate:latest',
         api_version='auto',
         command=None,
-        container_name='boilerplate',
+        container_name='boilerplate-2',
         cpus=0.5,
         # Default for Linux = 'unix:///var/run/docker.sock'
         # Check: `curl --unix-socket /var/run/docker.sock http:/localhost/version`
@@ -154,6 +199,8 @@ with DAG(
         retrieve_output=False,
         retrieve_output_path=None,
         device_requests=None,
+        on_success_callback=dag_success_alert,
     )
 
+    # t1 for t2 — upstream; t2 for t1 — downstream.
     t1 >> t2
