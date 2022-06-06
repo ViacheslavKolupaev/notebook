@@ -372,6 +372,7 @@ function sync_venv_with_specified_requirements_files() {
 #   Full path to the virtual environment scripts directory (depends on OS type)
 #######################################
 function activate_virtual_environment() {
+  echo ''
   log_to_stdout "Activating the project's virtual environment..."
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
@@ -382,12 +383,11 @@ function activate_virtual_environment() {
     local venv_scripts_dir_full_path
     venv_scripts_dir_full_path=$1
     readonly venv_scripts_dir_full_path
-    log_to_stdout "Full path to the virtual environment scripts directory: ${venv_scripts_dir_full_path}"
+    log_to_stdout "${FUNCNAME[0]}: venv_scripts_dir_full_path = ${venv_scripts_dir_full_path}"
   fi
 
-  cd "${project_root}/${venv_name}/${venv_scripts_dir}" || exit 1
   cd "${venv_scripts_dir_full_path}" || exit 1
-  log_to_stdout "Current pwd: ${PWD}"
+  log_to_stdout "${FUNCNAME[0]}: current pwd = ${PWD}"
 
   if ! source activate; then
     log_to_stderr 'Virtual environment activation error. Exit.'
@@ -395,5 +395,6 @@ function activate_virtual_environment() {
   else
     log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
     log_to_stdout 'Virtual environment successfully activated. Continue.'
+    echo ''
   fi
 }
