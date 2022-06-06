@@ -175,22 +175,28 @@ function docker_remove_image_by_name_tag(){
   echo ''
 }
 
-function docker_login_to_registry(){
-  echo ''
-}
-
 #######################################
 # Stop and remove containers with a name equal to the image name.
 # Globals:
+#   FUNCNAME
 #   container_id
-#   docker_image_name
 # Arguments:
-#  None
+#  docker_image_name
 #######################################
 function docker_stop_and_remove_containers_by_name() {
   echo ''
   log_to_stdout 'Stopping and removing containers with a name equal to the image name...'
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+
+  if [ -z "$1" ] ; then
+    log_to_stderr "${FUNCNAME[0]}: Argument 'docker_image_name' was not specified in the function call. Exit."
+    exit 1
+  else
+    local docker_image_name
+    docker_image_name=$1
+    readonly docker_image_name
+    log_to_stdout "${FUNCNAME[0]}: docker_image_name = ${docker_image_name}"
+  fi
 
   # Get a list of containers with a name equal to the name of the image.
   local container_ids
