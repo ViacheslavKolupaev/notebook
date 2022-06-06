@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) $originalComment.match("Copyright \(c\) (\d+)", 1, "-", "$today.year")2022. Viacheslav Kolupaev, https://vkolupaev.com/
+# Copyright (c) 2022. Viacheslav Kolupaev, https://vkolupaev.com/
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -58,6 +58,7 @@ function log_to_stderr() {
 #   container_id_or_name
 #######################################
 function docker_container_stop() {
+  echo ''
   if [ -z "$1" ] ; then
     log_to_stderr "${FUNCNAME[0]}: Argument 'container_id_or_name' was not specified in the function call. Exit."
     exit 1
@@ -65,6 +66,7 @@ function docker_container_stop() {
     local container_id_or_name
     container_id_or_name=$1
     readonly container_id_or_name
+    log_to_stdout "${FUNCNAME[0]}: container_id_or_name = ${container_id_or_name}"
   fi
 
   log_to_stdout "Stopping the '${container_id_or_name}' container..."
@@ -74,6 +76,7 @@ function docker_container_stop() {
   else
     log_to_stdout "Container '${container_id_or_name}' stopped successfully. Continue."
   fi
+  echo ''
 }
 
 #######################################
@@ -84,6 +87,7 @@ function docker_container_stop() {
 #   container_id_or_name
 #######################################
 function docker_container_remove() {
+  echo ''
   if [ -z "$1" ] ; then
     log_to_stderr "${FUNCNAME[0]}: Argument 'container_id_or_name' was not specified in the function call. Exit."
     exit 1
@@ -91,6 +95,7 @@ function docker_container_remove() {
     local container_id_or_name
     container_id_or_name=$1
     readonly container_id_or_name
+    log_to_stdout "${FUNCNAME[0]}: container_id_or_name = ${container_id_or_name}"
   fi
 
   log_to_stdout "Removing the '${container_id_or_name}' container..."
@@ -100,6 +105,7 @@ function docker_container_remove() {
   else
     log_to_stdout "Container '${container_id_or_name}' removed successfully. Continue."
   fi
+  echo ''
 }
 
 #######################################
@@ -110,6 +116,7 @@ function docker_container_remove() {
 #   image_id_or_name
 #######################################
 function docker_image_remove() {
+  echo ''
   if [ -z "$1" ] ; then
     log_to_stderr "${FUNCNAME[0]}: Argument 'image_id_or_name' was not specified in the function call. Exit."
     exit 1
@@ -117,6 +124,7 @@ function docker_image_remove() {
     local image_id_or_name
     image_id_or_name=$1
     readonly image_id_or_name
+    log_to_stdout "${FUNCNAME[0]}: image_id_or_name = ${image_id_or_name}"
   fi
 
   log_to_stdout "Removing the '${image_id_or_name}' image..."
@@ -126,10 +134,11 @@ function docker_image_remove() {
   else
     log_to_stdout "Image '${image_id_or_name}' removed successfully. Continue."
   fi
+  echo ''
 }
 
 #######################################
-# Remove the Docker image by <image_name>:<image_tag>.
+# Remove the Docker image by <name>:<tag>.
 #
 # Useful before creating an image with the same name and tag.
 # Globals:
@@ -140,7 +149,7 @@ function docker_image_remove() {
 #######################################
 function docker_image_remove_by_name_tag(){
   echo ''
-  log_to_stdout 'Removing Docker image by <image_name>:<image_tag>...'
+  log_to_stdout 'Removing Docker image by <name>:<tag>...'
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
   if [ -z "$1" ] ; then
@@ -221,7 +230,7 @@ function docker_stop_and_remove_containers_by_name() {
 }
 
 #######################################
-# Stop and remove containers by ancestor (created from the <image_name>:<image_tag>).
+# Stop and remove containers by ancestor (created from the <name>:<tag>).
 # Globals:
 #   FUNCNAME
 # Arguments:
@@ -230,7 +239,7 @@ function docker_stop_and_remove_containers_by_name() {
 #######################################
 function docker_stop_and_remove_containers_by_ancestor() {
   echo ''
-  log_to_stdout 'Stopping and removing containers created from the <image_name>:<image_tag>...'
+  log_to_stdout 'Stopping and removing containers created from the <name>:<tag>...'
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
   if [ -z "$1" ] ; then
