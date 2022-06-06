@@ -130,6 +130,39 @@ function docker_image_remove() {
 
 function docker_remove_image_by_name_tag(){
   echo ''
+  log_to_stdout 'Removing Docker image by <image_name>:<image_tag>...'
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+
+  if [ -z "$1" ] ; then
+    log_to_stderr "${FUNCNAME[0]}: Argument 'docker_image_name' was not specified in the function call. Exit."
+    exit 1
+  else
+    local docker_image_name
+    docker_image_name=$1
+    readonly docker_image_name
+    log_to_stdout "${FUNCNAME[0]}: docker_image_name = ${docker_image_name}"
+  fi
+
+  if [ -z "$2" ] ; then
+    log_to_stderr "${FUNCNAME[0]}: Argument 'docker_image_tag' was not specified in the function call. Exit."
+    exit 1
+  else
+    local docker_image_tag
+    docker_image_tag=$2
+    readonly docker_image_tag
+    log_to_stdout "${FUNCNAME[0]}: docker_image_tag = ${docker_image_tag}"
+  fi
+
+  # Removing an image by <name>:<tag>.
+  if [ "$(docker images -q "${docker_image_name}:${docker_image_tag}")" ]; then
+    log_to_stdout "Docker image '${docker_image_name}:${docker_image_tag}' already exists."
+    docker_image_remove "${docker_image_name}:${docker_image_tag}"
+  else
+    log_to_stdout "Docker image '${docker_image_name}:${docker_image_tag}' not found. Continue."
+  fi
+
+  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+  echo ''
 }
 
 function docker_login_to_registry(){
