@@ -28,89 +28,48 @@
 
 
 #######################################
-# Stop and remove containers with a name equal to the image name.
-# Globals:
-#   container_id
-#   docker_image_name
-# Arguments:
-#  None
-#######################################
-function docker_stop_and_remove_containers_by_name() {
-  echo ''
-  log_to_stdout 'Stopping and removing containers with a name equal to the image name...'
-  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
-
-  # Get a list of containers with a name equal to the name of the image.
-  local container_ids
-  container_ids="$(docker ps -aq -f "name=${docker_image_name}")"
-
-  # Stop and remove containers.
-  if [[ -n "${container_ids}" ]]; then
-    log_to_stdout "Found containers named '${docker_image_name}': ${container_ids}."
-
-    for container_id in "${container_ids[@]}"; do
-      docker_container_stop "${container_id}"
-      if [ "$(docker ps -aq -f status=exited -f id="${container_id}")" ]; then
-          docker_container_remove "${container_id}"
-      fi
-    done
-  else
-    log_to_stdout "There are no containers named '${docker_image_name}'. Continue."
-  fi
-
-  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
-  echo ''
-}
-
-#######################################
-# Stop and remove containers by ancestor (created from the IMAGE:TAG).
-# Globals:
-#   container_id
-#   docker_image_name
-#   docker_image_tag
-# Arguments:
-#  None
-#######################################
-function docker_stop_and_remove_containers_by_ancestor() {
-  echo ''
-  log_to_stdout 'Stopping and removing containers created from the IMAGE:NAME...'
-  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
-
-  # Get a list of containers created based on the specified image.
-  local container_ids
-  container_ids="$(docker ps -aq -f "ancestor=${docker_image_name}:${docker_image_tag}")"
-
-  # Stop and remove containers.
-  if [[ -n "${container_ids}" ]]; then
-    log_to_stdout "Containers created from '${docker_image_name}:${docker_image_tag}' image found: ${container_ids}."
-
-    for container_id in "${container_ids[@]}"; do
-      docker_container_stop "${container_id}"
-      if [ "$(docker ps -aq -f status=exited -f id="${container_id}")" ]; then
-          docker_container_remove "${container_id}"
-      fi
-    done
-  else
-    log_to_stdout "There are no containers running from the '${docker_image_name}:${docker_image_tag}' image. Continue."
-  fi
-
-  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
-  echo ''
-}
-
-#######################################
 # Launch a new application Docker container.
 # Globals:
+#   FUNCNAME
+# Arguments:
 #   docker_image_name
 #   docker_image_tag
 #   service_port
-# Arguments:
-#  None
 #######################################
 function docker_run_container() {
   echo ''
-  log_to_stdout "Running a Docker container based on the '${docker_image_name}:${docker_image_tag}' image..."
+  log_to_stdout "Running a Docker container based on the <name>:<tag> image..."
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+
+  if [ -z "$1" ] ; then
+    log_to_stderr "${FUNCNAME[0]}: Argument 'docker_image_name' was not specified in the function call. Exit."
+    exit 1
+  else
+    local docker_image_name
+    docker_image_name=$1
+    readonly docker_image_name
+    log_to_stdout "${FUNCNAME[0]}: docker_image_name = ${docker_image_name}"
+  fi
+
+  if [ -z "$2" ] ; then
+    log_to_stderr "${FUNCNAME[0]}: Argument 'docker_image_tag' was not specified in the function call. Exit."
+    exit 1
+  else
+    local docker_image_tag
+    docker_image_tag=$2
+    readonly docker_image_tag
+    log_to_stdout "${FUNCNAME[0]}: docker_image_tag = ${docker_image_tag}"
+  fi
+
+  if [ -z "$3" ] ; then
+    log_to_stderr "${FUNCNAME[0]}: Argument 'service_port' was not specified in the function call. Exit."
+    exit 1
+  else
+    local service_port
+    service_port=$3
+    readonly service_port
+    log_to_stdout "${FUNCNAME[0]}: service_port = ${service_port}"
+  fi
 
   # Docs: https://docs.docker.com/engine/reference/commandline/run/
   # Usage: docker run [OPTIONS] IMAGE[:TAG|@DIGEST] [COMMAND] [ARG...]
@@ -141,7 +100,6 @@ function docker_run_container() {
   fi
 
   log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
-  echo ''
 }
 
 #######################################
@@ -176,10 +134,10 @@ function main() {
   # 3. Execution of script logic.
   log_to_stdout "${script_basename}: START SCRIPT EXECUTION"
 
-  docker_stop_and_remove_containers_by_name "$@"
-  docker_stop_and_remove_containers_by_ancestor "$@"
+  docker_stop_and_remove_containers_by_name "${docker_image_name}"
+  docker_stop_and_remove_containers_by_ancestor "${docker_image_name}" "${docker_image_tag}"
   docker_create_user_defined_bridge_network "${docker_image_name}"
-  docker_run_container "$@"
+  docker_run_container "${docker_image_name}" "${docker_image_tag}" "${service_port}"
 
   log_to_stdout "${script_basename}: END OF SCRIPT EXECUTION"
 }
