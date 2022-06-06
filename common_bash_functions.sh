@@ -179,7 +179,6 @@ function docker_remove_image_by_name_tag(){
 # Stop and remove containers with a name equal to the image name.
 # Globals:
 #   FUNCNAME
-#   container_id
 # Arguments:
 #  docker_image_name
 #######################################
@@ -206,6 +205,7 @@ function docker_stop_and_remove_containers_by_name() {
   if [[ -n "${container_ids}" ]]; then
     log_to_stdout "Found containers named '${docker_image_name}': ${container_ids}."
 
+    local container_id
     for container_id in "${container_ids[@]}"; do
       docker_container_stop "${container_id}"
       if [ "$(docker ps -aq -f status=exited -f id="${container_id}")" ]; then
@@ -219,7 +219,6 @@ function docker_stop_and_remove_containers_by_name() {
   log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
   echo ''
 }
-
 
 #######################################
 # Stop and remove containers by ancestor (created from the <image_name>:<image_tag>).
@@ -262,6 +261,7 @@ function docker_stop_and_remove_containers_by_ancestor() {
   if [[ -n "${container_ids}" ]]; then
     log_to_stdout "Containers created from '${docker_image_name}:${docker_image_tag}' image found: ${container_ids}."
 
+    local container_id
     for container_id in "${container_ids[@]}"; do
       docker_container_stop "${container_id}"
       if [ "$(docker ps -aq -f status=exited -f id="${container_id}")" ]; then
