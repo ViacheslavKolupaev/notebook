@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2022. Viacheslav Kolupaev, https://vkolupaev.com/
+# Copyright (c) $originalComment.match("Copyright \(c\) (\d+)", 1, "-", "$today.year")2022. Viacheslav Kolupaev, https://vkolupaev.com/
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,9 +30,8 @@
 #  Text message.
 #######################################
 function log_to_stdout() {
-  if [ $# -eq 0 ]
-  then
-    echo "${FUNCNAME[0]}: No arguments supplied. Continue."
+  if [ -z "$1" ] ; then
+    echo "${FUNCNAME[0]}: Argument 'text_message' was not specified in the function call. Continue."
   else
     echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&1
   fi
@@ -44,9 +43,8 @@ function log_to_stdout() {
 #  Text message.
 #######################################
 function log_to_stderr() {
-  if [ $# -eq 0 ]
-  then
-    echo "${FUNCNAME[0]}: No arguments supplied. Continue."
+  if [ -z "$1" ] ; then
+    echo "${FUNCNAME[0]}: Argument 'text_message' was not specified in the function call. Continue."
   else
     echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&2
   fi
@@ -57,7 +55,7 @@ function log_to_stderr() {
 # Globals:
 #   FUNCNAME
 # Arguments:
-#   Docker container ID or name
+#   Docker container ID or name.
 #######################################
 function docker_container_stop() {
   if [ $# -eq 0 ]
@@ -131,6 +129,86 @@ function docker_image_remove() {
   else
     log_to_stdout "Image '${image_id_or_name}' removed successfully. Continue."
   fi
+}
+
+function docker_remove_image_by_name_tag(){
+  echo ''
+}
+
+function docker_login_to_registry(){
+  echo ''
+}
+
+#######################################
+# Stop and remove containers with a name equal to the image name.
+# Globals:
+#   container_id
+#   docker_image_name
+# Arguments:
+#  None
+#######################################
+function docker_stop_and_remove_containers_by_name() {
+  echo ''
+  log_to_stdout 'Stopping and removing containers with a name equal to the image name...'
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+
+  # Get a list of containers with a name equal to the name of the image.
+  local container_ids
+  container_ids="$(docker ps -aq -f "name=${docker_image_name}")"
+
+  # Stop and remove containers.
+  if [[ -n "${container_ids}" ]]; then
+    log_to_stdout "Found containers named '${docker_image_name}': ${container_ids}."
+
+    for container_id in "${container_ids[@]}"; do
+      docker_container_stop "${container_id}"
+      if [ "$(docker ps -aq -f status=exited -f id="${container_id}")" ]; then
+          docker_container_remove "${container_id}"
+      fi
+    done
+  else
+    log_to_stdout "There are no containers named '${docker_image_name}'. Continue."
+  fi
+
+  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+  echo ''
+}
+
+
+#######################################
+# Stop and remove containers by ancestor (created from the IMAGE:TAG).
+# Globals:
+#   container_id
+#   docker_image_name
+#   docker_image_tag
+# Arguments:
+#  None
+#######################################
+function docker_stop_and_remove_containers_by_ancestor() {
+  echo ''
+  log_to_stdout 'Stopping and removing containers created from the IMAGE:NAME...'
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+
+  # Get a list of containers created based on the specified image.
+  local container_ids
+  container_ids="$(docker ps -aq -f "ancestor=${docker_image_name}:${docker_image_tag}")"
+
+  # Stop and remove containers.
+  if [[ -n "${container_ids}" ]]; then
+    log_to_stdout "Containers created from '${docker_image_name}:${docker_image_tag}' image found: ${container_ids}."
+
+    for container_id in "${container_ids[@]}"; do
+      docker_container_stop "${container_id}"
+      if [ "$(docker ps -aq -f status=exited -f id="${container_id}")" ]; then
+          docker_container_remove "${container_id}"
+      fi
+    done
+  else
+    log_to_stdout "There are no containers running from the '${docker_image_name}:${docker_image_tag}' image. Continue."
+  fi
+
+  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+  echo ''
 }
 
 #######################################
