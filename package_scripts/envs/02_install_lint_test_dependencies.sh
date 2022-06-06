@@ -126,8 +126,8 @@ function main() {
   venv_scripts_dir='unknown'  # different on Linux and Windows
 
   # 2. Import bash functions from other scripts.
-  # shellcheck source=../common_bash_functions.sh
-  source ../common_bash_functions.sh
+  # shellcheck source=../../common_bash_functions.sh
+  source ../../common_bash_functions.sh
 
   # 3. Execution of script logic.
   log_to_stdout "${script_basename}: START SCRIPT EXECUTION"
