@@ -1,0 +1,8 @@
+    pandas
+    numpy
+    pydantic[dotenv]
+    typeguard
+    pendulum
+    orjson
+    ujson
+    apache-airflow-providers-apache-spark
