@@ -295,7 +295,7 @@ function docker_create_user_defined_bridge_network() {
     local docker_image_name
     docker_image_name=$1
     readonly docker_image_name
-    log_to_stdout "Docker image name: ${docker_image_name}"
+    log_to_stdout "${FUNCNAME[0]}: docker_image_name = ${docker_image_name}"
   fi
 
   if [ "$(docker network ls -q -f "name=${docker_image_name}-net")" ]; then
