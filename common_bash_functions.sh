@@ -322,6 +322,7 @@ function docker_create_user_defined_bridge_network() {
 #   Path to the root of the project. Optional. If specified, will additionally sync with `01_app_requirements.txt`.
 #######################################
 function sync_venv_with_specified_requirements_files() {
+  echo ''
   log_to_stdout "Synchronizing the project's virtual environment with the specified requirements files..."
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
@@ -332,14 +333,14 @@ function sync_venv_with_specified_requirements_files() {
     local req_compiled_file_full_path
     req_compiled_file_full_path=$1
     readonly req_compiled_file_full_path
-    log_to_stdout "Requirements File 1: ${req_compiled_file_full_path}"
+    log_to_stdout "${FUNCNAME[0]}: requirements file 1 = ${req_compiled_file_full_path}"
   fi
 
   if [ -n "$2" ] ; then
     local project_root
     project_root=$2
     readonly project_root
-    log_to_stdout "Requirements File 2: ${project_root}/requirements/compiled/01_app_requirements.txt"
+    log_to_stdout "${FUNCNAME[0]}: requirements file 2: ${project_root}/requirements/compiled/01_app_requirements.txt"
 
     if ! pip-sync \
         "${project_root}/requirements/compiled/01_app_requirements.txt" \
@@ -359,6 +360,7 @@ function sync_venv_with_specified_requirements_files() {
 
   log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
   log_to_stdout "The project virtual environment was successfully synchronized with the specified requirements files."
+  echo ''
 }
 
 #######################################
