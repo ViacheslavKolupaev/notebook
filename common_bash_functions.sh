@@ -138,7 +138,7 @@ function docker_image_remove() {
 #   docker_image_name
 #   docker_image_tag
 #######################################
-function docker_remove_image_by_name_tag(){
+function docker_image_remove_by_name_tag(){
   echo ''
   log_to_stdout 'Removing Docker image by <image_name>:<image_tag>...'
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
