@@ -447,3 +447,4 @@ secrets/
 # The trailing /* is significant
 airflow/*
 !airflow/dags/
+!airflow/install_scripts/
