@@ -27,7 +27,7 @@
 # Globals:
 #   FUNCNAME
 # Arguments:
-#  Text message.
+#  text_message
 #######################################
 function log_to_stdout() {
   if [ -z "$1" ] ; then
@@ -40,7 +40,7 @@ function log_to_stdout() {
 #######################################
 # Print an error message to stderr with the date and time.
 # Arguments:
-#  Text message.
+#  text_message
 #######################################
 function log_to_stderr() {
   if [ -z "$1" ] ; then
@@ -55,12 +55,11 @@ function log_to_stderr() {
 # Globals:
 #   FUNCNAME
 # Arguments:
-#   Docker container ID or name.
+#   container_id_or_name
 #######################################
 function docker_container_stop() {
-  if [ $# -eq 0 ]
-  then
-    log_to_stderr "${FUNCNAME[0]}: No arguments supplied. Exit."
+  if [ -z "$1" ] ; then
+    log_to_stderr "${FUNCNAME[0]}: Argument 'container_id_or_name' was not specified in the function call. Exit."
     exit 1
   else
     local container_id_or_name
@@ -82,12 +81,11 @@ function docker_container_stop() {
 # Globals:
 #   FUNCNAME
 # Arguments:
-#   Docker container ID or name
+#   container_id_or_name
 #######################################
 function docker_container_remove() {
-  if [ $# -eq 0 ]
-  then
-    log_to_stderr "${FUNCNAME[0]}: No arguments supplied. Exit."
+  if [ -z "$1" ] ; then
+    log_to_stderr "${FUNCNAME[0]}: Argument 'container_id_or_name' was not specified in the function call. Exit."
     exit 1
   else
     local container_id_or_name
@@ -109,12 +107,11 @@ function docker_container_remove() {
 # Globals:
 #   FUNCNAME
 # Arguments:
-#   Docker image ID or name
+#   image_id_or_name
 #######################################
 function docker_image_remove() {
-  if [ $# -eq 0 ]
-  then
-    log_to_stderr "${FUNCNAME[0]}: No arguments supplied. Exit."
+  if [ -z "$1" ] ; then
+    log_to_stderr "${FUNCNAME[0]}: Argument 'image_id_or_name' was not specified in the function call. Exit."
     exit 1
   else
     local image_id_or_name
