@@ -18,7 +18,7 @@
 ##########################################################################################
 # The script will create and run a Docker container with standalone Apache Airflow.
 #
-# Use it for local development and testing only!
+# Not suitable for production environment. Use it for local development and testing only!
 #
 # The container will be named: `dev-apache-airflow-<AIRFLOW_VERSION>-<PYTHON_BASE_IMAGE>`.
 # The Apache Airflow web server will be available at: http://127.0.0.1:8080/.
