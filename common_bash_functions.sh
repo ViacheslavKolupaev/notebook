@@ -76,7 +76,6 @@ function docker_container_stop() {
   else
     log_to_stdout "Container '${container_id_or_name}' stopped successfully. Continue."
   fi
-  echo ''
 }
 
 #######################################
@@ -105,7 +104,6 @@ function docker_container_remove() {
   else
     log_to_stdout "Container '${container_id_or_name}' removed successfully. Continue."
   fi
-  echo ''
 }
 
 #######################################
@@ -134,7 +132,6 @@ function docker_image_remove() {
   else
     log_to_stdout "Image '${image_id_or_name}' removed successfully. Continue."
   fi
-  echo ''
 }
 
 #######################################
@@ -181,7 +178,6 @@ function docker_image_remove_by_name_tag(){
   fi
 
   log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
-  echo ''
 }
 
 #######################################
@@ -226,7 +222,6 @@ function docker_stop_and_remove_containers_by_name() {
   fi
 
   log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
-  echo ''
 }
 
 #######################################
@@ -282,7 +277,6 @@ function docker_stop_and_remove_containers_by_ancestor() {
   fi
 
   log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
-  echo ''
 }
 
 #######################################
@@ -319,7 +313,6 @@ function docker_create_user_defined_bridge_network() {
   fi
 
   log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
-  echo ''
 }
 
 #######################################
@@ -369,7 +362,6 @@ function sync_venv_with_specified_requirements_files() {
 
   log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
   log_to_stdout "The project virtual environment was successfully synchronized with the specified requirements files."
-  echo ''
 }
 
 #######################################
@@ -404,6 +396,5 @@ function activate_virtual_environment() {
   else
     log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
     log_to_stdout 'Virtual environment successfully activated. Continue.'
-    echo ''
   fi
 }
