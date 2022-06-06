@@ -222,18 +222,37 @@ function docker_stop_and_remove_containers_by_name() {
 
 
 #######################################
-# Stop and remove containers by ancestor (created from the IMAGE:TAG).
+# Stop and remove containers by ancestor (created from the <image_name>:<image_tag>).
 # Globals:
-#   container_id
-#   docker_image_name
-#   docker_image_tag
+#   FUNCNAME
 # Arguments:
-#  None
+#  docker_image_name
+#  docker_image_tag
 #######################################
 function docker_stop_and_remove_containers_by_ancestor() {
   echo ''
-  log_to_stdout 'Stopping and removing containers created from the IMAGE:NAME...'
+  log_to_stdout 'Stopping and removing containers created from the <image_name>:<image_tag>...'
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+
+  if [ -z "$1" ] ; then
+    log_to_stderr "${FUNCNAME[0]}: Argument 'docker_image_name' was not specified in the function call. Exit."
+    exit 1
+  else
+    local docker_image_name
+    docker_image_name=$1
+    readonly docker_image_name
+    log_to_stdout "${FUNCNAME[0]}: docker_image_name = ${docker_image_name}"
+  fi
+
+  if [ -z "$2" ] ; then
+    log_to_stderr "${FUNCNAME[0]}: Argument 'docker_image_tag' was not specified in the function call. Exit."
+    exit 1
+  else
+    local docker_image_tag
+    docker_image_tag=$2
+    readonly docker_image_tag
+    log_to_stdout "${FUNCNAME[0]}: docker_image_tag = ${docker_image_tag}"
+  fi
 
   # Get a list of containers created based on the specified image.
   local container_ids
