@@ -48,7 +48,7 @@
 #######################################
 # Run standalone Apache Airflow in a Docker container.
 # Globals:
-#   FUNCNAME
+#   None
 # Arguments:
 #   docker_image_name
 #   docker_image_tag
@@ -59,6 +59,7 @@ function docker_run_standalone_airflow_in_container() {
   log_to_stdout ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
   log_to_stdout "Running standalone Apache Airflow in Docker container..."
 
+  # Checking function arguments.
   if [ -z "$1" ] ; then
     log_to_stderr "Argument 'docker_image_name' was not specified in the function call. Exit."
     exit 1
@@ -89,6 +90,7 @@ function docker_run_standalone_airflow_in_container() {
     log_to_stdout "airflow_dags_dir = ${airflow_dags_dir}"
   fi
 
+  # Starting an image-based container and executing the specified command in it.
   # Docs: https://docs.docker.com/engine/reference/commandline/run/
   # Usage: docker run [OPTIONS] IMAGE[:TAG|@DIGEST] [COMMAND] [ARG...]
   if ! docker run \
@@ -124,6 +126,13 @@ function docker_run_standalone_airflow_in_container() {
   log_to_stdout "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 }
 
+#######################################
+# Run the main function of the script.
+# Globals:
+#   HOME
+# Arguments:
+#  None
+#######################################
 function main() {
   # 1. Declaring Local Variables.
   local airflow_dags_dir
@@ -151,9 +160,15 @@ function main() {
   log_to_stdout "START SCRIPT EXECUTION."
 
   docker_stop_and_remove_containers_by_name "${docker_image_name}-${docker_image_tag}"
-  docker_stop_and_remove_containers_by_ancestor "${docker_image_name}" "${docker_image_tag}"
+  docker_stop_and_remove_containers_by_ancestor
+    "${docker_image_name}" \
+    "${docker_image_tag}"
+
   docker_create_user_defined_bridge_network "${docker_image_name}"
-  docker_run_standalone_airflow_in_container "${docker_image_name}" "${docker_image_tag}" "${airflow_dags_dir}"
+  docker_run_standalone_airflow_in_container \
+    "${docker_image_name}" \
+    "${docker_image_tag}" \
+    "${airflow_dags_dir}"
 
   log_to_stdout "END OF SCRIPT EXECUTION."
 }

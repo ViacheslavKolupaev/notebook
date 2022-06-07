@@ -48,7 +48,7 @@
 #######################################
 # Build a standalone Apache Airflow docker image.
 # Globals:
-#   FUNCNAME
+#   None
 # Arguments:
 #   docker_image_name
 #   docker_image_tag
@@ -168,7 +168,9 @@ function main() {
   # 3. Execution of script logic.
   log_to_stdout "START SCRIPT EXECUTION."
 
-  docker_image_remove_by_name_tag "${docker_image_name}" "${docker_image_tag}"
+  docker_image_remove_by_name_tag \
+    "${docker_image_name}" \
+    "${docker_image_tag}"
 
   docker_build_standalone_airflow_image \
     "${docker_image_name}" \
