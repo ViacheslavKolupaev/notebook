@@ -23,30 +23,58 @@
 
 
 #######################################
-# Print a message to stdout with the date and time.
+# Print message to stdout with date and time, calling file and function names.
 # Globals:
 #   FUNCNAME
+#   BASH_SOURCE
+#   BASH_LINENO
 # Arguments:
 #  text_message
 #######################################
 function log_to_stdout() {
   if [ -z "$1" ] ; then
-    echo "| ${FUNCNAME[0]} | Argument 'text_message' was not specified in the function call. Continue."
+    echo "| ${FUNCNAME[0]} | Argument 'text_message' was not specified in the function call. Exit."
+    exit 1
   else
-    echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&1
+    local text_message
+    text_message=$1
+    readonly text_message
+  fi
+
+  local caller_filename_lineno
+  caller_filename_lineno="${BASH_SOURCE[1]##*/}:${BASH_LINENO[0]}"
+  readonly caller_filename_lineno
+
+  if [ -z "${FUNCNAME[1]}" ] ; then
+    echo "| $(date +'%Y-%m-%dT%H:%M:%S%z') | ${caller_filename_lineno} | ${FUNCNAME[0]} | ${text_message}" >&1
+  else
+    echo "| $(date +'%Y-%m-%dT%H:%M:%S%z') | ${caller_filename_lineno} | ${FUNCNAME[1]} | ${text_message}" >&1
   fi
 }
 
 #######################################
-# Print an error message to stderr with the date and time.
+# Print message to stderr with date and time, calling file and function names.
 # Arguments:
 #  text_message
 #######################################
 function log_to_stderr() {
   if [ -z "$1" ] ; then
-    echo "| ${FUNCNAME[0]} | Argument 'text_message' was not specified in the function call. Continue."
+    echo "| ${FUNCNAME[0]} | Argument 'text_message' was not specified in the function call. Exit."
+    exit 1
   else
-    echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&2
+    local text_message
+    text_message=$1
+    readonly text_message
+  fi
+
+  local caller_filename_lineno
+  caller_filename_lineno="${BASH_SOURCE[1]##*/}:${BASH_LINENO[0]}"
+  readonly caller_filename_lineno
+
+  if [ -z "${FUNCNAME[1]}" ] ; then
+    echo "| $(date +'%Y-%m-%dT%H:%M:%S%z') | ${caller_filename_lineno} | ${FUNCNAME[0]} | ${text_message}" >&1
+  else
+    echo "| $(date +'%Y-%m-%dT%H:%M:%S%z') | ${caller_filename_lineno} | ${FUNCNAME[1]} | ${text_message}" >&1
   fi
 }
 
