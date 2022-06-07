@@ -126,10 +126,10 @@ function docker_build_standalone_airflow_image() {
        --build-arg AIRFLOW_VERSION="${AIRFLOW_VERSION}" \
        --build-arg PYTHON_BASE_IMAGE="${PYTHON_BASE_IMAGE}" \
        --tag "${docker_image_name}:${docker_image_tag}"; then
-    echo 'Error building Docker image. Exit.'
+    log_to_stderr 'Error building Docker image. Exit.'
     exit 1
   else
-    echo 'Docker image successfully built. Continue.'
+    log_to_stdout 'Docker image successfully built. Continue.'
   fi
 
   log_to_stdout "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
