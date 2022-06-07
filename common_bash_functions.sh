@@ -31,7 +31,7 @@
 #######################################
 function log_to_stdout() {
   if [ -z "$1" ] ; then
-    echo "${FUNCNAME[0]}: Argument 'text_message' was not specified in the function call. Continue."
+    echo "| ${FUNCNAME[0]} | Argument 'text_message' was not specified in the function call. Continue."
   else
     echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&1
   fi
@@ -44,7 +44,7 @@ function log_to_stdout() {
 #######################################
 function log_to_stderr() {
   if [ -z "$1" ] ; then
-    echo "${FUNCNAME[0]}: Argument 'text_message' was not specified in the function call. Continue."
+    echo "| ${FUNCNAME[0]} | Argument 'text_message' was not specified in the function call. Continue."
   else
     echo "[$(date +'%Y-%m-%dT%H:%M:%S%z')]: $*" >&2
   fi
@@ -60,13 +60,13 @@ function log_to_stderr() {
 function docker_container_stop() {
   echo ''
   if [ -z "$1" ] ; then
-    log_to_stderr "${FUNCNAME[0]}: Argument 'container_id_or_name' was not specified in the function call. Exit."
+    log_to_stderr "| ${FUNCNAME[0]} | Argument 'container_id_or_name' was not specified in the function call. Exit."
     exit 1
   else
     local container_id_or_name
     container_id_or_name=$1
     readonly container_id_or_name
-    log_to_stdout "${FUNCNAME[0]}: container_id_or_name = ${container_id_or_name}"
+    log_to_stdout "| ${FUNCNAME[0]} | container_id_or_name = ${container_id_or_name}"
   fi
 
   log_to_stdout "Stopping the '${container_id_or_name}' container..."
@@ -88,13 +88,13 @@ function docker_container_stop() {
 function docker_container_remove() {
   echo ''
   if [ -z "$1" ] ; then
-    log_to_stderr "${FUNCNAME[0]}: Argument 'container_id_or_name' was not specified in the function call. Exit."
+    log_to_stderr "| ${FUNCNAME[0]} | Argument 'container_id_or_name' was not specified in the function call. Exit."
     exit 1
   else
     local container_id_or_name
     container_id_or_name=$1
     readonly container_id_or_name
-    log_to_stdout "${FUNCNAME[0]}: container_id_or_name = ${container_id_or_name}"
+    log_to_stdout "| ${FUNCNAME[0]} | container_id_or_name = ${container_id_or_name}"
   fi
 
   log_to_stdout "Removing the '${container_id_or_name}' container..."
@@ -116,13 +116,13 @@ function docker_container_remove() {
 function docker_image_remove() {
   echo ''
   if [ -z "$1" ] ; then
-    log_to_stderr "${FUNCNAME[0]}: Argument 'image_id_or_name' was not specified in the function call. Exit."
+    log_to_stderr "| ${FUNCNAME[0]} | Argument 'image_id_or_name' was not specified in the function call. Exit."
     exit 1
   else
     local image_id_or_name
     image_id_or_name=$1
     readonly image_id_or_name
-    log_to_stdout "${FUNCNAME[0]}: image_id_or_name = ${image_id_or_name}"
+    log_to_stdout "| ${FUNCNAME[0]} | image_id_or_name = ${image_id_or_name}"
   fi
 
   log_to_stdout "Removing the '${image_id_or_name}' image..."
@@ -150,23 +150,23 @@ function docker_image_remove_by_name_tag(){
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
   if [ -z "$1" ] ; then
-    log_to_stderr "${FUNCNAME[0]}: Argument 'docker_image_name' was not specified in the function call. Exit."
+    log_to_stderr "| ${FUNCNAME[0]} | Argument 'docker_image_name' was not specified in the function call. Exit."
     exit 1
   else
     local docker_image_name
     docker_image_name=$1
     readonly docker_image_name
-    log_to_stdout "${FUNCNAME[0]}: docker_image_name = ${docker_image_name}"
+    log_to_stdout "| ${FUNCNAME[0]} | docker_image_name = ${docker_image_name}"
   fi
 
   if [ -z "$2" ] ; then
-    log_to_stderr "${FUNCNAME[0]}: Argument 'docker_image_tag' was not specified in the function call. Exit."
+    log_to_stderr "| ${FUNCNAME[0]} | Argument 'docker_image_tag' was not specified in the function call. Exit."
     exit 1
   else
     local docker_image_tag
     docker_image_tag=$2
     readonly docker_image_tag
-    log_to_stdout "${FUNCNAME[0]}: docker_image_tag = ${docker_image_tag}"
+    log_to_stdout "| ${FUNCNAME[0]} | docker_image_tag = ${docker_image_tag}"
   fi
 
   # Removing an image by <name>:<tag>.
@@ -193,13 +193,13 @@ function docker_stop_and_remove_containers_by_name() {
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
   if [ -z "$1" ] ; then
-    log_to_stderr "${FUNCNAME[0]}: Argument 'docker_image_name' was not specified in the function call. Exit."
+    log_to_stderr "| ${FUNCNAME[0]} | Argument 'docker_image_name' was not specified in the function call. Exit."
     exit 1
   else
     local docker_image_name
     docker_image_name=$1
     readonly docker_image_name
-    log_to_stdout "${FUNCNAME[0]}: docker_image_name = ${docker_image_name}"
+    log_to_stdout "| ${FUNCNAME[0]} | docker_image_name = ${docker_image_name}"
   fi
 
   # Get a list of containers with a name equal to the name of the image.
@@ -238,23 +238,23 @@ function docker_stop_and_remove_containers_by_ancestor() {
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
   if [ -z "$1" ] ; then
-    log_to_stderr "${FUNCNAME[0]}: Argument 'docker_image_name' was not specified in the function call. Exit."
+    log_to_stderr "| ${FUNCNAME[0]} | Argument 'docker_image_name' was not specified in the function call. Exit."
     exit 1
   else
     local docker_image_name
     docker_image_name=$1
     readonly docker_image_name
-    log_to_stdout "${FUNCNAME[0]}: docker_image_name = ${docker_image_name}"
+    log_to_stdout "| ${FUNCNAME[0]} | docker_image_name = ${docker_image_name}"
   fi
 
   if [ -z "$2" ] ; then
-    log_to_stderr "${FUNCNAME[0]}: Argument 'docker_image_tag' was not specified in the function call. Exit."
+    log_to_stderr "| ${FUNCNAME[0]} | Argument 'docker_image_tag' was not specified in the function call. Exit."
     exit 1
   else
     local docker_image_tag
     docker_image_tag=$2
     readonly docker_image_tag
-    log_to_stdout "${FUNCNAME[0]}: docker_image_tag = ${docker_image_tag}"
+    log_to_stdout "| ${FUNCNAME[0]} | docker_image_tag = ${docker_image_tag}"
   fi
 
   # Get a list of containers created based on the specified image.
@@ -292,13 +292,13 @@ function docker_create_user_defined_bridge_network() {
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
   if [ -z "$1" ] ; then
-    log_to_stderr "${FUNCNAME[0]}: Argument 'docker_image_name' was not specified in the function call. Exit."
+    log_to_stderr "| ${FUNCNAME[0]} | Argument 'docker_image_name' was not specified in the function call. Exit."
     exit 1
   else
     local docker_image_name
     docker_image_name=$1
     readonly docker_image_name
-    log_to_stdout "${FUNCNAME[0]}: docker_image_name = ${docker_image_name}"
+    log_to_stdout "| ${FUNCNAME[0]} | docker_image_name = ${docker_image_name}"
   fi
 
   if [ "$(docker network ls -q -f "name=${docker_image_name}-net")" ]; then
@@ -329,20 +329,20 @@ function sync_venv_with_specified_requirements_files() {
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
   if [ -z "$1" ] ; then
-    log_to_stderr "${FUNCNAME[0]}: Argument 'req_compiled_file_full_path' was not specified in the function call. Exit."
+    log_to_stderr "| ${FUNCNAME[0]} | Argument 'req_compiled_file_full_path' was not specified in the function call. Exit."
     exit 1
   else
     local req_compiled_file_full_path
     req_compiled_file_full_path=$1
     readonly req_compiled_file_full_path
-    log_to_stdout "${FUNCNAME[0]}: requirements file 1 = ${req_compiled_file_full_path}"
+    log_to_stdout "| ${FUNCNAME[0]} | requirements file 1 = ${req_compiled_file_full_path}"
   fi
 
   if [ -n "$2" ] ; then
     local project_root
     project_root=$2
     readonly project_root
-    log_to_stdout "${FUNCNAME[0]}: requirements file 2: ${project_root}/requirements/compiled/01_app_requirements.txt"
+    log_to_stdout "| ${FUNCNAME[0]} | requirements file 2: ${project_root}/requirements/compiled/01_app_requirements.txt"
 
     if ! pip-sync \
         "${project_root}/requirements/compiled/01_app_requirements.txt" \
@@ -378,17 +378,17 @@ function activate_virtual_environment() {
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
   if [ -z "$1" ] ; then
-    log_to_stderr "${FUNCNAME[0]}: Argument 'venv_scripts_dir_full_path' was not specified in the function call. Exit."
+    log_to_stderr "| ${FUNCNAME[0]} | Argument 'venv_scripts_dir_full_path' was not specified in the function call. Exit."
     exit 1
   else
     local venv_scripts_dir_full_path
     venv_scripts_dir_full_path=$1
     readonly venv_scripts_dir_full_path
-    log_to_stdout "${FUNCNAME[0]}: venv_scripts_dir_full_path = ${venv_scripts_dir_full_path}"
+    log_to_stdout "| ${FUNCNAME[0]} | venv_scripts_dir_full_path = ${venv_scripts_dir_full_path}"
   fi
 
   cd "${venv_scripts_dir_full_path}" || exit 1
-  log_to_stdout "${FUNCNAME[0]}: current pwd = ${PWD}"
+  log_to_stdout "| ${FUNCNAME[0]} | current pwd = ${PWD}"
 
   if ! source activate; then
     log_to_stderr 'Virtual environment activation error. Exit.'
