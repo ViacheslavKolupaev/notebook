@@ -140,7 +140,8 @@ function main() {
   readonly docker_image_name='dev-apache-airflow'  # change if necessary
 
   local docker_image_tag
-  readonly docker_image_tag="${AIRFLOW_VERSION}-${PYTHON_BASE_IMAGE}"  # don't change
+  docker_image_tag="${AIRFLOW_VERSION}-${PYTHON_BASE_IMAGE}"  # don't change
+  readonly docker_image_tag
 
   # 2. Import bash functions from other scripts.
   # shellcheck source=../../common_bash_functions.sh
