@@ -72,9 +72,9 @@ function log_to_stderr() {
   readonly caller_filename_lineno
 
   if [ -z "${FUNCNAME[1]}" ] ; then
-    echo "| $(date +'%Y-%m-%dT%H:%M:%S%z') | ${caller_filename_lineno} | ${FUNCNAME[0]} | ${text_message}" >&1
+    echo "| $(date +'%Y-%m-%dT%H:%M:%S%z') | ${caller_filename_lineno} | ${FUNCNAME[0]} | ${text_message}" >&2
   else
-    echo "| $(date +'%Y-%m-%dT%H:%M:%S%z') | ${caller_filename_lineno} | ${FUNCNAME[1]} | ${text_message}" >&1
+    echo "| $(date +'%Y-%m-%dT%H:%M:%S%z') | ${caller_filename_lineno} | ${FUNCNAME[1]} | ${text_message}" >&2
   fi
 }
 
