@@ -160,7 +160,7 @@ function main() {
   log_to_stdout "START SCRIPT EXECUTION."
 
   docker_stop_and_remove_containers_by_name "${docker_image_name}-${docker_image_tag}"
-  docker_stop_and_remove_containers_by_ancestor
+  docker_stop_and_remove_containers_by_ancestor \
     "${docker_image_name}" \
     "${docker_image_tag}"
 
