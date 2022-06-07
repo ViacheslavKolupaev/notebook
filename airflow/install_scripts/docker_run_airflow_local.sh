@@ -54,37 +54,37 @@
 #######################################
 function docker_run_standalone_airflow_in_container() {
   echo ''
-  log_to_stdout "Running standalone Apache Airflow in Docker container..."
-  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+  log_to_stdout "| ${FUNCNAME[0]} | >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+  log_to_stdout "| ${FUNCNAME[0]} | Running standalone Apache Airflow in Docker container..."
 
   if [ -z "$1" ] ; then
-    log_to_stderr "${FUNCNAME[0]}: Argument 'docker_image_name' was not specified in the function call. Exit."
+    log_to_stderr "| ${FUNCNAME[0]} | Argument 'docker_image_name' was not specified in the function call. Exit."
     exit 1
   else
     local docker_image_name
     docker_image_name=$1
     readonly docker_image_name
-    log_to_stdout "${FUNCNAME[0]}: docker_image_name = ${docker_image_name}"
+    log_to_stdout "| ${FUNCNAME[0]} | docker_image_name = ${docker_image_name}"
   fi
 
   if [ -z "$2" ] ; then
-    log_to_stderr "${FUNCNAME[0]}: Argument 'docker_image_tag' was not specified in the function call. Exit."
+    log_to_stderr "| ${FUNCNAME[0]} | Argument 'docker_image_tag' was not specified in the function call. Exit."
     exit 1
   else
     local docker_image_tag
     docker_image_tag=$2
     readonly docker_image_tag
-    log_to_stdout "${FUNCNAME[0]}: docker_image_tag = ${docker_image_tag}"
+    log_to_stdout "| ${FUNCNAME[0]} | docker_image_tag = ${docker_image_tag}"
   fi
 
   if [ -z "$3" ] ; then
-    log_to_stderr "${FUNCNAME[0]}: Argument 'airflow_dags_dir' was not specified in the function call. Exit."
+    log_to_stderr "| ${FUNCNAME[0]} | Argument 'airflow_dags_dir' was not specified in the function call. Exit."
     exit 1
   else
     local airflow_dags_dir
     airflow_dags_dir=$3
     readonly airflow_dags_dir
-    log_to_stdout "${FUNCNAME[0]}: airflow_dags_dir = ${airflow_dags_dir}"
+    log_to_stdout "| ${FUNCNAME[0]} | airflow_dags_dir = ${airflow_dags_dir}"
   fi
 
   # Docs: https://docs.docker.com/engine/reference/commandline/run/
@@ -113,13 +113,13 @@ function docker_run_standalone_airflow_in_container() {
     "${docker_image_name}:${docker_image_tag}"  `# The name and tag of the image to use to launch the container.` \
     standalone  `# The command to execute inside the container.`;
   then
-    log_to_stderr 'Error starting container. Exit.'
+    log_to_stderr "| ${FUNCNAME[0]} | Error starting container. Exit."
     exit 1
   else
-    log_to_stdout 'Docker container started successfully. Continue.'
+    log_to_stdout "| ${FUNCNAME[0]} | Docker container started successfully. Continue."
   fi
 
-  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+  log_to_stdout "| ${FUNCNAME[0]} | <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 }
 
 function main() {
@@ -133,30 +133,30 @@ function main() {
   readonly airflow_dags_dir
 
   local AIRFLOW_VERSION
-  readonly AIRFLOW_VERSION="2.2.4"
+  readonly AIRFLOW_VERSION="2.2.4"  # change if necessary
 
   local PYTHON_BASE_IMAGE
-  readonly PYTHON_BASE_IMAGE="python3.8"
+  readonly PYTHON_BASE_IMAGE="python3.8"  # change if necessary
 
   local docker_image_name
-  readonly docker_image_name='dev-apache-airflow'
+  readonly docker_image_name='dev-apache-airflow'  # change if necessary
 
   local docker_image_tag
-  readonly docker_image_tag="${AIRFLOW_VERSION}-${PYTHON_BASE_IMAGE}"
+  readonly docker_image_tag="${AIRFLOW_VERSION}-${PYTHON_BASE_IMAGE}"  # don't change
 
   # 2. Import bash functions from other scripts.
   # shellcheck source=../../common_bash_functions.sh
   source ../../common_bash_functions.sh
 
   # 3. Execution of script logic.
-  log_to_stdout "${script_basename}: START SCRIPT EXECUTION"
+  log_to_stdout "| ${script_basename} | ${FUNCNAME[0]} | START SCRIPT EXECUTION."
 
   docker_stop_and_remove_containers_by_name "${docker_image_name}-${docker_image_tag}"
   docker_stop_and_remove_containers_by_ancestor "${docker_image_name}" "${docker_image_tag}"
   docker_create_user_defined_bridge_network "${docker_image_name}"
   docker_run_standalone_airflow_in_container "${docker_image_name}" "${docker_image_tag}" "${airflow_dags_dir}"
 
-  log_to_stdout "${script_basename}: END OF SCRIPT EXECUTION"
+  log_to_stdout "| ${script_basename} | ${FUNCNAME[0]} | END OF SCRIPT EXECUTION."
 }
 
 main "$@"
