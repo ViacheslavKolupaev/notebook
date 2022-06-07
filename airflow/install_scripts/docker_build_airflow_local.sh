@@ -15,48 +15,169 @@
 # limitations under the License.
 #
 
-function main() {
-  # 1. Declaring Local Variables.
-  local script_basename
-  script_basename=$(basename "${BASH_SOURCE[0]##*/}")  # don't change
-  readonly script_basename
+##########################################################################################
+# The script will build a Docker image with standalone Apache Airflow.
+#
+# Not suitable for production environment. Use it for local development and testing only!
+#
+# The image will be named: `dev-apache-airflow-<AIRFLOW_VERSION>-<PYTHON_BASE_IMAGE>`.
+# The Apache Airflow web server will be available at: http://127.0.0.1:8080/.
+# For authorization use login `admin` and password `admin`.
+#
+# A directory `airflow_dags_dir` with DAG files from the host will be mounted to the
+# container. Thus, if adding or changes to the DAG file, you do not need to rebuild the
+# image and restart the container.
+#
+# If you need to add or remove some package (dependency) for Apache Airflow, then you
+# need to:
+# 1. Make changes to the `requirements.txt` file.
+# 2. Rebuild the image using the `docker_build_airflow_local.sh` script.
+# 3. Restart container with this script.
+#
+# If necessary, you need to replace the values of the variables in the `main()` function:
+# - `dockerfile_dir`;
+# - `AIRFLOW_VERSION`;
+# - `PYTHON_BASE_IMAGE`;
+# - `docker_image_name`;
+# - `docker_image_tag`.
+#
+# See available Apache Airflow tags here: https://hub.docker.com/r/apache/airflow/tags
+##########################################################################################
 
-  local project_name
-  readonly project_name='notebook'  # enter your project name
 
-  local project_root
-  project_root="${HOME}/PycharmProjects/${project_name}"  # change the path if necessary
-  readonly project_root
+#######################################
+# Build a standalone Apache Airflow docker image.
+# Globals:
+#   FUNCNAME
+# Arguments:
+#   docker_image_name
+#   docker_image_tag
+#   dockerfile_dir
+#   AIRFLOW_VERSION
+#   PYTHON_BASE_IMAGE
+#######################################
+function docker_build_standalone_airflow_image() {
+  echo ''
+  log_to_stdout ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+  log_to_stdout "Building a standalone Apache Airflow Docker image..."
 
-  local AIRFLOW_VERSION
-  readonly AIRFLOW_VERSION="2.2.4"
+  # Checking function arguments.
+  if [ -z "$1" ] ; then
+    log_to_stderr "Argument 'docker_image_name' was not specified in the function call. Exit."
+    exit 1
+  else
+    local docker_image_name
+    docker_image_name=$1
+    readonly docker_image_name
+    log_to_stdout "docker_image_name = ${docker_image_name}"
+  fi
 
-  local PYTHON_BASE_IMAGE
-  readonly PYTHON_BASE_IMAGE="python3.8"
+  if [ -z "$2" ] ; then
+    log_to_stderr "Argument 'docker_image_tag' was not specified in the function call. Exit."
+    exit 1
+  else
+    local docker_image_tag
+    docker_image_tag=$2
+    readonly docker_image_tag
+    log_to_stdout "docker_image_tag = ${docker_image_tag}"
+  fi
 
-  log_to_stdout 'Changing to the directory with the Dockerfile...'
-  cd "${project_root}/airflow/install_scripts" || exit 1
-  log_to_stdout "Current pwd: ${PWD}"
+  if [ -z "$3" ] ; then
+    log_to_stderr "Argument 'dockerfile_dir' was not specified in the function call. Exit."
+    exit 1
+  else
+    local dockerfile_dir
+    dockerfile_dir=$3
+    readonly dockerfile_dir
+    log_to_stdout "dockerfile_dir = ${dockerfile_dir}"
+  fi
 
+  if [ -z "$4" ] ; then
+    log_to_stderr "Argument 'AIRFLOW_VERSION' was not specified in the function call. Exit."
+    exit 1
+  else
+    local AIRFLOW_VERSION
+    AIRFLOW_VERSION=$4
+    readonly AIRFLOW_VERSION
+    log_to_stdout "AIRFLOW_VERSION = ${AIRFLOW_VERSION}"
+  fi
+
+  if [ -z "$5" ] ; then
+    log_to_stderr "Argument 'PYTHON_BASE_IMAGE' was not specified in the function call. Exit."
+    exit 1
+  else
+    local PYTHON_BASE_IMAGE
+    PYTHON_BASE_IMAGE=$5
+    readonly PYTHON_BASE_IMAGE
+    log_to_stdout "PYTHON_BASE_IMAGE = ${PYTHON_BASE_IMAGE}"
+  fi
+
+  # Get the short SHA of the current Git revision.
   local git_rev_short_sha
-  git_rev_short_sha=$(git rev-parse --short HEAD)
+  git_rev_short_sha="$(git rev-parse --short HEAD)"
   log_to_stdout "git_rev_short_sha: ${git_rev_short_sha}"
 
-  docker rmi --force "dev-apache-airflow:${AIRFLOW_VERSION}-${PYTHON_BASE_IMAGE}"
-
+  # Building a Docker image.
   # See about DOCKER_BUILDKIT: https://github.com/moby/moby/issues/34151#issuecomment-739018493
   if ! DOCKER_BUILDKIT=1 docker build . \
        --pull \
-       --file Dockerfile \
+       --file "${dockerfile_dir}/Dockerfile" \
        --build-arg VCS_REF="${git_rev_short_sha}" \
        --build-arg AIRFLOW_VERSION="${AIRFLOW_VERSION}" \
        --build-arg PYTHON_BASE_IMAGE="${PYTHON_BASE_IMAGE}" \
-       --tag "dev-apache-airflow:${AIRFLOW_VERSION}-${PYTHON_BASE_IMAGE}"; then
+       --tag "${docker_image_name}:${docker_image_tag}"; then
     echo 'Error building Docker image. Exit.'
     exit 1
   else
     echo 'Docker image successfully built. Continue.'
   fi
+
+  log_to_stdout "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+}
+
+#######################################
+# Run the main function of the script.
+# Globals:
+#   HOME
+# Arguments:
+#  None
+#######################################
+function main() {
+  # 1. Declaring Local Variables.
+  local dockerfile_dir
+  dockerfile_dir="${HOME}/PycharmProjects/notebook/airflow/install_scripts"  # double check the path
+  readonly dockerfile_dir
+
+  local AIRFLOW_VERSION
+  readonly AIRFLOW_VERSION="2.2.4"  # change if necessary
+
+  local PYTHON_BASE_IMAGE
+  readonly PYTHON_BASE_IMAGE="python3.8"  # change if necessary
+
+  local docker_image_name
+  readonly docker_image_name='dev-apache-airflow'  # change if necessary
+
+  local docker_image_tag
+  docker_image_tag="${AIRFLOW_VERSION}-${PYTHON_BASE_IMAGE}"  # don't change
+  readonly docker_image_tag
+
+  # 2. Import bash functions from other scripts.
+  # shellcheck source=../../common_bash_functions.sh
+  source ../../common_bash_functions.sh
+
+  # 3. Execution of script logic.
+  log_to_stdout "START SCRIPT EXECUTION."
+
+  docker_image_remove_by_name_tag "${docker_image_name}" "${docker_image_tag}"
+
+  docker_build_standalone_airflow_image \
+    "${docker_image_name}" \
+    "${docker_image_tag}" \
+    "${dockerfile_dir}" \
+    "${AIRFLOW_VERSION}" \
+    "${PYTHON_BASE_IMAGE}"
+
+  log_to_stdout "END OF SCRIPT EXECUTION."
 }
 
 main "$@"
