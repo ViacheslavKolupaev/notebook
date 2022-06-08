@@ -18,7 +18,7 @@
 ##########################################################################################
 # The script will create and run a Docker container with standalone Apache Airflow.
 #
-# Not suitable for production environment. Use it for local development and testing only!
+# This container is for development purposes only. Do not use this in production!
 #
 # The container will be named according to the following scheme:
 # `apache-airflow-standalone-<airflow_version>-<python_base_image>`.
@@ -108,6 +108,8 @@ function docker_run_standalone_airflow_in_container() {
     --memory=4g \
     --memory-swap=5g \
     --mount type=bind,source="${airflow_dags_dir}",target=/opt/airflow/dags,readonly \
+    --privileged=false  `# Be careful when enabling this option! Potentially unsafe.
+    # The container can then do almost everything that the host can do.`\
     --health-cmd='python --version || exit 1' \
     --health-interval=2s \
     --env LANG=C.UTF-8 \
