@@ -17,8 +17,7 @@
 Maintainer: Viacheslav Kolupaev
 """
 
-from datetime import datetime, timedelta
-from textwrap import dedent
+from datetime import timedelta
 
 import pendulum
 
@@ -142,7 +141,7 @@ with DAG(
         ),
     }
     all_environment = private_environment
-    all_environment |= non_private_environment
+    all_environment.update(non_private_environment)
 
     # t1, t2 and t3 are examples of tasks created by instantiating operators
 
@@ -153,7 +152,7 @@ with DAG(
         dag=dag,
         bash_command='bash_scripts/001_start_boilerplate_app_container.sh',
         env=all_environment,
-        append_env=False,
+        #append_env=False,  # the argument is missing from previous versions of the operator.
     )
 
     # OPTION 2.
@@ -198,7 +197,7 @@ with DAG(
         cap_add=None,
         retrieve_output=False,
         retrieve_output_path=None,
-        device_requests=None,
+        # device_requests=None,  # the argument is missing from previous versions of the operator.
         on_success_callback=dag_success_alert,
     )
 
