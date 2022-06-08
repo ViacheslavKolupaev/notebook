@@ -393,7 +393,7 @@ function sync_venv_with_specified_requirements_files() {
     local project_root
     project_root=$2
     readonly project_root
-    log_to_stdout "requirements file 2: ${project_root}/requirements/compiled/01_app_requirements.txt"
+    log_to_stdout "requirements file 2 = ${project_root}/requirements/compiled/01_app_requirements.txt"
 
     if ! pip-sync \
         "${project_root}/requirements/compiled/01_app_requirements.txt" \
