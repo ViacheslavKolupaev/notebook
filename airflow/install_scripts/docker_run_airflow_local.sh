@@ -20,7 +20,9 @@
 #
 # Not suitable for production environment. Use it for local development and testing only!
 #
-# The container will be named: `dev-apache-airflow-<AIRFLOW_VERSION>-<PYTHON_BASE_IMAGE>`.
+# The container will be named according to the following scheme:
+# `apache-airflow-standalone-<airflow_version>-<python_base_image>`.
+#
 # The Apache Airflow web server will be available at: http://127.0.0.1:8080/.
 # For authorization use login `admin` and password `admin`.
 #
@@ -36,8 +38,8 @@
 #
 # If necessary, you need to replace the values of the variables in the `main()` function:
 # - `airflow_dags_dir`;
-# - `AIRFLOW_VERSION`;
-# - `PYTHON_BASE_IMAGE`;
+# - `airflow_version`;
+# - `python_base_image`;
 # - `docker_image_name`;
 # - `docker_image_tag`.
 #
@@ -99,7 +101,7 @@ function docker_run_standalone_airflow_in_container() {
     --restart=no \
     --log-driver=local `# https://docs.docker.com/config/containers/logging/local/` \
     --log-opt mode=non-blocking \
-    --network=dev-apache-airflow-net \
+    --network="${docker_image_name}-net" \
     --publish 8080:8080 \
     --cpus="2" \
     --memory-reservation=3g \
@@ -139,17 +141,17 @@ function main() {
   airflow_dags_dir="${HOME}/PycharmProjects/notebook/airflow/dags"  # change the path if necessary
   readonly airflow_dags_dir
 
-  local AIRFLOW_VERSION
-  readonly AIRFLOW_VERSION="2.2.4"  # change if necessary
+  local airflow_version
+  readonly airflow_version="2.2.4"  # change if necessary
 
-  local PYTHON_BASE_IMAGE
-  readonly PYTHON_BASE_IMAGE="python3.8"  # change if necessary
+  local python_base_image
+  readonly python_base_image="python3.8"  # change if necessary
 
   local docker_image_name
-  readonly docker_image_name='dev-apache-airflow'  # change if necessary
+  readonly docker_image_name='apache-airflow-standalone'  # change if necessary
 
   local docker_image_tag
-  docker_image_tag="${AIRFLOW_VERSION}-${PYTHON_BASE_IMAGE}"  # don't change
+  docker_image_tag="${airflow_version}-${python_base_image}"  # don't change
   readonly docker_image_tag
 
   # 2. Import bash functions from other scripts.

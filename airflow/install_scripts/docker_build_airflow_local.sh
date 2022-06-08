@@ -20,7 +20,9 @@
 #
 # Not suitable for production environment. Use it for local development and testing only!
 #
-# The image will be named: `dev-apache-airflow-<AIRFLOW_VERSION>-<PYTHON_BASE_IMAGE>`.
+# The image will be named according to the following scheme:
+# `apache-airflow-standalone-<airflow_version>-<python_base_image>`.
+#
 # The Apache Airflow web server will be available at: http://127.0.0.1:8080/.
 # For authorization use login `admin` and password `admin`.
 #
@@ -36,8 +38,8 @@
 #
 # If necessary, you need to replace the values of the variables in the `main()` function:
 # - `dockerfile_dir`;
-# - `AIRFLOW_VERSION`;
-# - `PYTHON_BASE_IMAGE`;
+# - `airflow_version`;
+# - `python_base_image`;
 # - `docker_image_name`;
 # - `docker_image_tag`.
 #
@@ -53,8 +55,8 @@
 #   docker_image_name
 #   docker_image_tag
 #   dockerfile_dir
-#   AIRFLOW_VERSION
-#   PYTHON_BASE_IMAGE
+#   airflow_version
+#   python_base_image
 #######################################
 function docker_build_standalone_airflow_image() {
   echo ''
@@ -93,23 +95,23 @@ function docker_build_standalone_airflow_image() {
   fi
 
   if [ -z "$4" ] ; then
-    log_to_stderr "Argument 'AIRFLOW_VERSION' was not specified in the function call. Exit."
+    log_to_stderr "Argument 'airflow_version' was not specified in the function call. Exit."
     exit 1
   else
-    local AIRFLOW_VERSION
-    AIRFLOW_VERSION=$4
-    readonly AIRFLOW_VERSION
-    log_to_stdout "AIRFLOW_VERSION = ${AIRFLOW_VERSION}"
+    local airflow_version
+    airflow_version=$4
+    readonly airflow_version
+    log_to_stdout "airflow_version = ${airflow_version}"
   fi
 
   if [ -z "$5" ] ; then
-    log_to_stderr "Argument 'PYTHON_BASE_IMAGE' was not specified in the function call. Exit."
+    log_to_stderr "Argument 'python_base_image' was not specified in the function call. Exit."
     exit 1
   else
-    local PYTHON_BASE_IMAGE
-    PYTHON_BASE_IMAGE=$5
-    readonly PYTHON_BASE_IMAGE
-    log_to_stdout "PYTHON_BASE_IMAGE = ${PYTHON_BASE_IMAGE}"
+    local python_base_image
+    python_base_image=$5
+    readonly python_base_image
+    log_to_stdout "python_base_image = ${python_base_image}"
   fi
 
   # Get the short SHA of the current Git revision.
@@ -123,8 +125,8 @@ function docker_build_standalone_airflow_image() {
        --pull \
        --file "${dockerfile_dir}/Dockerfile" \
        --build-arg VCS_REF="${git_rev_short_sha}" \
-       --build-arg AIRFLOW_VERSION="${AIRFLOW_VERSION}" \
-       --build-arg PYTHON_BASE_IMAGE="${PYTHON_BASE_IMAGE}" \
+       --build-arg AIRFLOW_VERSION="${airflow_version}" \
+       --build-arg PYTHON_BASE_IMAGE="${python_base_image}" \
        --tag "${docker_image_name}:${docker_image_tag}"; then
     log_to_stderr 'Error building Docker image. Exit.'
     exit 1
@@ -148,17 +150,17 @@ function main() {
   dockerfile_dir="${HOME}/PycharmProjects/notebook/airflow/install_scripts"  # double check the path
   readonly dockerfile_dir
 
-  local AIRFLOW_VERSION
-  readonly AIRFLOW_VERSION="2.2.4"  # change if necessary
+  local airflow_version
+  readonly airflow_version="2.2.4"  # change if necessary
 
-  local PYTHON_BASE_IMAGE
-  readonly PYTHON_BASE_IMAGE="python3.8"  # change if necessary
+  local python_base_image
+  readonly python_base_image="python3.8"  # change if necessary
 
   local docker_image_name
-  readonly docker_image_name='dev-apache-airflow'  # change if necessary
+  readonly docker_image_name='apache-airflow-standalone'  # change if necessary
 
   local docker_image_tag
-  docker_image_tag="${AIRFLOW_VERSION}-${PYTHON_BASE_IMAGE}"  # don't change
+  docker_image_tag="${airflow_version}-${python_base_image}"  # don't change
   readonly docker_image_tag
 
   # 2. Import bash functions from other scripts.
@@ -176,8 +178,8 @@ function main() {
     "${docker_image_name}" \
     "${docker_image_tag}" \
     "${dockerfile_dir}" \
-    "${AIRFLOW_VERSION}" \
-    "${PYTHON_BASE_IMAGE}"
+    "${airflow_version}" \
+    "${python_base_image}"
 
   log_to_stdout "END OF SCRIPT EXECUTION."
 }
