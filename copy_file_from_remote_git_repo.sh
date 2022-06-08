@@ -16,14 +16,16 @@
 #
 
 #######################################
-# Copy the specified file from the specified remote Git repository to the script directory.
+# Copy a file from the specified branch of the remote Git repo to the script directory.
+#
+# Paths to the file in the target directory are preserved during copying.
 #
 # Usage example:
-#   source ./copy_file_from_remote_git_repo.sh \
+#   `source ./copy_file_from_remote_git_repo.sh \
 #   && copy_file_from_remote_git_repo \
 #     'git@gitlab.com:vkolupaev/notebook.git' \
 #     'main' \
-#     'common_bash_functions.sh'
+#     'common_bash_functions.sh'`
 #
 # Globals:
 #   FUNCNAME
