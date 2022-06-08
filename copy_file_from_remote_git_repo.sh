@@ -72,7 +72,6 @@ function copy_file_from_remote_git_repo() {
 
   # Copying.
   echo "| ${FUNCNAME[0]} | Copying '${path_to_file}' file from remote Git repository '${remote_git_repo}'..."
-
   if ! git archive \
       --remote=${remote_git_repo} \
       --verbose \
@@ -81,7 +80,6 @@ function copy_file_from_remote_git_repo() {
     echo "| ${FUNCNAME[0]} | Error copying '${path_to_file}' from '${remote_git_repo}'. Contact the maintainer. Exit."
     exit 1
   else
-
     echo "| ${FUNCNAME[0]} | '${path_to_file}' file successfully copied from '${remote_git_repo}'."
     echo "| ${FUNCNAME[0]} | Current PWD: '${PWD}'."
   fi
