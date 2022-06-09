@@ -121,13 +121,14 @@ function docker_build_standalone_airflow_image() {
 
   # Building a Docker image.
   # See about DOCKER_BUILDKIT: https://github.com/moby/moby/issues/34151#issuecomment-739018493
-  if ! DOCKER_BUILDKIT=1 docker build . \
+  if ! DOCKER_BUILDKIT=1 docker build \
        --pull \
        --file "${dockerfile_dir}/Dockerfile" \
        --build-arg VCS_REF="${git_rev_short_sha}" \
        --build-arg AIRFLOW_VERSION="${airflow_version}" \
        --build-arg PYTHON_BASE_IMAGE="${python_base_image}" \
-       --tag "${docker_image_name}:${docker_image_tag}"; then
+       --tag "${docker_image_name}:${docker_image_tag}" \
+       "${dockerfile_dir}"  `# docker context PATH`; then
     log_to_stderr 'Error building Docker image. Exit.'
     exit 1
   else
