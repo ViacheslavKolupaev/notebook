@@ -16,66 +16,82 @@
 #
 
 ##########################################################################################
-# The script will create a Docker image of the application.
+# The script will build a Docker image of the `boilerplate` application.
 #
-# Use it for local development and testing.
+# Not suitable for production environment. Use it for local development and testing only!
+#
+# The image will be named according to the following scheme:
+# `<docker_image_name>-<docker_image_tag>`.
+#
 # The image can be uploaded to a repository such as: DockerHub, Nexus, etc.
 #
 # If necessary, you need to replace the values of the variables in the `main()` function:
-# - `project_name`;
+# - `dockerfile_dir`;
 # - `docker_image_name`;
 # - `docker_image_tag`.
+#
+# The script uses the helper functions from the `common_bash_functions.sh` file.
 ##########################################################################################
 
 
 #######################################
-# Delete the Docker image before creating an image with the same name and tag.
-# Globals:
-#   container_id
-#   docker_image
+# Build a Docker image of the `boilerplate` application.
 # Arguments:
-#  None
+#  docker_image_name
+#  docker_image_tag
+#  dockerfile_dir
 #######################################
-function docker_pre_cleanup() {
-  log_to_stdout 'STEP 1: Docker pre-cleanup...'
-  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+function docker_build_boilerplate_image() {
+  echo ''
+  log_to_stdout ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+  log_to_stdout "Building a standalone Apache Airflow Docker image..."
 
-  # Deleting an image by <name>:<tag>.
-  if [ "$(docker images -q "${docker_image}")" ]; then
-    log_to_stdout "Docker image '${docker_image}' already exists."
-    docker_image_remove "${docker_image}"
+  # Checking function arguments.
+  if [ -z "$1" ] ; then
+    log_to_stderr "Argument 'docker_image_name' was not specified in the function call. Exit."
+    exit 1
   else
-    log_to_stdout "Docker image '${docker_image}' not found. Continue."
+    local docker_image_name
+    docker_image_name=$1
+    readonly docker_image_name
+    log_to_stdout "Argument 'docker_image_name' = ${docker_image_name}"
   fi
 
-  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
-}
+  if [ -z "$2" ] ; then
+    log_to_stderr "Argument 'docker_image_tag' was not specified in the function call. Exit."
+    exit 1
+  else
+    local docker_image_tag
+    docker_image_tag=$2
+    readonly docker_image_tag
+    log_to_stdout "Argument 'docker_image_tag' = ${docker_image_tag}"
+  fi
 
-#######################################
-# Build a Docker image using BuildKit.
-# Globals:
-#   docker_image
-#   docker_image_name
-# Arguments:
-#  None
-#######################################
-function docker_build_image() {
-  log_to_stdout "STEP 2: Building the Docker image of the application: '${docker_image}'..."
-  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+  if [ -z "$3" ] ; then
+    log_to_stderr "Argument 'dockerfile_dir' was not specified in the function call. Exit."
+    exit 1
+  else
+    local dockerfile_dir
+    dockerfile_dir=$3
+    readonly dockerfile_dir
+    log_to_stdout "Argument 'dockerfile_dir' = ${dockerfile_dir}"
+  fi
 
-  log_to_stdout 'Changing to the directory with the Dockerfile...'
-  cd "${project_root}" || exit 1
-  log_to_stdout "Current pwd: ${PWD}"
-
+  # Get the short SHA of the current Git revision.
   local git_rev_short_sha
-  git_rev_short_sha=$(git rev-parse --short HEAD)
+  git_rev_short_sha="$(git rev-parse --short HEAD)"
   log_to_stdout "git_rev_short_sha: ${git_rev_short_sha}"
 
-  # See about DOCKER_BUILDKIT: https://github.com/moby/moby/issues/34151#issuecomment-739018493
-  if ! DOCKER_BUILDKIT=1 docker build \
-       --build-arg APP_NAME="${docker_image_name}" \
+  # Building a Docker image.
+  # See about `DOCKER_BUILDKIT`: https://github.com/moby/moby/issues/34151#issuecomment-739018493
+  # See about `DOCKER_SCAN_SUGGEST`: https://github.com/docker/scan-cli-plugin/issues/149#issuecomment-823969364
+  if ! DOCKER_BUILDKIT=1 DOCKER_SCAN_SUGGEST=false docker build \
+       --pull \
+       --file "${dockerfile_dir}/Dockerfile" \
        --build-arg VCS_REF="${git_rev_short_sha}" \
-       -t "${docker_image}" .; then
+       --build-arg APP_NAME="${docker_image_name}" \
+       --tag "${docker_image_name}:${docker_image_tag}" \
+       "${dockerfile_dir}"  `# docker context PATH`; then
     log_to_stderr 'Error building Docker image. Exit.'
     exit 1
   else
@@ -88,29 +104,21 @@ function docker_build_image() {
 #######################################
 # Run the main function of the script.
 # Globals:
-#   BASH_SOURCE
 #   HOME
-#   PWD
 # Arguments:
 #  None
 #######################################
 function main() {
   # 1. Declaring Local Variables.
-  local project_name
-  readonly project_name='notebook'  # enter your project name
-
-  local project_root
-  project_root="${HOME}/PycharmProjects/${project_name}"  # change the path if necessary
-  readonly project_root
+  local dockerfile_dir
+  dockerfile_dir="${HOME}/PycharmProjects/notebook/"  # double-check the path
+  readonly dockerfile_dir
 
   local docker_image_name
-  readonly docker_image_name='boilerplate'  # refers to `${project_root}/src/boilerplate`
+  readonly docker_image_name='boilerplate'  # change if necessary
 
   local docker_image_tag
-  readonly docker_image_tag='latest'
-
-  local docker_image
-  readonly docker_image="${docker_image_name}":"${docker_image_tag}"
+  readonly docker_image_tag='latest'  # change if necessary
 
   # 2. Import bash functions from other scripts.
   # shellcheck source=../../common_bash_functions.sh
@@ -119,8 +127,14 @@ function main() {
   # 3. Execution of script logic.
   log_to_stdout 'START SCRIPT EXECUTION.'
 
-  docker_pre_cleanup "$@"
-  docker_build_image "$@"
+  docker_image_remove_by_name_tag \
+    "${docker_image_name}" \
+    "${docker_image_tag}"
+
+  docker_build_boilerplate_image \
+    "${docker_image_name}" \
+    "${docker_image_tag}" \
+    "${dockerfile_dir}"
 
   log_to_stdout 'END OF SCRIPT EXECUTION.'
 }
