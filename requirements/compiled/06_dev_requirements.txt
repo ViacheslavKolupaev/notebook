@@ -12,7 +12,7 @@ bleach==5.0.0
     # via readme-renderer
 build==0.8.0
     # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/06_dev.in
-certifi==2021.10.8
+certifi==2022.5.18.1
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/04_unit_test_requirements.txt
@@ -42,7 +42,7 @@ docutils==0.18.1
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/02_lint_test_requirements.txt
     #   readme-renderer
-filelock==3.7.0
+filelock==3.7.1
     # via virtualenv
 gitdb==4.0.9
     # via
@@ -61,10 +61,9 @@ idna==3.3
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/05_docs_requirements.txt
     #   requests
     #   rfc3986
-importlib-metadata==4.11.3
+importlib-metadata==4.11.4
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/05_docs_requirements.txt
-    #   keyring
     #   twine
 isort==5.10.1
     # via
@@ -74,7 +73,7 @@ jeepney==0.8.0
     # via
     #   keyring
     #   secretstorage
-keyring==23.5.1
+keyring==23.6.0
     # via twine
 nodeenv==1.6.0
     # via pre-commit
@@ -92,7 +91,7 @@ pendulum==2.1.2
     # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/06_dev.in
 pep517==0.12.0
     # via build
-pkginfo==1.8.2
+pkginfo==1.8.3
     # via twine
 platformdirs==2.5.2
     # via virtualenv
@@ -173,7 +172,7 @@ tomli==2.0.1
     #   build
     #   pep517
     #   setuptools-scm
-twine==4.0.0
+twine==4.0.1
     # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/06_dev.in
 urllib3==1.26.9
     # via
