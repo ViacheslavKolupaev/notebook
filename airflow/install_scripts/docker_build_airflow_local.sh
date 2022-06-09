@@ -44,6 +44,8 @@
 # - `docker_image_tag`.
 #
 # See available Apache Airflow tags here: https://hub.docker.com/r/apache/airflow/tags
+#
+# The script imports and uses functions from an external `common_bash_functions.sh` file.
 ##########################################################################################
 
 
