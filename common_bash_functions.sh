@@ -106,7 +106,7 @@ function docker_container_stop() {
     local container_id_or_name
     container_id_or_name=$1
     readonly container_id_or_name
-    log_to_stdout "container_id_or_name = ${container_id_or_name}"
+    log_to_stdout "Argument 'container_id_or_name' = ${container_id_or_name}"
   fi
 
   log_to_stdout "Stopping the '${container_id_or_name}' container..."
@@ -136,7 +136,7 @@ function docker_container_remove() {
     local container_id_or_name
     container_id_or_name=$1
     readonly container_id_or_name
-    log_to_stdout "container_id_or_name = ${container_id_or_name}"
+    log_to_stdout "Argument 'container_id_or_name' = ${container_id_or_name}"
   fi
 
   log_to_stdout "Removing the '${container_id_or_name}' container..."
@@ -166,7 +166,7 @@ function docker_image_remove() {
     local image_id_or_name
     image_id_or_name=$1
     readonly image_id_or_name
-    log_to_stdout "image_id_or_name = ${image_id_or_name}"
+    log_to_stdout "Argument 'image_id_or_name' = ${image_id_or_name}"
   fi
 
   log_to_stdout "Removing the '${image_id_or_name}' image..."
@@ -201,7 +201,7 @@ function docker_image_remove_by_name_tag(){
     local docker_image_name
     docker_image_name=$1
     readonly docker_image_name
-    log_to_stdout "docker_image_name = ${docker_image_name}"
+    log_to_stdout "Argument 'docker_image_name' = ${docker_image_name}"
   fi
 
   if [ -z "$2" ] ; then
@@ -211,7 +211,7 @@ function docker_image_remove_by_name_tag(){
     local docker_image_tag
     docker_image_tag=$2
     readonly docker_image_tag
-    log_to_stdout "docker_image_tag = ${docker_image_tag}"
+    log_to_stdout "Argument 'docker_image_tag' = ${docker_image_tag}"
   fi
 
   # Removing an image by <name>:<tag>.
@@ -245,7 +245,7 @@ function docker_stop_and_remove_containers_by_name() {
     local docker_image_name
     docker_image_name=$1
     readonly docker_image_name
-    log_to_stdout "docker_image_name = ${docker_image_name}"
+    log_to_stdout "Argument 'docker_image_name' = ${docker_image_name}"
   fi
 
   # Get a list of containers with a name equal to the name of the image.
@@ -291,7 +291,7 @@ function docker_stop_and_remove_containers_by_ancestor() {
     local docker_image_name
     docker_image_name=$1
     readonly docker_image_name
-    log_to_stdout "docker_image_name = ${docker_image_name}"
+    log_to_stdout "Argument 'docker_image_name' = ${docker_image_name}"
   fi
 
   if [ -z "$2" ] ; then
@@ -301,7 +301,7 @@ function docker_stop_and_remove_containers_by_ancestor() {
     local docker_image_tag
     docker_image_tag=$2
     readonly docker_image_tag
-    log_to_stdout "docker_image_tag = ${docker_image_tag}"
+    log_to_stdout "Argument 'docker_image_tag' = ${docker_image_tag}"
   fi
 
   # Get a list of containers created based on the specified image.
@@ -346,7 +346,7 @@ function docker_create_user_defined_bridge_network() {
     local docker_image_name
     docker_image_name=$1
     readonly docker_image_name
-    log_to_stdout "docker_image_name = ${docker_image_name}"
+    log_to_stdout "Argument 'docker_image_name' = ${docker_image_name}"
   fi
 
   # Checking if such a network already exists.
@@ -386,14 +386,14 @@ function sync_venv_with_specified_requirements_files() {
     local req_compiled_file_full_path
     req_compiled_file_full_path=$1
     readonly req_compiled_file_full_path
-    log_to_stdout "requirements file 1 = ${req_compiled_file_full_path}"
+    log_to_stdout "Argument requirements file 1 = ${req_compiled_file_full_path}"
   fi
 
   if [ -n "$2" ] ; then
     local project_root
     project_root=$2
     readonly project_root
-    log_to_stdout "requirements file 2 = ${project_root}/requirements/compiled/01_app_requirements.txt"
+    log_to_stdout "Argument requirements file 2 = ${project_root}/requirements/compiled/01_app_requirements.txt"
 
     if ! pip-sync \
         "${project_root}/requirements/compiled/01_app_requirements.txt" \
@@ -435,12 +435,12 @@ function activate_virtual_environment() {
     local venv_scripts_dir_full_path
     venv_scripts_dir_full_path=$1
     readonly venv_scripts_dir_full_path
-    log_to_stdout "venv_scripts_dir_full_path = ${venv_scripts_dir_full_path}"
+    log_to_stdout "Argument 'venv_scripts_dir_full_path' = ${venv_scripts_dir_full_path}"
   fi
 
   # Change to the directory with venv scripts.
   cd "${venv_scripts_dir_full_path}" || exit 1
-  log_to_stdout "current pwd = ${PWD}"
+  log_to_stdout "Current PWD: '${PWD}'."
 
   # venv activation.
   if ! source activate; then
