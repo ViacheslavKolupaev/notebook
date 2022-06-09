@@ -73,7 +73,7 @@ function docker_build_standalone_airflow_image() {
     local docker_image_name
     docker_image_name=$1
     readonly docker_image_name
-    log_to_stdout "docker_image_name = ${docker_image_name}"
+    log_to_stdout "Argument 'docker_image_name' = ${docker_image_name}"
   fi
 
   if [ -z "$2" ] ; then
@@ -83,7 +83,7 @@ function docker_build_standalone_airflow_image() {
     local docker_image_tag
     docker_image_tag=$2
     readonly docker_image_tag
-    log_to_stdout "docker_image_tag = ${docker_image_tag}"
+    log_to_stdout "Argument 'docker_image_tag' = ${docker_image_tag}"
   fi
 
   if [ -z "$3" ] ; then
@@ -93,7 +93,7 @@ function docker_build_standalone_airflow_image() {
     local dockerfile_dir
     dockerfile_dir=$3
     readonly dockerfile_dir
-    log_to_stdout "dockerfile_dir = ${dockerfile_dir}"
+    log_to_stdout "Argument 'dockerfile_dir' = ${dockerfile_dir}"
   fi
 
   if [ -z "$4" ] ; then
@@ -103,7 +103,7 @@ function docker_build_standalone_airflow_image() {
     local airflow_version
     airflow_version=$4
     readonly airflow_version
-    log_to_stdout "airflow_version = ${airflow_version}"
+    log_to_stdout "Argument 'airflow_version' = ${airflow_version}"
   fi
 
   if [ -z "$5" ] ; then
@@ -113,7 +113,7 @@ function docker_build_standalone_airflow_image() {
     local python_base_image
     python_base_image=$5
     readonly python_base_image
-    log_to_stdout "python_base_image = ${python_base_image}"
+    log_to_stdout "Argument 'python_base_image' = ${python_base_image}"
   fi
 
   # Get the short SHA of the current Git revision.
