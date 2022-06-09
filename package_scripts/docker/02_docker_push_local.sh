@@ -99,10 +99,6 @@ function docker_push_image_to_registry() {
 #######################################
 function main() {
   # 1. Declaring Local Variables.
-  local script_basename
-  script_basename=$(basename "${BASH_SOURCE[0]##*/}")  # don't change
-  readonly script_basename
-
   local docker_registry
   readonly docker_registry='docker.io'
 
@@ -121,12 +117,12 @@ function main() {
   source ../../common_bash_functions.sh
 
   # 3. Execution of script logic.
-  log_to_stdout "${script_basename}: START SCRIPT EXECUTION"
+  log_to_stdout 'START SCRIPT EXECUTION.'
 
   docker_login_to_registry "$@"
   docker_push_image_to_registry "$@"
 
-  log_to_stdout "${script_basename}: END OF SCRIPT EXECUTION"
+  log_to_stdout 'START SCRIPT EXECUTION.'
 }
 
 main "$@"

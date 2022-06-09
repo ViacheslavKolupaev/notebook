@@ -163,7 +163,7 @@ function main() {
   source ../../common_bash_functions.sh
 
   # 3. Execution of script logic.
-  log_to_stdout "START SCRIPT EXECUTION."
+  log_to_stdout 'START SCRIPT EXECUTION.'
 
   docker_stop_and_remove_containers_by_name "${docker_image_name}-${docker_image_tag}"
   docker_stop_and_remove_containers_by_ancestor \
@@ -176,7 +176,7 @@ function main() {
     "${docker_image_tag}" \
     "${airflow_dags_dir}"
 
-  log_to_stdout "END OF SCRIPT EXECUTION."
+  log_to_stdout 'END OF SCRIPT EXECUTION.'
 }
 
 main "$@"

@@ -172,7 +172,7 @@ function main() {
   source ../../common_bash_functions.sh
 
   # 3. Execution of script logic.
-  log_to_stdout "START SCRIPT EXECUTION."
+  log_to_stdout 'START SCRIPT EXECUTION.'
 
   docker_image_remove_by_name_tag \
     "${docker_image_name}" \
@@ -185,7 +185,7 @@ function main() {
     "${airflow_version}" \
     "${python_base_image}"
 
-  log_to_stdout "END OF SCRIPT EXECUTION."
+  log_to_stdout 'END OF SCRIPT EXECUTION.'
 }
 
 main "$@"

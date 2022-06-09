@@ -113,10 +113,6 @@ function docker_run_container() {
 #######################################
 function main() {
   # 1. Declaring Local Variables.
-  local script_basename
-  script_basename=$(basename "${BASH_SOURCE[0]##*/}")  # don't change
-  readonly script_basename
-
   local docker_image_name
   readonly docker_image_name='boilerplate'  # refers to `${project_root}/src/boilerplate`
 
@@ -132,14 +128,14 @@ function main() {
   source ../../common_bash_functions.sh
 
   # 3. Execution of script logic.
-  log_to_stdout "${script_basename}: START SCRIPT EXECUTION"
+  log_to_stdout 'START SCRIPT EXECUTION.'
 
   docker_stop_and_remove_containers_by_name "${docker_image_name}"
   docker_stop_and_remove_containers_by_ancestor "${docker_image_name}" "${docker_image_tag}"
   docker_create_user_defined_bridge_network "${docker_image_name}"
   docker_run_container "${docker_image_name}" "${docker_image_tag}" "${service_port}"
 
-  log_to_stdout "${script_basename}: END OF SCRIPT EXECUTION"
+  log_to_stdout 'END OF SCRIPT EXECUTION.'
 }
 
 main "$@"

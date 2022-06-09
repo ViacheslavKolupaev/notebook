@@ -128,10 +128,6 @@ function sync_venv_with_all_requirements_files() {
 #######################################
 function main() {
   # 1. Declaring Local Variables.
-  local script_basename
-  script_basename=$(basename "${BASH_SOURCE[0]##*/}")  # don't change
-  readonly script_basename
-
   local project_name
   readonly project_name='notebook'  # enter your project name
 
@@ -165,14 +161,14 @@ function main() {
   source ../../common_bash_functions.sh
 
   # 3. Execution of script logic.
-  log_to_stdout "${script_basename}: START SCRIPT EXECUTION"
+  log_to_stdout 'START SCRIPT EXECUTION.'
 
   detect_os_type "$@"  # modifies the "os_type" variable
   activate_virtual_environment "${project_root}/${venv_name}/${venv_scripts_dir}"
   compile_requirements_file "$@"
   sync_venv_with_all_requirements_files "$@"
 
-  log_to_stdout "${script_basename}: END OF SCRIPT EXECUTION"
+  log_to_stdout 'END OF SCRIPT EXECUTION.'
 }
 
 main "$@"
