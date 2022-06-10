@@ -101,7 +101,7 @@ function log_to_stderr() {
 #######################################
 function check_if_docker_is_running {
   if (! docker stats --no-stream 2>/dev/null); then
-    log_to_stderr 'Docker is not working. Exit.'
+    log_to_stderr 'Docker is not working. For the further work of the script, a working Docker is required. Exit.'
     exit 1
   else
     log_to_stdout 'Docker is working. Continue.'
@@ -110,8 +110,6 @@ function check_if_docker_is_running {
 
 #######################################
 # Stop the Docker container.
-# Globals:
-#   None
 # Arguments:
 #   container_id_or_name
 #######################################
@@ -140,8 +138,6 @@ function docker_container_stop() {
 
 #######################################
 # Remove the Docker container.
-# Globals:
-#   None
 # Arguments:
 #   container_id_or_name
 #######################################
@@ -170,8 +166,6 @@ function docker_container_remove() {
 
 #######################################
 # Remove the Docker image.
-# Globals:
-#   None
 # Arguments:
 #   image_id_or_name
 #######################################
@@ -202,8 +196,7 @@ function docker_image_remove() {
 # Remove the Docker image by <name>:<tag>.
 #
 # Useful before creating an image with the same name and tag.
-# Globals:
-#   None
+#
 # Arguments:
 #   docker_image_name
 #   docker_image_tag
@@ -247,8 +240,6 @@ function docker_image_remove_by_name_tag(){
 
 #######################################
 # Stop and remove containers with a name equal to the image name.
-# Globals:
-#   None
 # Arguments:
 #  docker_image_name
 #######################################
@@ -292,8 +283,6 @@ function docker_stop_and_remove_containers_by_name() {
 
 #######################################
 # Stop and remove containers by ancestor (created from the <name>:<tag>).
-# Globals:
-#   None
 # Arguments:
 #  docker_image_name
 #  docker_image_tag
@@ -348,8 +337,6 @@ function docker_stop_and_remove_containers_by_ancestor() {
 
 #######################################
 # Create user-defined bridge network with name '<docker_image_name>-net'.
-# Globals:
-#   None
 # Arguments:
 #   docker_image_name
 #######################################
@@ -387,8 +374,6 @@ function docker_create_user_defined_bridge_network() {
 
 #######################################
 # Synchronize the project's virtual environment with the specified requirements files.
-# Globals:
-#   None
 # Arguments:
 #   req_compiled_file_full_path: Required. The full path to the compiled dependency file, with which to sync.
 #   project_root: Optional. If specified, will additionally sync with `01_app_requirements.txt`.
