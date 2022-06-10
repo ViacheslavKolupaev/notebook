@@ -89,6 +89,20 @@ function log_to_stderr() {
 }
 
 #######################################
+# Check if Docker is running on the host.
+# Arguments:
+#  None
+#######################################
+function check_if_docker_is_running {
+  if (! docker stats --no-stream 2>/dev/null); then
+    log_to_stderr 'Docker is not working. Exit.'
+    exit 1
+  else
+    log_to_stdout 'Docker is working. Continue.'
+  fi
+}
+
+#######################################
 # Stop the Docker container.
 # Globals:
 #   None
