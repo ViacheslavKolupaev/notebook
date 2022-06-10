@@ -448,3 +448,5 @@ secrets/
 airflow/*
 !airflow/dags/
 !airflow/install_scripts/
+
+PRIVATE_NOTES.md
