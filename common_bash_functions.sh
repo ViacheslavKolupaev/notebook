@@ -4,7 +4,7 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# You may obtain a copy of the License atf
 #
 #   https://www.apache.org/licenses/LICENSE-2.0
 #
@@ -127,7 +127,7 @@ function log_to_stdout() {
 # Print message to stderr with date and time, calling file and function names.
 # Globals:
 #   FUNCNAME
-#   BASH_SOURCE
+#   BASH_SOURCEapa
 #   BASH_LINENO
 # Arguments:
 #  text_message
@@ -169,11 +169,16 @@ function log_to_stderr() {
 #  None
 #######################################
 function check_if_docker_is_running() {
+  echo ''
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' 'Bl'
+  log_to_stdout 'Checking if Docker is running before executing Docker operations...'
+
   if (! docker stats --no-stream 2>/dev/null); then
     log_to_stderr 'Docker is not working. For the further work of the script, a working Docker is required. Exit.'
     exit 1
   else
-    log_to_stdout 'Docker is working. Continue.'
+    log_to_stdout 'Docker is working. Continue.' 'G'
+    log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' 'Bl'
   fi
 }
 
@@ -201,7 +206,7 @@ function docker_container_stop() {
     log_to_stderr "Error stopping container '${container_id_or_name}'. Exit."
     exit 1
   else
-    log_to_stdout "Container '${container_id_or_name}' stopped successfully. Continue."
+    log_to_stdout "Container '${container_id_or_name}' stopped successfully. Continue." 'G'
   fi
 }
 
@@ -229,7 +234,7 @@ function docker_container_remove() {
     log_to_stderr "Error removing container '${container_id_or_name}'. Exit."
     exit 1
   else
-    log_to_stdout "Container '${container_id_or_name}' removed successfully. Continue."
+    log_to_stdout "Container '${container_id_or_name}' removed successfully. Continue." 'G'
   fi
 }
 
@@ -257,7 +262,7 @@ function docker_image_remove() {
     log_to_stderr "Error removing image '${image_id_or_name}'. Exit."
     exit 1
   else
-    log_to_stdout "Image '${image_id_or_name}' removed successfully. Continue."
+    log_to_stdout "Image '${image_id_or_name}' removed successfully. Continue." 'G'
   fi
 }
 
@@ -272,7 +277,7 @@ function docker_image_remove() {
 #######################################
 function docker_image_remove_by_name_tag(){
   echo ''
-  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' 'Bl'
   log_to_stdout 'Removing Docker image by <name>:<tag>...'
 
   # Checking function arguments.
@@ -301,10 +306,10 @@ function docker_image_remove_by_name_tag(){
     log_to_stdout "Docker image '${docker_image_name}:${docker_image_tag}' already exists."
     docker_image_remove "${docker_image_name}:${docker_image_tag}"
   else
-    log_to_stdout "Docker image '${docker_image_name}:${docker_image_tag}' not found. Continue."
+    log_to_stdout "Docker image '${docker_image_name}:${docker_image_tag}' not found. Continue." 'G'
   fi
 
-  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' 'Bl'
 }
 
 #######################################
@@ -314,7 +319,7 @@ function docker_image_remove_by_name_tag(){
 #######################################
 function docker_stop_and_remove_containers_by_name() {
   echo ''
-  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' 'Bl'
   log_to_stdout 'Stopping and removing containers with a name equal to the image name...'
 
   # Checking function arguments.
@@ -344,10 +349,10 @@ function docker_stop_and_remove_containers_by_name() {
       fi
     done
   else
-    log_to_stdout "There are no containers named '${docker_image_name}'. Continue."
+    log_to_stdout "There are no containers named '${docker_image_name}'. Continue." 'G'
   fi
 
-  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' 'Bl'
 }
 
 #######################################
@@ -358,7 +363,7 @@ function docker_stop_and_remove_containers_by_name() {
 #######################################
 function docker_stop_and_remove_containers_by_ancestor() {
   echo ''
-  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' 'Bl'
   log_to_stdout 'Stopping and removing containers created from the <name>:<tag>...'
 
   # Checking function arguments.
@@ -398,10 +403,10 @@ function docker_stop_and_remove_containers_by_ancestor() {
       fi
     done
   else
-    log_to_stdout "There are no containers running from the '${docker_image_name}:${docker_image_tag}' image. Continue."
+    log_to_stdout "There are no containers running from the '${docker_image_name}:${docker_image_tag}'. Continue." 'G'
   fi
 
-  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' 'Bl'
 }
 
 #######################################
@@ -411,7 +416,7 @@ function docker_stop_and_remove_containers_by_ancestor() {
 #######################################
 function docker_create_user_defined_bridge_network() {
   echo ''
-  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' 'Bl'
   log_to_stdout 'Creating user-defined bridge network...'
 
   # Checking function arguments.
@@ -427,18 +432,18 @@ function docker_create_user_defined_bridge_network() {
 
   # Checking if such a network already exists.
   if [ "$(docker network ls -q -f "name=${docker_image_name}-net")" ]; then
-    log_to_stdout "Docker network '${docker_image_name}-net' already exists. Continue."
+    log_to_stdout "Docker network '${docker_image_name}-net' already exists. Continue." 'G'
   else
     # Creation of a Docker network.
     if ! docker network create --driver bridge "${docker_image_name}"-net; then
       log_to_stderr 'Error creating user-defined bridge network. Exit.'
       exit 1
     else
-      log_to_stdout "The user-defined bridge network '${docker_image_name}-net' has been created. Continue."
+      log_to_stdout "The user-defined bridge network '${docker_image_name}-net' has been created. Continue." 'G'
     fi
   fi
 
-  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' 'Bl'
 }
 
 #######################################
@@ -449,7 +454,7 @@ function docker_create_user_defined_bridge_network() {
 #######################################
 function sync_venv_with_specified_requirements_files() {
   echo ''
-  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' 'Bl'
   log_to_stdout "Synchronizing the project's virtual environment with the specified requirements files..."
 
   # Checking function arguments.
@@ -486,7 +491,7 @@ function sync_venv_with_specified_requirements_files() {
   fi
 
   log_to_stdout "The project virtual environment was successfully synchronized with the specified requirements files."
-  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' 'Bl'
 }
 
 #######################################
@@ -498,7 +503,7 @@ function sync_venv_with_specified_requirements_files() {
 #######################################
 function activate_virtual_environment() {
   echo ''
-  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' 'Bl'
   log_to_stdout "Activating the project's virtual environment..."
 
   # Checking function arguments.
@@ -521,7 +526,7 @@ function activate_virtual_environment() {
     log_to_stderr 'Virtual environment activation error. Exit.'
     exit 1
   else
-    log_to_stdout 'Virtual environment successfully activated. Continue.'
-    log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+    log_to_stdout 'Virtual environment successfully activated. Continue.' 'G'
+    log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' 'Bl'
   fi
 }
