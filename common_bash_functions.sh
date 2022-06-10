@@ -67,7 +67,7 @@ function log_to_stdout() {
 #  text_message
 #######################################
 function log_to_stderr() {
-  # Checking function arguments.
+  # 1. Checking function arguments.
   if [ -z "$1" ] ; then
     echo "| ${FUNCNAME[0]} | Argument 'text_message' was not specified in the function call. Exit."
     exit 1
@@ -81,10 +81,16 @@ function log_to_stderr() {
   caller_filename_lineno="${BASH_SOURCE[1]##*/}:${BASH_LINENO[0]}"
   readonly caller_filename_lineno
 
+  # 2. Declaring Local Variables.
+  local timestamp
+  timestamp="$(date +'%Y-%m-%dT%H:%M:%S%z')"
+  readonly timestamp
+
+  # 3. Execution of function logic.
   if [ -z "${FUNCNAME[1]}" ] ; then
-    echo "| $(date +'%Y-%m-%dT%H:%M:%S%z') | ${caller_filename_lineno} | ${FUNCNAME[0]} | ${text_message}" >&2
+    echo "$(tput setaf 1)| ${timestamp} | ${caller_filename_lineno} | ${FUNCNAME[0]} | ${text_message}" >&2
   else
-    echo "| $(date +'%Y-%m-%dT%H:%M:%S%z') | ${caller_filename_lineno} | ${FUNCNAME[1]} | ${text_message}" >&2
+    echo "$(tput setaf 1)| ${timestamp} | ${caller_filename_lineno} | ${FUNCNAME[1]} | ${text_message}" >&2
   fi
 }
 
