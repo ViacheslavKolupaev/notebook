@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 #
 # Copyright (c) 2022. Viacheslav Kolupaev, https://vkolupaev.com/
 #
@@ -68,7 +68,7 @@ function log_to_stdout() {
 
   # 2. Checking function arguments.
   if [ -z "$1" ] ; then
-    echo "| ${FUNCNAME[0]} | Argument 'text_message' was not specified in the function call. Exit."
+    log_to_stderr "Argument 'text_message' was not specified in the function call. Exit."
     exit 1
   else
     local text_message
@@ -127,7 +127,7 @@ function log_to_stdout() {
 # Print message to stderr with date and time, calling file and function names.
 # Globals:
 #   FUNCNAME
-#   BASH_SOURCEapa
+#   BASH_SOURCE
 #   BASH_LINENO
 # Arguments:
 #  text_message
@@ -146,11 +146,12 @@ function log_to_stderr() {
   readonly caller_filename_lineno
 
   # 2. Checking function arguments.
+  local text_message
   if [ -z "$1" ] ; then
-    echo "| ${FUNCNAME[0]} | Argument 'text_message' was not specified in the function call. Exit."
+    text_message="Argument 'text_message' was not specified in the function call. Exit."
+    printf "$(tput setaf 1)| ${timestamp} | ${caller_filename_lineno} | ${FUNCNAME[0]} | ${text_message}\n" >&2
     exit 1
   else
-    local text_message
     text_message=$1
     readonly text_message
   fi
