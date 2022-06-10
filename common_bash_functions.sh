@@ -99,7 +99,7 @@ function log_to_stderr() {
 # Arguments:
 #  None
 #######################################
-function check_if_docker_is_running {
+function check_if_docker_is_running() {
   if (! docker stats --no-stream 2>/dev/null); then
     log_to_stderr 'Docker is not working. For the further work of the script, a working Docker is required. Exit.'
     exit 1
