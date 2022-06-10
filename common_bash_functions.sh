@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 #
 # Copyright (c) 2022. Viacheslav Kolupaev, https://vkolupaev.com/
 #
@@ -30,9 +30,43 @@
 #   BASH_LINENO
 # Arguments:
 #  text_message
+#  text_color
 #######################################
 function log_to_stdout() {
-  # Checking function arguments.
+  # 1. Declaring Local Variables.
+
+  # Date and time of the log message.
+  local timestamp
+  timestamp="$(date +'%Y-%m-%dT%H:%M:%S%z')"
+  readonly timestamp
+
+  # The name and line of code of the calling script.
+  local caller_filename_lineno
+  caller_filename_lineno="${BASH_SOURCE[1]##*/}:${BASH_LINENO[0]}"
+  readonly caller_filename_lineno
+
+  # Variables for the allowed text color of the log message.
+  local fgBLack
+  local fgRed
+  local fgGreen
+  local fgYellow
+  local fgBlue
+  local fgMagenta
+  local fgCyan
+  local fgWhite
+
+  readonly fgBLack=$(tput setaf 0) # black
+  readonly fgRed=$(tput setaf 1) # red
+  readonly fgGreen=$(tput setaf 2) # green
+  readonly fgYellow=$(tput setaf 3) # yellow
+  readonly fgBlue=$(tput setaf 4) # blue
+  readonly fgMagenta=$(tput setaf 5) # magenta
+  readonly fgCyan=$(tput setaf 6) # cyan
+  readonly fgWhite=$(tput setaf 7) # white
+
+  local text_color  # This variable will be assigned the value of the function argument after it has been validated.
+
+  # 2. Checking function arguments.
   if [ -z "$1" ] ; then
     echo "| ${FUNCNAME[0]} | Argument 'text_message' was not specified in the function call. Exit."
     exit 1
@@ -42,18 +76,50 @@ function log_to_stdout() {
     readonly text_message
   fi
 
-  # Get the name of the calling script file and the line number in it.
-  local caller_filename_lineno
-  caller_filename_lineno="${BASH_SOURCE[1]##*/}:${BASH_LINENO[0]}"
-  readonly caller_filename_lineno
+  if [ -n "$2" ] ; then
+    # Checking the value of the argument and assigning the value to the text_color variable.
+    case "$2" in
+      BL)
+        text_color=${fgBLack}
+        ;;
+      R)
+        text_color=${fgRed}
+        ;;
+      G)
+        text_color=${fgGreen}
+        ;;
+      Y)
+        text_color=${fgYellow}
+        ;;
+      Bl)
+        text_color=${fgBlue}
+        ;;
+      M)
+        text_color=${fgMagenta}
+        ;;
+      C)
+        text_color=${fgCyan}
+        ;;
+      W)
+        text_color=${fgWhite}
+        ;;
+      *)
+        text_color='\033[0m'  # No color if the argument value is invalid.
+        ;;
+    esac
+  else
+    text_color='\033[0m'  # No color if no argument is provided in the function call.
+  fi
+
+  readonly text_color
 
   # Checking if the function was called from this or an external script.
   if [ -z "${FUNCNAME[1]}" ] ; then
     # In case the call is made from this script.
-    echo "| $(date +'%Y-%m-%dT%H:%M:%S%z') | ${caller_filename_lineno} | ${FUNCNAME[0]} | ${text_message}" >&1
+    printf "${text_color}| ${timestamp} | ${caller_filename_lineno} | ${FUNCNAME[0]} | ${text_message}\n" >&1
   else
     # If the call is made from an external script.
-    echo "| $(date +'%Y-%m-%dT%H:%M:%S%z') | ${caller_filename_lineno} | ${FUNCNAME[1]} | ${text_message}" >&1
+    printf "${text_color}| ${timestamp} | ${caller_filename_lineno} | ${FUNCNAME[1]} | ${text_message}\n" >&1
   fi
 }
 
@@ -67,7 +133,19 @@ function log_to_stdout() {
 #  text_message
 #######################################
 function log_to_stderr() {
-  # 1. Checking function arguments.
+  # 1. Declaring Local Variables.
+
+  # Date and time of the log message.
+  local timestamp
+  timestamp="$(date +'%Y-%m-%dT%H:%M:%S%z')"
+  readonly timestamp
+
+  # The name and line of code of the calling script.
+  local caller_filename_lineno
+  caller_filename_lineno="${BASH_SOURCE[1]##*/}:${BASH_LINENO[0]}"
+  readonly caller_filename_lineno
+
+  # 2. Checking function arguments.
   if [ -z "$1" ] ; then
     echo "| ${FUNCNAME[0]} | Argument 'text_message' was not specified in the function call. Exit."
     exit 1
@@ -77,20 +155,11 @@ function log_to_stderr() {
     readonly text_message
   fi
 
-  local caller_filename_lineno
-  caller_filename_lineno="${BASH_SOURCE[1]##*/}:${BASH_LINENO[0]}"
-  readonly caller_filename_lineno
-
-  # 2. Declaring Local Variables.
-  local timestamp
-  timestamp="$(date +'%Y-%m-%dT%H:%M:%S%z')"
-  readonly timestamp
-
   # 3. Execution of function logic.
   if [ -z "${FUNCNAME[1]}" ] ; then
-    echo "$(tput setaf 1)| ${timestamp} | ${caller_filename_lineno} | ${FUNCNAME[0]} | ${text_message}" >&2
+    printf "$(tput setaf 1)| ${timestamp} | ${caller_filename_lineno} | ${FUNCNAME[0]} | ${text_message}\n" >&2
   else
-    echo "$(tput setaf 1)| ${timestamp} | ${caller_filename_lineno} | ${FUNCNAME[1]} | ${text_message}" >&2
+    printf "$(tput setaf 1)| ${timestamp} | ${caller_filename_lineno} | ${FUNCNAME[1]} | ${text_message}\n" >&2
   fi
 }
 
