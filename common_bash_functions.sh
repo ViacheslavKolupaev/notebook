@@ -46,23 +46,24 @@ function log_to_stdout() {
   readonly caller_filename_lineno
 
   # Variables for the allowed text color of the log message.
-  local fgBLack
-  local fgRed
-  local fgGreen
-  local fgYellow
-  local fgBlue
-  local fgMagenta
-  local fgCyan
-  local fgWhite
+  local fg_black
+  local fg_red
+  local fg_green
+  local fg_yellow
+  local fg_blue
+  local fg_magenta
+  local fg_cyan
+  local fg_white
 
-  readonly fgBLack=$(tput setaf 0) # black
-  readonly fgRed=$(tput setaf 1) # red
-  readonly fgGreen=$(tput setaf 2) # green
-  readonly fgYellow=$(tput setaf 3) # yellow
-  readonly fgBlue=$(tput setaf 4) # blue
-  readonly fgMagenta=$(tput setaf 5) # magenta
-  readonly fgCyan=$(tput setaf 6) # cyan
-  readonly fgWhite=$(tput setaf 7) # white
+  # Foreground colors.
+  readonly fg_black=$(tput setaf 0)
+  readonly fg_red=$(tput setaf 1)
+  readonly fg_green=$(tput setaf 2)
+  readonly fg_yellow=$(tput setaf 3)
+  readonly fg_blue=$(tput setaf 4)
+  readonly fg_magenta=$(tput setaf 5)
+  readonly fg_cyan=$(tput setaf 6)
+  readonly fg_white=$(tput setaf 7)
 
   local text_color  # This variable will be assigned the value of the function argument after it has been validated.
 
@@ -80,28 +81,28 @@ function log_to_stdout() {
     # Checking the value of the argument and assigning the value to the text_color variable.
     case "$2" in
       BL)
-        text_color=${fgBLack}
+        text_color=${fg_black}
         ;;
       R)
-        text_color=${fgRed}
+        text_color=${fg_red}
         ;;
       G)
-        text_color=${fgGreen}
+        text_color=${fg_green}
         ;;
       Y)
-        text_color=${fgYellow}
+        text_color=${fg_yellow}
         ;;
       Bl)
-        text_color=${fgBlue}
+        text_color=${fg_blue}
         ;;
       M)
-        text_color=${fgMagenta}
+        text_color=${fg_magenta}
         ;;
       C)
-        text_color=${fgCyan}
+        text_color=${fg_cyan}
         ;;
       W)
-        text_color=${fgWhite}
+        text_color=${fg_white}
         ;;
       *)
         text_color='\033[0m'  # No color if the argument value is invalid.
