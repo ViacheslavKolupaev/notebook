@@ -324,6 +324,39 @@ function docker_image_remove_by_name_tag(){
 }
 
 #######################################
+# Login to the specified Docker image registry.
+#
+# Arguments:
+#   docker_registry
+#######################################
+function docker_login_to_registry() {
+  echo ''
+  log_to_stdout 'Login to Docker image registry...'
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' 'Bl'
+
+  # Checking function arguments.
+  if [ -z "$1" ] ; then
+    log_to_stderr "Argument 'docker_registry' was not specified in the function call. Exit."
+    exit 1
+  else
+    local docker_registry
+    docker_registry=$1
+    readonly docker_registry
+    log_to_stdout "Argument 'docker_registry' = ${docker_registry}"
+  fi
+
+  log_to_stdout 'Use your personal or technical account with registry access privileges.' 'C'
+  if ! docker login "${docker_registry}"; then
+    log_to_stderr 'Login failed. Exit'
+    exit 1
+  else
+    log_to_stdout 'Login succeeded. Continue.' 'G'
+  fi
+
+  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' 'Bl'
+}
+
+#######################################
 # Stop and remove containers with a name equal to the image name.
 # Arguments:
 #  docker_image_name
