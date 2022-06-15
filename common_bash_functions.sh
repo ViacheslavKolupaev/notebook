@@ -283,7 +283,7 @@ function docker_image_remove() {
 #   docker_image_name
 #   docker_image_tag
 #######################################
-function docker_image_remove_by_name_tag(){
+function docker_image_remove_by_name_tag() {
   echo ''
   log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' 'Bl'
   log_to_stdout 'Removing Docker image by <name>:<tag>...'
@@ -451,7 +451,7 @@ function docker_stop_and_remove_containers_by_name() {
     for container_id in "${container_ids[@]}"; do
       docker_container_stop "${container_id}"
       if [ "$(docker ps -aq -f status=exited -f id="${container_id}")" ]; then
-          docker_container_remove "${container_id}"
+        docker_container_remove "${container_id}"
       fi
     done
   else
@@ -505,7 +505,7 @@ function docker_stop_and_remove_containers_by_ancestor() {
     for container_id in "${container_ids[@]}"; do
       docker_container_stop "${container_id}"
       if [ "$(docker ps -aq -f status=exited -f id="${container_id}")" ]; then
-          docker_container_remove "${container_id}"
+        docker_container_remove "${container_id}"
       fi
     done
   else
