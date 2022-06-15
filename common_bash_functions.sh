@@ -325,7 +325,7 @@ function docker_image_remove_by_name_tag(){
 
 #######################################
 # Login to the specified Docker image registry.
-#
+
 # Arguments:
 #   docker_registry
 #######################################
@@ -351,6 +351,72 @@ function docker_login_to_registry() {
     exit 1
   else
     log_to_stdout 'Login succeeded. Continue.' 'G'
+  fi
+
+  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' 'Bl'
+}
+
+#######################################
+# Push the image to the private Docker image registry.
+# Arguments:
+#   docker_registry
+#   docker_image_name
+#   docker_image_tag
+#######################################
+function docker_push_image_to_registry() {
+  echo ''
+  log_to_stdout 'Tagging and pushing a Docker image to a private registry...'
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' 'Bl'
+
+  # Checking function arguments.
+  if [ -z "$1" ] ; then
+    log_to_stderr "Argument 'docker_registry' was not specified in the function call. Exit."
+    exit 1
+  else
+    local docker_registry
+    docker_registry=$1
+    readonly docker_registry
+    log_to_stdout "Argument 'docker_registry' = ${docker_registry}"
+  fi
+
+  if [ -z "$2" ] ; then
+    log_to_stderr "Argument 'docker_image_name' was not specified in the function call. Exit."
+    exit 1
+  else
+    local docker_image_name
+    docker_image_name=$2
+    readonly docker_image_name
+    log_to_stdout "Argument 'docker_image_name' = ${docker_image_name}"
+  fi
+
+  if [ -z "$3" ] ; then
+    log_to_stderr "Argument 'docker_image_tag' was not specified in the function call. Exit."
+    exit 1
+  else
+    local docker_image_tag
+    docker_image_tag=$3
+    readonly docker_image_tag
+    log_to_stdout "Argument 'docker_image_tag' = ${docker_image_tag}"
+  fi
+
+  # Tag an image for a private registry.
+  log_to_stdout 'Image tagging...'
+  if ! docker tag \
+       "${docker_image_name}:${docker_image_tag}" \
+       "${docker_registry}/${docker_image_name}:${docker_image_tag}"; then
+    log_to_stderr 'Tagging failed. Exit.'
+    exit 1
+  else
+    log_to_stdout 'Tagging succeeded. Continue.' 'G'
+  fi
+
+  # Push image to private registry.
+  log_to_stdout 'Image pushing...'
+  if ! docker push "${docker_registry}/${docker_image_name}:${docker_image_tag}"; then
+    log_to_stderr 'Pushing failed. Exit'
+    exit 1
+  else
+    log_to_stdout 'Pushing succeeded. Continue.' 'G'
   fi
 
   log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' 'Bl'
