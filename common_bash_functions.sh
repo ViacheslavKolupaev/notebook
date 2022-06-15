@@ -87,7 +87,7 @@ function log_to_stdout() {
   fi
 
   if [ -n "$2" ] ; then
-    # Checking the value of the argument and assigning the value to the text_color variable.
+    # Checking the value of the argument and assigning the value to the `text_color` variable.
     case "$2" in
       BL)
         text_color=${fg_black}
