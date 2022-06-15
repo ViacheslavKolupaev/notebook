@@ -279,9 +279,6 @@ function docker_image_remove() {
 
 #######################################
 # Remove the Docker image by <name>:<tag>.
-#
-# Useful before creating an image with the same name and tag.
-#
 # Arguments:
 #   docker_image_name
 #   docker_image_tag
@@ -325,7 +322,6 @@ function docker_image_remove_by_name_tag(){
 
 #######################################
 # Login to the specified Docker image registry.
-
 # Arguments:
 #   docker_registry
 #######################################
