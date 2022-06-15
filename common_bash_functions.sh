@@ -56,14 +56,23 @@ function log_to_stdout() {
   local fg_white
 
   # Foreground colors.
-  readonly fg_black=$(tput setaf 0)
-  readonly fg_red=$(tput setaf 1)
-  readonly fg_green=$(tput setaf 2)
-  readonly fg_yellow=$(tput setaf 3)
-  readonly fg_blue=$(tput setaf 4)
-  readonly fg_magenta=$(tput setaf 5)
-  readonly fg_cyan=$(tput setaf 6)
-  readonly fg_white=$(tput setaf 7)
+  fg_black=$(tput setaf 0)
+  fg_red=$(tput setaf 1)
+  fg_green=$(tput setaf 2)
+  fg_yellow=$(tput setaf 3)
+  fg_blue=$(tput setaf 4)
+  fg_magenta=$(tput setaf 5)
+  fg_cyan=$(tput setaf 6)
+  fg_white=$(tput setaf 7)
+
+  readonly fg_black
+  readonly fg_red
+  readonly fg_green
+  readonly fg_yellow
+  readonly fg_blue
+  readonly fg_magenta
+  readonly fg_cyan
+  readonly fg_white
 
   local text_color  # This variable will be assigned the value of the function argument after it has been validated.
 
