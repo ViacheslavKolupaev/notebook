@@ -418,6 +418,7 @@ function docker_push_image_to_registry() {
 
   # Tag an image for a private registry.
   log_to_stdout 'Image tagging...'
+  # Usage: `docker tag local-image:tagname remote-repo:tagname`.
   if ! docker tag \
        "${docker_image_name}:${docker_image_tag}" \
        "${docker_registry}/${docker_user_name}/${docker_image_name}:${docker_image_tag}"; then
@@ -429,6 +430,7 @@ function docker_push_image_to_registry() {
 
   # Push image to private registry.
   log_to_stdout 'Image pushing...'
+  # Usage: `docker push remote-repo:tagname`.
   if ! docker push \
       "${docker_registry}/${docker_user_name}/${docker_image_name}:${docker_image_tag}"; then
     log_to_stderr 'Pushing failed. Exit.'
