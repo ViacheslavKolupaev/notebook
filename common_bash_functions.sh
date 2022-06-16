@@ -323,6 +323,7 @@ function docker_image_remove_by_name_tag() {
 # Login to the specified Docker image registry.
 # Arguments:
 #   docker_registry
+#   docker_user_name
 #######################################
 function docker_login_to_registry() {
   echo ''
@@ -340,8 +341,18 @@ function docker_login_to_registry() {
     log_to_stdout "Argument 'docker_registry' = ${docker_registry}"
   fi
 
+  if [ -z "$2" ] ; then
+    log_to_stderr "Argument 'docker_user_name' was not specified in the function call. Exit."
+    exit 1
+  else
+    local docker_user_name
+    docker_user_name=$2
+    readonly docker_user_name
+    log_to_stdout "Argument 'docker_user_name' = ${docker_user_name}"
+  fi
+
   log_to_stdout 'Use your personal or technical account with registry access privileges.' 'C'
-  if ! docker login "${docker_registry}"; then
+  if ! docker login -u "${docker_user_name}" "${docker_registry}/${docker_user_name}"; then
     log_to_stderr 'Login failed. Exit'
     exit 1
   else
