@@ -20,11 +20,16 @@
 # Paths to the file in the target directory are preserved during copying.
 #
 # Usage example:
-#   `source ./copy_file_from_remote_git_repo.sh \
-#   && copy_file_from_remote_git_repo \
-#     'git@gitlab.com:vkolupaev/notebook.git' \
-#     'main' \
-#     'common_bash_functions.sh'`
+#  # shellcheck source=./copy_file_from_remote_git_repo.sh
+#  if ! source ./copy_file_from_remote_git_repo.sh; then
+#    echo "'copy_file_from_remote_git_repo.sh' module was not imported due to some error. Exit."
+#    exit 1
+#  else
+#    copy_file_from_remote_git_repo \
+#      'git@gitlab.com:vkolupaev/notebook.git' \
+#      'main' \
+#      'common_bash_functions.sh'
+#  fi
 #
 # Globals:
 #   FUNCNAME
