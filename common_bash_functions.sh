@@ -366,6 +366,7 @@ function docker_login_to_registry() {
 # Push the image to the private Docker image registry.
 # Arguments:
 #   docker_registry
+#   docker_user_name
 #   docker_image_name
 #   docker_image_tag
 #######################################
@@ -386,21 +387,31 @@ function docker_push_image_to_registry() {
   fi
 
   if [ -z "$2" ] ; then
+    log_to_stderr "Argument 'docker_user_name' was not specified in the function call. Exit."
+    exit 1
+  else
+    local docker_user_name
+    docker_user_name=$2
+    readonly docker_user_name
+    log_to_stdout "Argument 'docker_user_name' = ${docker_user_name}"
+  fi
+
+  if [ -z "$3" ] ; then
     log_to_stderr "Argument 'docker_image_name' was not specified in the function call. Exit."
     exit 1
   else
     local docker_image_name
-    docker_image_name=$2
+    docker_image_name=$3
     readonly docker_image_name
     log_to_stdout "Argument 'docker_image_name' = ${docker_image_name}"
   fi
 
-  if [ -z "$3" ] ; then
+  if [ -z "$4" ] ; then
     log_to_stderr "Argument 'docker_image_tag' was not specified in the function call. Exit."
     exit 1
   else
     local docker_image_tag
-    docker_image_tag=$3
+    docker_image_tag=$4
     readonly docker_image_tag
     log_to_stdout "Argument 'docker_image_tag' = ${docker_image_tag}"
   fi
@@ -409,7 +420,7 @@ function docker_push_image_to_registry() {
   log_to_stdout 'Image tagging...'
   if ! docker tag \
        "${docker_image_name}:${docker_image_tag}" \
-       "${docker_registry}/${docker_image_name}:${docker_image_tag}"; then
+       "${docker_registry}/${docker_user_name}/${docker_image_name}:${docker_image_tag}"; then
     log_to_stderr 'Tagging failed. Exit.'
     exit 1
   else
@@ -418,8 +429,9 @@ function docker_push_image_to_registry() {
 
   # Push image to private registry.
   log_to_stdout 'Image pushing...'
-  if ! docker push "${docker_registry}/${docker_image_name}:${docker_image_tag}"; then
-    log_to_stderr 'Pushing failed. Exit'
+  if ! docker push \
+      "${docker_registry}/${docker_user_name}/${docker_image_name}:${docker_image_tag}"; then
+    log_to_stderr 'Pushing failed. Exit.'
     exit 1
   else
     log_to_stdout 'Pushing succeeded. Continue.' 'G'
