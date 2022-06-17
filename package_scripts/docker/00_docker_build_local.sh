@@ -1,19 +1,18 @@
 #!/bin/bash
-#
+
+##########################################################################################
 # Copyright (c) 2022. Viacheslav Kolupaev, https://vkolupaev.com/
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
+# file except in compliance with the License. You may obtain a copy of the License at
 #
 #   https://www.apache.org/licenses/LICENSE-2.0
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
+# Unless required by applicable law or agreed to in writing, software distributed under
+# the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the specific language governing
+# permissions and limitations under the License.
+##########################################################################################
 
 ##########################################################################################
 # The script will build a Docker image of the `boilerplate` application.
@@ -35,6 +34,21 @@
 
 
 #######################################
+# Import library of common bash functions.
+# Arguments:
+#  None
+#######################################
+function import_library_of_common_bash_functions() {
+  # shellcheck source=../../common_bash_functions.sh
+  if ! source ../../common_bash_functions.sh; then
+    echo "'common_bash_functions.sh' module was not imported due to some error. Exit."
+    exit 1
+  else
+    log_to_stdout 'The library of common bash functions has been successfully imported. Continue.' 'G'
+  fi
+}
+
+#######################################
 # Build a Docker image of the `boilerplate` application.
 # Arguments:
 #  docker_image_name
@@ -43,8 +57,8 @@
 #######################################
 function docker_build_boilerplate_image() {
   echo ''
-  log_to_stdout ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-  log_to_stdout "Building a standalone Apache Airflow Docker image..."
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' 'Bl'
+  log_to_stdout "Building a 'boilerplate' Docker image..."
 
   # Checking function arguments.
   if [ -z "$1" ] ; then
@@ -95,10 +109,10 @@ function docker_build_boilerplate_image() {
     log_to_stderr 'Error building Docker image. Exit.'
     exit 1
   else
-    log_to_stdout 'Docker image successfully built. Continue.'
+    log_to_stdout 'Docker image successfully built. Continue.' 'G'
   fi
 
-  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' 'Bl'
 }
 
 #######################################
@@ -120,13 +134,14 @@ function main() {
   local docker_image_tag
   readonly docker_image_tag='latest'  # change if necessary
 
-  # 2. Import bash functions from other scripts.
-  # shellcheck source=../../common_bash_functions.sh
-  source ../../common_bash_functions.sh
+  # 2. Import the library of common bash functions.
+  import_library_of_common_bash_functions "$@"
 
   # 3. Execution of script logic.
-  log_to_stdout 'START SCRIPT EXECUTION.'
+  log_to_stdout 'START SCRIPT EXECUTION.' 'Bl'
 
+  # Execute Docker operations.
+  check_if_docker_is_running "$@"
   docker_image_remove_by_name_tag \
     "${docker_image_name}" \
     "${docker_image_tag}"
@@ -136,7 +151,7 @@ function main() {
     "${docker_image_tag}" \
     "${dockerfile_dir}"
 
-  log_to_stdout 'END OF SCRIPT EXECUTION.'
+  log_to_stdout 'END OF SCRIPT EXECUTION.' 'Bl'
 }
 
 main "$@"
