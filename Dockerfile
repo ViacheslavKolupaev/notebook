@@ -12,6 +12,9 @@
 # permissions and limitations under the License.
 ##########################################################################################
 
+# See dockerfile syntax tags here: https://hub.docker.com/r/docker/dockerfile
+# syntax = docker/dockerfile:1.4
+
 ###########
 # COMPILE #
 ###########
@@ -46,8 +49,9 @@ ENV PIP_CONFIG_FILE pip.conf
 
 # Install Python dependencies.
 COPY ./requirements.txt .
-RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
+RUN --mount=type=cache,mode=0755,target=/root/.cache/pip \
+    pip install --upgrade pip \
+    && pip install -r requirements.txt
 
 
 ########
@@ -81,6 +85,9 @@ ENV PYTHONUNBUFFERED 1
 RUN addgroup --system app_group && \
     adduser --system --home ${APP_ROOT} --ingroup app_group app_user
 
+# Switch to non-root user.
+USER app_user
+
 # Set work directory.
 WORKDIR ${APP_ROOT}
 
@@ -99,9 +106,6 @@ COPY --chown=app_user:app_group ./ ${APP_ROOT}
 
 # Chown all the files to the app_user.
 RUN chown -R app_user:app_group ${APP_ROOT}
-
-# Switch to non-root user.
-USER app_user
 
 # Server start.
 ENTRYPOINT ["/bin/bash", "docker_entrypoint.sh"]
