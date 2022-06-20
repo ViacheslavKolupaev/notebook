@@ -165,6 +165,8 @@ function main() {
 
   # Execute Docker operations.
   check_if_docker_is_running "$@"
+
+  # A login to the registry is needed to try to download a locally missing image.
   docker_login_to_registry \
     "${docker_registry}" \
     "${docker_user_name}"
