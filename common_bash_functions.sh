@@ -88,7 +88,7 @@ function log_to_stdout() {
   local text_color  # This variable will be assigned the value of the function argument after it has been validated.
 
   # 2. Checking function arguments.
-  if [ -z "$1" ] || [ "$1" = '' ] || [[ "$1" = *' '* ]] ; then
+  if [ -z "$1" ] ; then
     log_to_stderr "Argument 'text_message' was not specified in the function call. Exit."
     exit 1
   else
@@ -184,7 +184,7 @@ function log_to_stderr() {
 
   # 2. Checking function arguments.
   local text_message
-  if [ -z "$1" ] || [ "$1" = '' ] || [[ "$1" = *' '* ]] ; then
+  if [ -z "$1" ] || [ "$1" = '' ] ; then
     text_message="Argument 'text_message' was not specified in the function call. Exit."
     printf "${text_color}| %s | %s | %s | %s\n" \
       >&2 `# stderr` \
