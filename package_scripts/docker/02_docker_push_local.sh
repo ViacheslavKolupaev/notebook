@@ -39,7 +39,7 @@
 function import_library_of_common_bash_functions() {
   # shellcheck source=../../common_bash_functions.sh
   if ! source ../../common_bash_functions.sh; then
-    echo "'common_bash_functions.sh' module was not imported due to some error. Exit."
+    echo "'common_bash_functions.sh' library was not imported due to some error. Exit."
     exit 1
   else
     log_to_stdout 'The library of common bash functions has been successfully imported. Continue.' 'G'
