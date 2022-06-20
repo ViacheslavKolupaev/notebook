@@ -158,13 +158,13 @@ function main() {
   readonly service_port=50000
 
   # 2. Import the library of common bash functions.
-  import_library_of_common_bash_functions "$@"
+  import_library_of_common_bash_functions
 
   # 3. Execution of script logic.
   log_to_stdout 'START SCRIPT EXECUTION.' 'Bl'
 
   # Execute Docker operations.
-  check_if_docker_is_running "$@"
+  check_if_docker_is_running
 
   # A login to the registry is needed to try to download a locally missing image.
   docker_login_to_registry \
@@ -185,4 +185,4 @@ function main() {
   log_to_stdout 'END OF SCRIPT EXECUTION.' 'Bl'
 }
 
-main "$@"
+main "$@"  # "$@" expands to separate strings - "$1" "$2" "$n"
