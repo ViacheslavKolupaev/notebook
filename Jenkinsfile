@@ -29,8 +29,36 @@ Stages:
         - Stage 4: Deploy container to prod
 */
 
+
+
 pipeline {
+    // Docs: https://www.jenkins.io/doc/book/pipeline/syntax/#environment
+    environment {
+        GIT_COMMIT_SHORT_HASH = sh('git rev-parse --short HEAD')
+        DEPLOY_TO = 'staging'
+    }
+
     options {
+        // This is required if you want to clean before build
+        //skipDefaultCheckout(true)
+
+        // Keep only last 3 builds.
+        buildDiscarder logRotator(artifactDaysToKeepStr: '21', artifactNumToKeepStr: '2', daysToKeepStr: '21', numToKeepStr: '2')
+
         disableConcurrentBuilds()
+
+        timestamps()
+
+        // Timeout period for the Pipeline run, after which Jenkins should abort the Pipeline.
+        timeout(time: 10, unit: 'MINUTES')
+    }
+
+    triggers {
+        pollSCM('* * * * *')
+    }
+
+    // agent section specifies where the entire Pipeline will execute in the Jenkins environment
+    agent {
+        label ('linux && (master || main)')
     }
 }
