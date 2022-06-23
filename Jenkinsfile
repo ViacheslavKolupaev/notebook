@@ -17,20 +17,81 @@
 */
 
 /*
-GitHub Flow with branches: master, dev.
+Environments:
+    1. `DEV`;
+    2. `TEST`;
+    3. `PROD`.
+
+Git Flow type. The pipeline provides a GitHub Flow implementation suitable for small teams:
+    1. `main` (push without Pull Request and force push are prohibited);
+    2. Branches that can be merged into the `main` branch using a Pull Request:
+        1. `feature/<task-id>`;
+        2. `bugfix/<task-id>`;
+        3. `infra/<task-id>`.
+
+Triggers for starting the pipeline:
+    1. Creating a Pull Request to the `main` branch: (`feature`|`bugfix`|`infra`) → `main`.
+        1. Pushing additional commits to an open Pull Request. Skip branch pipelines when PR pipelines already exist.
+    2. Merge Pull Request into `main` branch (equals `git push` to the `main` branch). All merge commits to the `main`
+       branch. Fires after feature has been merged into the `main` branch.
+
+Environment variables and pipeline parameterization:
+    1. It is possible to use environment variables and secrets of the standard Credentials plugin.
+    These settings can only be edited by DevOps engineers.
+    2. It is possible to get environment variables (no secrets!) from the `jenkins_properties.groovy` file.
+    This file can be edited by Software Engineers.
+    3. Pipeline environment variables:
+        1. CI_DEPLOY_FREEZE — boolean flag indicating that deploy freeze is in effect. For example, 16:00 on Thu — 09:00
+        on Mon, [UTC 3] MSK. Jenkins needs to check if the current system time falls within the specified interval.
+
+Tools:
+    1. All pipeline tests are run in pre-configured Docker containers. This provides environment isolation.
+        1. `.base_python_image_w_venv`
+    2. The same dependencies can be used by different stages of the same pipeline. Therefore, to speed things up,
+    Jenkins should use dependency caching.
+        1. `.python_caching_params`
 
 Stages:
-    - git commit + git push to dev:
-        - Stage 0: Prepare Env
-        - Stage 1: Local Testing
-    - pull request + merge dev → master:
-        - Stage 2: Build container
-        - Stage 3: Publish container
-        - Stage 4: Deploy container to prod
+    1. `pre`
+    2. `test`:
+        1. `sonar-test`
+        2. `lint-test`
+        3. `type-test`:
+            1. rules:
+                1. Testing BEFORE merging branches. If type tests fail, branch merging is prohibited.
+                2. Testing AFTER merging branches. If type tests fail, deploy to staging is prohibited.
+            2. base:
+                1. `.base_python_image_w_venv`
+                2. `.python_caching_params`
+            3. script:
+                1. `pip install --requirement requirements/out/type_test.txt` — A separate file with the necessary
+                dependencies has been prepared in the project.
+                2. `mypy` — The parameters for running `mypy` are specified in the config file.
+        4. `unit-test`:  # TODO: migrations?
+            1. rules:
+                1. Testing BEFORE merging branches. If unit tests fail, branch merging is prohibited.
+                2. Testing AFTER merging branches. If unit tests fail, deploy to staging is prohibited.
+            2. base:
+                1. `.base_python_image_w_venv`
+                2. `.python_caching_params`
+            3. script:
+                1. `pip install --requirement requirements/out/unit_test.txt` — A separate file with the necessary
+                dependencies has been prepared in the project.
+                2. `pytest` — The parameters for running `pytest` are specified in the config file.
+            4. artifacts:
+                1. `cobertura: coverage.xml` — Publishing a report on the degree of code coverage by tests.
+                2. `junit: report.xml` — Publishing a report on the execution of specific unit tests.
+    3 `deploy`:
+        1. `deploy-to-test`
+            1. `notify-deploy-freeze`: notify only.
+            2. `deploy-auto-docs`
+        2. `deploy-to-prod`
+            1. `notify-deploy-freeze`: notify and block further work of the pipeline.
+    4. `post`
 */
 
 
-
+// Jenkins Declarative Pipeline
 pipeline {
     // agent section specifies where the entire Pipeline will execute in the Jenkins environment
     agent {
@@ -67,7 +128,7 @@ pipeline {
 
         // Timeout period for the Pipeline run, after which Jenkins should abort the Pipeline.
         timeout(time: 10, unit: 'MINUTES')
-        rateLimitBuilds(throttle: [count: 30, durationName: 'hour', userBoost: false])
+        rateLimitBuilds(throttle: [count: 60, durationName: 'hour', userBoost: false])
     }
 
     triggers {
@@ -97,6 +158,7 @@ pipeline {
 
         // TODO: add Docker clean-up.
         // TODO: add notifications to Telegram in case of success and failure.
+        // TODO: https://www.jenkins.io/doc/book/pipeline/syntax/#options
     }  // post
 
     /**
@@ -142,14 +204,34 @@ pipeline {
                     // Load Jenkins envs.
                     load "jenkins_properties.groovy"
 
-                    // Unpack.
-                    env.APP_NAME = "${APP_NAME}"
-
                     // Check.
+                    // Jenkins Pipeline exposes environment variables via the global variable env, which is available
+                    // from anywhere within a Jenkinsfile.
                     echo "APP_NAME: ${env.APP_NAME}."
+                    echo "APP_ENV_STATE: ${env.APP_ENV_STATE}."
                 }
                 echo '| STAGE 0: PREPARING THE ENVIRONMENT | END |'
             }  //steps
-        }  // stage 0
+        }  // stage
+        stage('STAGE: 1') {
+            when {
+                allOf {
+                    expression {
+                        return env.BRANCH_NAME == "origin/main" || env.BRANCH_NAME == "main"
+                    }  // expression
+                    expression {
+                        currentBuild.result == null || currentBuild.result == 'SUCCESS'
+                    }  // expression
+                }  // allOf
+            }  // when
+            steps {
+                echo '| STAGE 0: PREPARING THE ENVIRONMENT | START |'
+
+                echo "APP_NAME: ${APP_NAME}."
+                echo "APP_ENV_STATE: ${APP_ENV_STATE}."
+
+                echo '| STAGE 0: PREPARING THE ENVIRONMENT | END |'
+            }
+        }
     } // stages
 }
