@@ -95,14 +95,15 @@ Stages:
 pipeline {
     // agent section specifies where the entire Pipeline will execute in the Jenkins environment
     agent {
-        label ('master && linux')
+        label ('master && linux || docker')
     }
 
+    // Declarative setting of Jenkins environment variables.
+    // An `environment` directive used in the top-level `pipeline` block will apply to all steps within the Pipeline.
     // Docs: https://www.jenkins.io/doc/book/pipeline/syntax/#environment
     environment {
         //GIT_COMMIT_SHORT_HASH = sh('git rev-parse --short HEAD')
-        DEPLOY_TO = 'staging'
-        NOTEBOOK_GIT_URL = credentials('jenkins-secret-text-notebook-git-url')
+        PIP_CACHE_DIR = "${WORKSPACE}/.cache/pip"
     }
 
     // Configure Pipeline-specific options.
@@ -128,7 +129,7 @@ pipeline {
 
         // Timeout period for the Pipeline run, after which Jenkins should abort the Pipeline.
         timeout(time: 10, unit: 'MINUTES')
-        rateLimitBuilds(throttle: [count: 60, durationName: 'hour', userBoost: false])
+        rateLimitBuilds(throttle: [count: 60, durationName: 'hour', userBoost: true])
     }
 
     triggers {
@@ -165,7 +166,7 @@ pipeline {
      * stages contain one or more stage directives
      */
     stages {
-        stage('Checkout SCM') {
+        stage('STAGE 0: CHECKOUT SCM') {
             when {
                 allOf {
                     expression {
@@ -177,22 +178,33 @@ pipeline {
                 }  // allOf
             }  // when
             steps {
-                checkout(
-                        [
-                                $class: 'GitSCM',
-                                branches: [
-                                        [name: 'refs/heads/main']
-                                ],
-                                extensions: [
-                                        [$class: 'CheckoutOption', timeout: 1],
-                                        [$class: 'BuildSingleRevisionOnly'],
-                                        [$class: 'GitLFSPull']
-                                ],
-                                userRemoteConfigs: [
-                                        [url: "${env.NOTEBOOK_GIT_URL}"]
-                                ]
-                        ]
-                )
+                echo '| STAGE 0: CHECKOUT SCM | START |'
+//                echo "$NOTEBOOK_GIT_URL"  // prints, but security alert
+//                echo "${NOTEBOOK_GIT_URL}"  // prints, but security alert
+//                echo '$NOTEBOOK_GIT_URL'  // $NOTEBOOK_GIT_URL
+//                echo '${NOTEBOOK_GIT_URL}'  // ${NOTEBOOK_GIT_URL}
+                withCredentials([string(credentialsId: 'jenkins-secret-text-notebook-git-url', variable: 'NOTEBOOK_GIT_URL')]) {
+                    // echo $NOTEBOOK_GIT_URL  // roovy.lang.MissingPropertyException: No such property: $NOTEBOOK_GIT_URL for class: groovy.lang.Binding
+                    checkout(
+                            [
+                                    $class: 'GitSCM',
+                                    branches: [
+                                            [name: 'refs/heads/main']
+                                    ],
+                                    extensions: [
+                                            [$class: 'CheckoutOption', timeout: 1],
+                                            [$class: 'BuildSingleRevisionOnly'],
+                                            [$class: 'GitLFSPull']
+                                    ],
+                                    userRemoteConfigs: [
+                                            [url: "$NOTEBOOK_GIT_URL"]
+                                    ]
+                            ]
+                    )
+                }
+                echo "BRANCH_NAME: ${env.BRANCH_NAME}."
+                echo "CHANGE_ID: ${env.CHANGE_ID}."
+                echo '| STAGE 0: CHECKOUT SCM | END |'
             }
         }
         stage('STAGE 0: PREPARING THE ENVIRONMENT') {
@@ -201,15 +213,16 @@ pipeline {
                 echo "Running build id ${env.BUILD_ID} on Jenkins node ${env.NODE_NAME} for git branch ${env.BRANCH_NAME}."
 
                 script {
-                    // Load Jenkins envs.
+                    // Loading and imperatively setting Jenkins environment variables.
                     load "jenkins_properties.groovy"
-
-                    // Check.
-                    // Jenkins Pipeline exposes environment variables via the global variable env, which is available
-                    // from anywhere within a Jenkinsfile.
-                    echo "APP_NAME: ${env.APP_NAME}."
-                    echo "APP_ENV_STATE: ${env.APP_ENV_STATE}."
                 }
+
+                // Check.
+                // Jenkins Pipeline exposes environment variables via the global variable env, which is available
+                // from anywhere within a Jenkinsfile.
+                echo "APP_NAME: ${env.APP_NAME}."
+                echo "APP_ENV_STATE: ${env.APP_ENV_STATE}."
+
                 echo '| STAGE 0: PREPARING THE ENVIRONMENT | END |'
             }  //steps
         }  // stage
@@ -229,9 +242,47 @@ pipeline {
 
                 echo "APP_NAME: ${APP_NAME}."
                 echo "APP_ENV_STATE: ${APP_ENV_STATE}."
-
                 echo '| STAGE 0: PREPARING THE ENVIRONMENT | END |'
             }
+        } // stage
+        stage('Docker') {
+            agent {
+                // Make `sudo usermod -a -G docker jenkins` → restart Jenkins.
+                docker {
+                    // TODO: develop pip caching solution: https://www.jenkins.io/doc/book/pipeline/docker/#caching-data-for-containers
+                    image 'python:3.10.4-slim'
+//                    args '-v $PIP_CACHE_DIR:/root/.cache/pip'
+                    // TODO: is it safe to use `root` here?
+                    args '-u root:root'
+
+                    // When `reuseNode` set to `true`: no new workspace will be created, and current workspace from
+                    // current agent will be mounted into container, and container will be started at the same node,
+                    // so whole data will be synchronized.
+                    // Docs: https://www.jenkins.io/doc/book/pipeline/docker/#workspace-synchronization
+
+                    // Run the container on the node specified at the top-level of the Pipeline, in the same workspace,
+                    // rather than on a new node entirely:
+                    reuseNode true
+                }
+            }
+            steps {
+                withEnv(["HOME=${env.WORKSPACE}"]) {
+                    sh 'python3 --version'
+                    sh 'which python3'
+
+                    sh 'printenv'
+
+//                    sh 'export PYTHONDONTWRITEBYTECODE=1'
+//                    sh 'export PYTHONUNBUFFERED=1'
+
+                    sh 'pip install --no-cache-dir --user --upgrade virtualenv'
+                    sh 'python3 -m venv --upgrade-deps /usr/opt/venv'
+                    sh 'export PATH=/usr/opt/venv/bin:$PATH'
+                    sh 'ls -ll'
+                    sh 'pip install --requirement requirements/compiled/04_unit_test_requirements.txt'
+                    sh 'pytest'
+                }
+            }
         }
-    } // stages
-}
+    }// stages
+} // pipeline
