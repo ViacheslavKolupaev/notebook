@@ -25,7 +25,7 @@ trim_trailing_whitespace = true
 insert_final_newline = true
 indent_style = space
 
-[*.{py,json}]
+[*.{py,json,md}]
 indent_size = 4
 tab_width = 4
 
