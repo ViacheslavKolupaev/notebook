@@ -366,7 +366,7 @@ pipeline {
                 echo '| STAGE 3: TYPE-TEST | START |'
                 echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
-                withEnv(['HOME=${env.WORKSPACE}']) {
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                     sh_x("""
                         pip install --upgrade virtualenv
                         python3 -m venv --upgrade-deps /usr/opt/venv
@@ -419,7 +419,7 @@ pipeline {
                 echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
                 // FIXME: properly configure WPS and Jenkins integration
-                withEnv(['HOME=${env.WORKSPACE}']) {
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                     sh_x("""
                         pip install --upgrade virtualenv
                         python3 -m venv --upgrade-deps /usr/opt/venv
