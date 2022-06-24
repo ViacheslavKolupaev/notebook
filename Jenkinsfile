@@ -89,6 +89,8 @@ Stages:
         3. `deploy-to-prod`
             1. `notify-deploy-freeze`: notify and block further work of the pipeline.
     4. `post`
+
+       // TODO: delete docker containers after jobs are done
 */
 
 def sh_x(cmd) {
@@ -272,6 +274,7 @@ pipeline {
             agent {
                 // Make `sudo usermod -a -G docker jenkins` → restart Jenkins.
                 docker {
+                    // TODO: move the name and tag of the image to a variable
                     image 'python:3.10.4-slim'
                     // TODO: develop pip caching solution: https://www.jenkins.io/doc/book/pipeline/docker/#caching-data-for-containers
                     // args '-v $PIP_CACHE_DIR:/root/.cache/pip'
@@ -292,27 +295,27 @@ pipeline {
                 echo '| STAGE 2: UNIT-TEST | START |'
                 echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
-                withEnv(["HOME=${env.WORKSPACE}"]) {
+//                withEnv(["HOME=${env.WORKSPACE}"]) {
 
-                    sh_x("""
+                sh_x("""
 
-                        echo 'Checking tools and environment inside a Docker container...'
+                    echo 'Checking tools and environment inside a Docker container...'
 
-                        python3 --version
-                        which python3
-                        ls -ll
-                        printenv
-                    """)
+                    python3 --version
+                    which python3
+                    ls -ll
+                    printenv
+                """)
 
-                    sh_x("""
-                        echo ''
-                        pip install --upgrade virtualenv
-                        python3 -m venv --upgrade-deps /usr/opt/venv
-                        export PATH=/usr/opt/venv/bin:$PATH
-                        pip install --requirement requirements/compiled/04_unit_test_requirements.txt
-                        pytest
-                    """)
-                }
+                sh_x("""
+                    echo ''
+                    pip install --upgrade virtualenv
+                    python3 -m venv --upgrade-deps /usr/opt/venv
+                    export PATH=/usr/opt/venv/bin:$PATH
+                    pip install --requirement requirements/compiled/04_unit_test_requirements.txt
+                    pytest
+                """)
+//                }
 
                 echo '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
                 echo '| STAGE 2: UNIT-TEST | END |'
@@ -415,6 +418,7 @@ pipeline {
                 echo '| STAGE 4: LINT-TEST | START |'
                 echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 
+                // FIXME: properly configure WPS and Jenkins integration
                 withEnv(['HOME=${env.WORKSPACE}']) {
                     sh_x("""
                         pip install --upgrade virtualenv
