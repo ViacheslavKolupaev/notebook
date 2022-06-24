@@ -31,3 +31,6 @@ After starting the server, documentation is usually available at the following a
 http://127.0.0.1:8000/)
 
 ---
+
+## CI/CD notes
+1. Service directories of the CI server should be excluded from `mypy` and `flake8` checks.
