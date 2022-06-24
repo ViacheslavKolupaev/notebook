@@ -85,10 +85,17 @@ Stages:
         1. `deploy-to-test`
             1. `notify-deploy-freeze`: notify only.
             2. `deploy-auto-docs`
-        2. `deploy-to-prod`
+        2. Approve
+        3. `deploy-to-prod`
             1. `notify-deploy-freeze`: notify and block further work of the pipeline.
     4. `post`
 */
+
+def sh_x(cmd) {
+    // Replaces shebang `bash` → `sh` for Docker containers.
+    // Disables printing to Jenkins stdout; read about it here: https://stackoverflow.com/a/39908900/11028604.
+    sh(returnStdout:false , script:'#!/bin/sh -e\n' + cmd)
+}
 
 
 // Jenkins Declarative Pipeline
@@ -141,6 +148,15 @@ pipeline {
     post section condition blocks: always, changed, failure, success, unstable, and aborted
     */
     post {
+        success {
+            // good, warning, danger
+            echo "${currentBuild.currentResult}"  //  do something
+        }
+
+        failure {
+            echo "${currentBuild.currentResult}"  //  do something
+        }
+
         always {
             echo "Build #${env.BUILD_NUMBER} - Job: ${env.JOB_NUMBER} status is: ${currentBuild.currentResult}"
 
@@ -179,6 +195,7 @@ pipeline {
             }  // when
             steps {
                 echo '| STAGE 0: CHECKOUT SCM | START |'
+                echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
 //                echo "$NOTEBOOK_GIT_URL"  // prints, but security alert
 //                echo "${NOTEBOOK_GIT_URL}"  // prints, but security alert
 //                echo '$NOTEBOOK_GIT_URL'  // $NOTEBOOK_GIT_URL
@@ -204,12 +221,25 @@ pipeline {
                 }
                 echo "BRANCH_NAME: ${env.BRANCH_NAME}."
                 echo "CHANGE_ID: ${env.CHANGE_ID}."
+
+                echo '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
                 echo '| STAGE 0: CHECKOUT SCM | END |'
             }
         }
-        stage('STAGE 0: PREPARING THE ENVIRONMENT') {
+        stage('STAGE 1: PREPARING THE ENVIRONMENT') {
+            when {
+                allOf {
+                    expression {
+                        return env.BRANCH_NAME == "origin/main" || env.BRANCH_NAME == "main"
+                    }  // expression
+                    expression {
+                        currentBuild.result == null || currentBuild.result == 'SUCCESS'
+                    }  // expression
+                }  // allOf
+            }  // when
             steps {
-                echo '| STAGE 0: PREPARING THE ENVIRONMENT | START |'
+                echo '| STAGE 1: PREPARING THE ENVIRONMENT | START |'
+                echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
                 echo "Running build id ${env.BUILD_ID} on Jenkins node ${env.NODE_NAME} for git branch ${env.BRANCH_NAME}."
 
                 script {
@@ -223,10 +253,12 @@ pipeline {
                 echo "APP_NAME: ${env.APP_NAME}."
                 echo "APP_ENV_STATE: ${env.APP_ENV_STATE}."
 
-                echo '| STAGE 0: PREPARING THE ENVIRONMENT | END |'
+                echo '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+                echo '| STAGE 1: PREPARING THE ENVIRONMENT | END |'
             }  //steps
         }  // stage
-        stage('STAGE: 1') {
+
+        stage('STAGE 2: UNIT-TEST') {
             when {
                 allOf {
                     expression {
@@ -237,21 +269,12 @@ pipeline {
                     }  // expression
                 }  // allOf
             }  // when
-            steps {
-                echo '| STAGE 0: PREPARING THE ENVIRONMENT | START |'
-
-                echo "APP_NAME: ${APP_NAME}."
-                echo "APP_ENV_STATE: ${APP_ENV_STATE}."
-                echo '| STAGE 0: PREPARING THE ENVIRONMENT | END |'
-            }
-        } // stage
-        stage('Docker') {
             agent {
                 // Make `sudo usermod -a -G docker jenkins` → restart Jenkins.
                 docker {
-                    // TODO: develop pip caching solution: https://www.jenkins.io/doc/book/pipeline/docker/#caching-data-for-containers
                     image 'python:3.10.4-slim'
-//                    args '-v $PIP_CACHE_DIR:/root/.cache/pip'
+                    // TODO: develop pip caching solution: https://www.jenkins.io/doc/book/pipeline/docker/#caching-data-for-containers
+                    // args '-v $PIP_CACHE_DIR:/root/.cache/pip'
                     // TODO: is it safe to use `root` here?
                     args '-u root:root'
 
@@ -264,25 +287,173 @@ pipeline {
                     // rather than on a new node entirely:
                     reuseNode true
                 }
-            }
+            }  // agent
             steps {
+                echo '| STAGE 2: UNIT-TEST | START |'
+                echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+
                 withEnv(["HOME=${env.WORKSPACE}"]) {
-                    sh 'python3 --version'
-                    sh 'which python3'
 
-                    sh 'printenv'
+                    sh_x("""
 
-//                    sh 'export PYTHONDONTWRITEBYTECODE=1'
-//                    sh 'export PYTHONUNBUFFERED=1'
+                        echo 'Checking tools and environment inside a Docker container...'
 
-                    sh 'pip install --no-cache-dir --user --upgrade virtualenv'
-                    sh 'python3 -m venv --upgrade-deps /usr/opt/venv'
-                    sh 'export PATH=/usr/opt/venv/bin:$PATH'
-                    sh 'ls -ll'
-                    sh 'pip install --requirement requirements/compiled/04_unit_test_requirements.txt'
-                    sh 'pytest'
+                        python3 --version
+                        which python3
+                        ls -ll
+                        printenv
+                    """)
+
+                    sh_x("""
+                        echo ''
+                        pip install --upgrade virtualenv
+                        python3 -m venv --upgrade-deps /usr/opt/venv
+                        export PATH=/usr/opt/venv/bin:$PATH
+                        pip install --requirement requirements/compiled/04_unit_test_requirements.txt
+                        pytest
+                    """)
                 }
-            }
-        }
+
+                echo '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+                echo '| STAGE 2: UNIT-TEST | END |'
+            }  // steps
+            post {
+                always {
+                    junit(
+                            allowEmptyResults: true,
+                            testResults: 'report.xml'
+                    )
+                    // Requires the `Cobertura` plugin.
+                    cobertura coberturaReportFile: 'coverage.xml', enableNewApi: true
+                }
+            }  // post
+        }  // stage
+
+        stage('STAGE 3: TYPE-TEST') {
+            when {
+                allOf {
+                    expression {
+                        return env.BRANCH_NAME == "origin/main" || env.BRANCH_NAME == "main"
+                    }  // expression
+                    expression {
+                        currentBuild.result == null || currentBuild.result == 'SUCCESS'
+                    }  // expression
+                }  // allOf
+            }  // when
+            agent {
+                // Make `sudo usermod -a -G docker jenkins` → restart Jenkins.
+                docker {
+                    image 'python:3.10.4-slim'
+                    // TODO: develop pip caching solution: https://www.jenkins.io/doc/book/pipeline/docker/#caching-data-for-containers
+                    // args '-v $PIP_CACHE_DIR:/root/.cache/pip'
+                    // TODO: is it safe to use `root` here?
+                    args '-u root:root'
+
+                    // When `reuseNode` set to `true`: no new workspace will be created, and current workspace from
+                    // current agent will be mounted into container, and container will be started at the same node,
+                    // so whole data will be synchronized.
+                    // Docs: https://www.jenkins.io/doc/book/pipeline/docker/#workspace-synchronization
+
+                    // Run the container on the node specified at the top-level of the Pipeline, in the same workspace,
+                    // rather than on a new node entirely:
+                    reuseNode true
+                }
+            }  // agent
+            steps {
+                echo '| STAGE 3: TYPE-TEST | START |'
+                echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+
+                withEnv(['HOME=${env.WORKSPACE}']) {
+                    sh_x("""
+                        pip install --upgrade virtualenv
+                        python3 -m venv --upgrade-deps /usr/opt/venv
+                        export PATH=/usr/opt/venv/bin:$PATH
+                        pip install --requirement requirements/compiled/03_type_test_requirements.txt
+                        yes | mypy --install-types || true
+                        echo '============================== START TESTING MYPY =============================='
+                        mypy || true
+                        echo '============================== END TESTING MYPY =============================='
+                    """)
+                }
+
+                echo '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+                echo '| STAGE 3: TYPE-TEST | END |'
+            }  // steps
+        }  // stage
+
+        stage('STAGE 4: LINT-TEST') {
+            when {
+                allOf {
+                    expression {
+                        return env.BRANCH_NAME == "origin/main" || env.BRANCH_NAME == "main"
+                    }  // expression
+                    expression {
+                        currentBuild.result == null || currentBuild.result == 'SUCCESS'
+                    }  // expression
+                }  // allOf
+            }  // when
+            agent {
+                // Make `sudo usermod -a -G docker jenkins` → restart Jenkins.
+                docker {
+                    image 'python:3.10.4-slim'
+                    // TODO: develop pip caching solution: https://www.jenkins.io/doc/book/pipeline/docker/#caching-data-for-containers
+                    // args '-v $PIP_CACHE_DIR:/root/.cache/pip'
+                    // TODO: is it safe to use `root` here?
+                    args '-u root:root'
+
+                    // When `reuseNode` set to `true`: no new workspace will be created, and current workspace from
+                    // current agent will be mounted into container, and container will be started at the same node,
+                    // so whole data will be synchronized.
+                    // Docs: https://www.jenkins.io/doc/book/pipeline/docker/#workspace-synchronization
+
+                    // Run the container on the node specified at the top-level of the Pipeline, in the same workspace,
+                    // rather than on a new node entirely:
+                    reuseNode true
+                }
+            }  // agent
+            steps {
+                echo '| STAGE 4: LINT-TEST | START |'
+                echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>'
+
+                withEnv(['HOME=${env.WORKSPACE}']) {
+                    sh_x("""
+                        pip install --upgrade virtualenv
+                        python3 -m venv --upgrade-deps /usr/opt/venv
+                        export PATH=/usr/opt/venv/bin:$PATH
+                        pip install --requirement requirements/compiled/02_lint_test_requirements.txt
+                        echo '============================== START TESTING FLAKE8 =============================='
+                        flake8 || true
+                        echo '============================== END TESTING FLAKE8 =============================='
+                    """)
+                }
+
+                echo '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'
+                echo '| STAGE 4: LINT-TEST | END |'
+            }  // steps
+        }  // stage
+
+        stage('STAGE: N') {
+            when {
+                allOf {
+                    expression {
+                        return env.BRANCH_NAME == "origin/main" || env.BRANCH_NAME == "main"
+                    }  // expression
+                    expression {
+                        currentBuild.result == null || currentBuild.result == 'SUCCESS'
+                    }  // expression
+                }  // allOf
+            }  // when
+            steps {
+                echo '| STAGE N: PREPARING THE ENVIRONMENT | START |'
+
+                // Check.
+                // Jenkins Pipeline exposes environment variables via the global variable env, which is available
+                // from anywhere within a Jenkinsfile.
+                echo "APP_NAME: ${APP_NAME}."
+                echo "APP_ENV_STATE: ${APP_ENV_STATE}."
+
+                echo '| STAGE N: PREPARING THE ENVIRONMENT | END |'
+            }  // steps
+        } // stage
     }// stages
 } // pipeline

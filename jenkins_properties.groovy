@@ -9,4 +9,4 @@ env.DB_PASSWORD="postgres_strong_pass"
 env.PYTHONDONTWRITEBYTECODE=1
 env.PYTHONUNBUFFERED=1
 
-env.PIP_CONFIG_FILE=pip.conf
+env.PIP_CONFIG_FILE="pip.conf"
