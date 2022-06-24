@@ -84,8 +84,8 @@ minversion = "7.0"
 # Directories that are not visited by pytest collector:
 norecursedirs = [
     # pytest defaults.
-    "*.egg",
     ".*",
+#    "*.egg",
     "_darcs",
     "build",
     "CVS",
@@ -95,9 +95,11 @@ norecursedirs = [
     "{arch}",
 
     # Custom.
-    "venv_py38",
-    "venv_py39",
-    "venv_py310",
+#    "venv_py38",
+#    "venv_py39",
+#    "venv_py310",
+    "venv_py??",
+    "venv_py???",
     "src",
     "app",
     "docs",
@@ -106,12 +108,13 @@ norecursedirs = [
     "requirements",
     "settings",
     "site",
-    ".eggs",
+#    ".eggs",
     "_build",
-    ".tox",
-    ".git",
+#    ".tox",
+#    ".git",
     "__pycache__",
     "tmp*",
+    "${env.WORKSPACE}",
 ]
 
 filterwarnings = [
