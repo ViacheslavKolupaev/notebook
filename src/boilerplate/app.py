@@ -12,6 +12,8 @@
 #  permissions and limitations under the License.
 # ########################################################################################
 
+"""FastAPI application initialization module."""
+
 from fastapi import FastAPI
 from fastapi.middleware.gzip import GZipMiddleware
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
@@ -19,7 +21,6 @@ from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 from src.boilerplate.config import config
 from src.boilerplate.custom_logger import CustomLogger
 from src.boilerplate.routers import admin_controller
-from src.boilerplate.schemas.common import MetadataOpt  # type: ignore[import]
 from src.boilerplate.sentry import init_sentry
 
 _module_logger = CustomLogger().get_module_logger(
@@ -31,8 +32,10 @@ tags_metadata = [
     {
         'name': 'admin-controller',
         'description':
-            'Administrative operations. To access endpoints, use `Bearer` token authorization. '
-            'You can get a token from a DevOps engineer.'
+            (
+                'Administrative operations. To access endpoints, use `Bearer` token authorization. ' +
+                'You can get a token from a DevOps engineer.'
+            ),
     },
 ]
 
@@ -93,11 +96,11 @@ app = FastAPI(
     contact={
         'name': 'Viacheslav Kolupaev',
         'url': 'https://vkolupaev.com/',
-        # 'email': 'specify-valid-email',
+        'email': 'enter-email-if-needed',
     },
     license_info={
-        "name": "Apache 2.0",
-        "url": "https://www.apache.org/licenses/LICENSE-2.0",
+        'name': 'Apache 2.0',
+        'url': 'https://www.apache.org/licenses/LICENSE-2.0',
     },
 )
 
@@ -105,23 +108,27 @@ _module_logger.debug('Initializing Routers...')
 app.include_router(admin_controller.router)
 
 
-@app.on_event("startup")
+@app.on_event('startup')
 async def startup() -> None:
-    _module_logger.debug("Executing startup operations...")
+    """Execute application startup operations."""
+    _module_logger.debug('Executing startup operations...')
 
-    _module_logger.debug("Initializing Middleware...")
-    app.add_middleware(GZipMiddleware, minimum_size=150)
+    _module_logger.debug('Initializing Middleware...')
+
+    minimum_size_in_bytes_for_gzip_compression = 150
+    app.add_middleware(GZipMiddleware, minimum_size=minimum_size_in_bytes_for_gzip_compression)
+
     app.add_middleware(SentryAsgiMiddleware)
 
-    _module_logger.debug("Initializing Sentry...")
+    _module_logger.debug('Initializing Sentry...')
     init_sentry()
 
+    _module_logger.debug('Startup operations completed.')
 
-    _module_logger.debug("Startup operations completed.")
 
-
-@app.on_event("shutdown")
+@app.on_event('shutdown')
 async def shutdown() -> None:
-    _module_logger.debug("Executing shutdown operations...")
+    """Execute application shutdown operations."""
+    _module_logger.debug('Executing operations operations...')
 
-    _module_logger.debug("Shutdown operations completed.")
+    _module_logger.debug('Shutdown operations completed.')
