@@ -113,7 +113,7 @@ class GlobalConfig(pydantic.BaseSettings, AppInternalLogicConfig):
     APP_ENV_STATE: EnvState = pydantic.Field(env='APP_ENV_STATE', default=EnvState.development, min_length=1)
     APP_ROOT_PATH: str = ''
     APP_API_VERSION: str = pydantic.Field(default='v1', regex=r'^v\d+$')  # v1, v12, v123
-    APP_API_ACCESS_HTTP_BEARER_TOKEN: Optional[pydantic.SecretStr]
+    APP_API_ACCESS_HTTP_BEARER_TOKEN: Optional[pydantic.SecretStr] = pydantic.Field(min_length=1)
     APP_VCS_REF: str = pydantic.Field(default='development_git_rev_short_sha', min_length=1)  # git commit hash.
     APP_IDEMPOTENCY_KEY_VALIDITY_TIME_SECONDS: pydantic.PositiveInt = 5 * 60
     APP_HTTP_HEADERS_CONTENT_TYPE_JSON: str = pydantic.Field(default='application/json', min_length=1)
