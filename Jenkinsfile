@@ -54,20 +54,7 @@ Tools:
 Stages:
     1. `pre`
     2. `test`:
-        1. `sonar-test`
-        2. `lint-test`
-        3. `type-test`:
-            1. rules:
-                1. Testing BEFORE merging branches. If type tests fail, branch merging is prohibited.
-                2. Testing AFTER merging branches. If type tests fail, deploy to staging is prohibited.
-            2. base:
-                1. `.base_python_image_w_venv`
-                2. `.python_caching_params`
-            3. script:
-                1. `pip install --requirement requirements/out/type_test.txt` — A separate file with the necessary
-                dependencies has been prepared in the project.
-                2. `mypy` — The parameters for running `mypy` are specified in the config file.
-        4. `unit-test`:  # TODO: migrations?
+        1. `unit-test`:  TODO: what about DB migrations?
             1. rules:
                 1. Testing BEFORE merging branches. If unit tests fail, branch merging is prohibited.
                 2. Testing AFTER merging branches. If unit tests fail, deploy to staging is prohibited.
@@ -81,7 +68,20 @@ Stages:
             4. artifacts:
                 1. `cobertura: coverage.xml` — Publishing a report on the degree of code coverage by tests.
                 2. `junit: report.xml` — Publishing a report on the execution of specific unit tests.
-    3 `deploy`:
+        2. `type-test`:
+            1. rules:
+                1. Testing BEFORE merging branches. If type tests fail, branch merging is prohibited.
+                2. Testing AFTER merging branches. If type tests fail, deploy to staging is prohibited.
+            2. base:
+                1. `.base_python_image_w_venv`
+                2. `.python_caching_params`
+            3. script:
+                1. `pip install --requirement requirements/out/type_test.txt` — A separate file with the necessary
+                dependencies has been prepared in the project.
+                2. `mypy` — The parameters for running `mypy` are specified in the config file.
+        3. `sonar-test`
+        4. `lint-test`
+    3. `deploy`:
         1. `deploy-to-test`
             1. `notify-deploy-freeze`: notify only.
             2. `deploy-auto-docs`
@@ -89,8 +89,6 @@ Stages:
         3. `deploy-to-prod`
             1. `notify-deploy-freeze`: notify and block further work of the pipeline.
     4. `post`
-
-       // TODO: delete docker containers after jobs are done
 */
 
 def sh_x(cmd) {
@@ -175,7 +173,7 @@ pipeline {
             )
         }
 
-        // TODO: add Docker clean-up.
+        // TODO: Add Docker clean-up. delete docker containers after jobs are done
         // TODO: add notifications to Telegram in case of success and failure.
         // TODO: https://www.jenkins.io/doc/book/pipeline/syntax/#options
     }  // post
