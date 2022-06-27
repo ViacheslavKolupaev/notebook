@@ -18,22 +18,25 @@ Sampling is not used for `development` and `staging` environments.
 For other environments, it is applied with a factor of 0.2.
 """
 
+from typing import Any
+
 import sentry_sdk
 
 from src.boilerplate.config import config
 from src.boilerplate.schemas.common import EnvState
 
 
+def _get_traces_sampler(sampling_context: dict[Any, Any]) -> float:
+    if config.SENTRY_ENVIRONMENT in {EnvState.development, EnvState.staging}:
+        traces_sampler_lvl = 1.0
+    else:
+        traces_sampler_lvl = 0.2
+
+    return traces_sampler_lvl
+
+
 def init_sentry() -> None:
     """Initialize Sentry."""
-    def _traces_sampler(sampling_context: dict) -> float:
-        if config.SENTRY_ENVIRONMENT in {EnvState.development, EnvState.staging}:
-            traces_sampler_lvl = 1.0
-        else:
-            traces_sampler_lvl = 0.2
-
-        return traces_sampler_lvl
-
     # Sentry configuration options: https://docs.sentry.io/platforms/python/guides/asgi/configuration/options
     sentry_sdk.init(
         dsn=config.SENTRY_DSN,
@@ -42,6 +45,6 @@ def init_sentry() -> None:
         environment=config.SENTRY_ENVIRONMENT,
         request_bodies='medium',
         with_locals=False,
-        traces_sampler=_traces_sampler,
+        traces_sampler=_get_traces_sampler,
     )
     sentry_sdk.set_tag('app_name', config.APP_NAME)
