@@ -1,16 +1,16 @@
+# ########################################################################################
 #  Copyright (c) 2022. Viacheslav Kolupaev, https://vkolupaev.com/
 #
-#   Licensed under the Apache License, Version 2.0 (the "License");
-#   you may not use this file except in compliance with the License.
-#   You may obtain a copy of the License at
+#  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
+#  file except in compliance with the License. You may obtain a copy of the License at
 #
-#       https://www.apache.org/licenses/LICENSE-2.0
+#    https://www.apache.org/licenses/LICENSE-2.0
 #
-#   Unless required by applicable law or agreed to in writing, software
-#   distributed under the License is distributed on an "AS IS" BASIS,
-#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#   See the License for the specific language governing permissions and
-#   limitations under the License.
+#  Unless required by applicable law or agreed to in writing, software distributed under
+#  the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied. See the License for the specific language governing
+#  permissions and limitations under the License.
+# ########################################################################################
 
 """Application config.
 
@@ -36,9 +36,7 @@ The module was developed using [Pydantic Settings management](
 https://pydantic-docs.helpmanual.io/usage/settings/).
 """
 
-import errno
 import math
-import os
 from ipaddress import IPv4Address
 from pathlib import Path
 from typing import Optional, Union
@@ -53,6 +51,13 @@ def _get_path_to_dotenv_file(dotenv_filename: str, num_of_parent_dirs_up: int) -
 
     This is a helper function.
     The path is calculated relative to the location of this module.
+
+    Args:
+        dotenv_filename: the name of the dotenv file, such as `.env`.
+        num_of_parent_dirs_up: the number of levels in the hierarchy up to the directory with the dotenv file.
+
+    Returns:
+        The `Path` object, if the dotenv file exists. Otherwise, `None`.
     """
     path_to_dotenv_file = Path(__file__).resolve().parents[num_of_parent_dirs_up].joinpath(dotenv_filename)
 
@@ -98,7 +103,13 @@ class GlobalConfig(pydantic.BaseSettings, AppInternalLogicConfig):
     # General application config.
     _DEFAULT_APP_NAME_VALUE: str = 'boilerplate'
 
-    APP_NAME: str = pydantic.Field(default=_DEFAULT_APP_NAME_VALUE, const=True, min_length=1)
+    APP_NAME: str = pydantic.Field(
+        title='APP_NAME',
+        description='The name of the application',
+        default=_DEFAULT_APP_NAME_VALUE,
+        const=True,
+        min_length=1,
+    )
     APP_ENV_STATE: EnvState = pydantic.Field(env='APP_ENV_STATE', default=EnvState.development, min_length=1)
     APP_ROOT_PATH: str = ''
     APP_API_VERSION: str = pydantic.Field(default='v1', regex=r'^v\d+$')  # v1, v12, v123
@@ -109,7 +120,7 @@ class GlobalConfig(pydantic.BaseSettings, AppInternalLogicConfig):
 
     # Uvicorn config.
     ASGI_PROTOCOL: str = pydantic.Field(default='http', regex='^(http|https)$')
-    ASGI_HOST: IPv4Address = IPv4Address('0.0.0.0')  # do not specify the value 127.0.0.1
+    ASGI_HOST: IPv4Address = IPv4Address('0.0.0.0')  # noqa: S104; do not specify the value 127.0.0.1
     ASGI_PORT: int = pydantic.Field(default=50000, ge=50000, le=60000)
 
     # Database config.
