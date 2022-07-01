@@ -11,3 +11,4 @@ twine
 build
 bandit
 pendulum
+locust
