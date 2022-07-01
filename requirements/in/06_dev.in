@@ -12,3 +12,4 @@ build
 bandit
 pendulum
 locust
+locust-plugins

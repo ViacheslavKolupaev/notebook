@@ -22,11 +22,11 @@ python-dotenv==0.20.0
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   pydantic
-sqlalchemy[mypy]==1.4.37
+sqlalchemy[mypy]==1.4.39
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/03_type_test.in
-sqlalchemy2-stubs==0.0.2a23
+sqlalchemy2-stubs==0.0.2a24
     # via sqlalchemy
 tomli==2.0.1
     # via mypy

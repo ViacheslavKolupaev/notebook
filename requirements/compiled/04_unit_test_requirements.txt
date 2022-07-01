@@ -24,12 +24,9 @@ alembic==1.8.0
 anyio==3.6.1
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
+    #   httpcore
     #   starlette
-    #   watchgod
-asgiref==3.5.2
-    # via
-    #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
-    #   uvicorn
+    #   watchfiles
 async-timeout==4.0.2
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
@@ -45,17 +42,18 @@ attrs==21.4.0
     #   aiohttp
     #   hypothesis
     #   pytest
-certifi==2022.5.18.1
+certifi==2022.6.15
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
+    #   httpcore
     #   httpx
     #   requests
     #   sentry-sdk
-cffi==1.15.0
+cffi==1.15.1
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   pycares
-charset-normalizer==2.0.12
+charset-normalizer==2.1.0
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   aiohttp
@@ -72,6 +70,8 @@ databases[postgresql]==0.6.0
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/01_app.in
+exceptiongroup==1.0.0rc8
+    # via hypothesis
 fastapi==0.78.0
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
@@ -85,20 +85,21 @@ greenlet==1.1.2
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   sqlalchemy
-h11==0.13.0
+h11==0.12.0
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
+    #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/01_app.in
     #   httpcore
     #   uvicorn
-httpcore==0.12.3
+httpcore==0.15.0
     # via httpx
-httptools==0.3.0
+httptools==0.4.0
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   uvicorn
-httpx==0.17.1
+httpx==0.23.0
     # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/04_unit_test.in
-hypothesis==6.47.0
+hypothesis==6.48.2
     # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/04_unit_test.in
 idna==3.3
     # via
@@ -109,7 +110,7 @@ idna==3.3
     #   yarl
 iniconfig==1.1.1
     # via pytest
-mako==1.2.0
+mako==1.2.1
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   alembic
@@ -122,7 +123,7 @@ multidict==6.0.2
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   aiohttp
     #   yarl
-orjson==3.7.2
+orjson==3.7.5
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/01_app.in
@@ -136,7 +137,7 @@ psycopg2-binary==2.9.3
     #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/01_app.in
 py==1.11.0
     # via pytest
-pycares==4.1.2
+pycares==4.2.1
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   aiodns
@@ -182,11 +183,11 @@ pyyaml==6.0
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   uvicorn
-requests==2.27.1
+requests==2.28.1
     # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/04_unit_test.in
 rfc3986[idna2008]==1.5.0
     # via httpx
-sentry-sdk==1.5.12
+sentry-sdk==1.6.0
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/01_app.in
@@ -200,7 +201,7 @@ sniffio==1.2.0
     #   httpx
 sortedcontainers==2.4.0
     # via hypothesis
-sqlalchemy==1.4.37
+sqlalchemy==1.4.39
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/01_app.in
@@ -236,7 +237,7 @@ urllib3==1.26.9
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   requests
     #   sentry-sdk
-uvicorn[standard]==0.17.5
+uvicorn[standard]==0.18.2
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/01_app.in
@@ -244,13 +245,14 @@ uvloop==0.16.0
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   uvicorn
-watchgod==0.8.2
+watchfiles==0.15.0
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   uvicorn
-websockets==10.3
+websockets==10.1
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
+    #   -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/01_app.in
     #   uvicorn
 yarl==1.7.2
     # via
