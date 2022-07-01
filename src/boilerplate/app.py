@@ -132,3 +132,9 @@ async def shutdown() -> None:
     _module_logger.debug('Executing operations operations...')
 
     _module_logger.debug('Shutdown operations completed.')
+
+
+@app.get('/')
+async def root() -> dict[str, str]:
+    """API root endpoint."""
+    return {'message': "Thanks, I'm fine!"}
