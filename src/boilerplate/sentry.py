@@ -27,11 +27,12 @@ from src.boilerplate.schemas.common import EnvState
 
 
 def _get_traces_sampler(sampling_context: dict[Any, Any]) -> float:
-    if config.SENTRY_ENVIRONMENT in {EnvState.development, EnvState.staging}:
+    if config.SENTRY_ENVIRONMENT is EnvState.development:
         traces_sampler_lvl = 1.0
+    elif config.SENTRY_ENVIRONMENT is EnvState.staging:
+        traces_sampler_lvl = 0.5
     else:
-        traces_sampler_lvl = 0.2
-
+        traces_sampler_lvl = 0.1
     return traces_sampler_lvl
 
 
