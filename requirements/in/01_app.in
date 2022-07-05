@@ -17,3 +17,11 @@ uvicorn[standard]
 # Resolving Dependency Conflicts
 h11<0.13
 websockets==10.1
+
+# Data Science Packages
+pandas
+numpy
+catboost
+scipy
+lightgbm
+scikit-learn

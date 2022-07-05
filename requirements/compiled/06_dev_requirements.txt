@@ -164,7 +164,7 @@ locust==2.10.1
     #   locust-plugins
 locust-plugins==2.6.8
     # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/06_dev.in
-lxml==4.9.0
+lxml==4.9.1
     # via locust-plugins
 markupsafe==2.1.1
     # via
@@ -192,6 +192,7 @@ outcome==1.2.0
     # via trio
 packaging==21.3
     # via
+    #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/04_unit_test_requirements.txt
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/05_docs_requirements.txt
     #   build
@@ -260,6 +261,7 @@ pyopenssl==22.0.0
     # via urllib3
 pyparsing==3.0.9
     # via
+    #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/04_unit_test_requirements.txt
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/05_docs_requirements.txt
     #   packaging
@@ -269,6 +271,7 @@ python-autoviv==0.0.7
     # via locust-plugins
 python-dateutil==2.8.2
     # via
+    #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/04_unit_test_requirements.txt
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/05_docs_requirements.txt
     #   locust-plugins
@@ -317,6 +320,7 @@ setuptools-scm==7.0.4
     # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/06_dev.in
 six==1.16.0
     # via
+    #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/04_unit_test_requirements.txt
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/05_docs_requirements.txt
     #   azure-core
@@ -362,7 +366,7 @@ trio-websocket==0.9.2
     # via selenium
 twine==4.0.1
     # via -r /home/vkolupaev/PycharmProjects/notebook/requirements/in/06_dev.in
-typing-extensions==4.2.0
+typing-extensions==4.3.0
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/02_lint_test_requirements.txt

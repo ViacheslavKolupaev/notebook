@@ -41,7 +41,7 @@ flake8-bandit==3.0.0
     # via wemake-python-styleguide
 flake8-broken-line==0.4.0
     # via wemake-python-styleguide
-flake8-bugbear==22.6.22
+flake8-bugbear==22.7.1
     # via wemake-python-styleguide
 flake8-commas==2.1.0
     # via wemake-python-styleguide
@@ -104,7 +104,7 @@ stevedore==3.5.0
     # via bandit
 testfixtures==6.18.5
     # via flake8-isort
-typing-extensions==4.2.0
+typing-extensions==4.3.0
     # via
     #   -c /home/vkolupaev/PycharmProjects/notebook/requirements/in/../compiled/01_app_requirements.txt
     #   wemake-python-styleguide
