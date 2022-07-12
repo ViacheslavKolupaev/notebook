@@ -121,6 +121,7 @@ function docker_run_boilerplate_container() {
         --health-cmd='python --version || exit 1' \
         --health-interval=2s \
         --env LANG=C.UTF-8 \
+        --env TERM=xterm \
         --env IS_DEBUG=True  `# Not for production environment.` \
         --env-file=../../.env  `# Double-check the path and content.` \
         --name "${docker_image_name}"  `# Container name.` \
