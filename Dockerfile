@@ -13,7 +13,7 @@
 ##########################################################################################
 
 # See dockerfile syntax tags here: https://hub.docker.com/r/docker/dockerfile
-# syntax = docker/dockerfile:1.4
+# syntax = docker/dockerfile:experimental
 
 ###########
 # COMPILE #
@@ -49,7 +49,8 @@ ENV PIP_CONFIG_FILE pip.conf
 
 # Install Python dependencies.
 COPY ./requirements.txt .
-RUN --mount=type=cache,mode=0755,target=/root/.cache/pip \
+# Docs: https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/syntax.md#build-mounts-run---mount
+RUN --mount=type=cache,mode=0755,target=/root/.cache/pip/ \
     pip install --upgrade pip \
     && pip install -r requirements.txt
 
