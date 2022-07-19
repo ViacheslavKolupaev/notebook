@@ -20,6 +20,7 @@ from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
+from starlette.responses import RedirectResponse
 
 from src.boilerplate.config import config
 from src.boilerplate.custom_logger import CustomLogger
@@ -141,9 +142,9 @@ async def shutdown() -> None:
 
 
 @app.get('/')
-async def root() -> dict[str, str]:
+async def root() -> RedirectResponse:
     """API root endpoint."""
-    return {'message': "Thanks, I'm fine!"}
+    return RedirectResponse('/docs')
 
 
 @app.get(
@@ -170,8 +171,3 @@ async def swagger_ui_html(req: Request) -> HTMLResponse:
         swagger_favicon_url='/static/favicon.ico',
         swagger_ui_parameters=app.swagger_ui_parameters,
     )
-
-
-@app.get('/')
-def docs():
-    return RedirectResponse('/docs')
