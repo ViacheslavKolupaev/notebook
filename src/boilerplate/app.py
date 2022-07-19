@@ -14,8 +14,11 @@
 
 """FastAPI application initialization module."""
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
 from src.boilerplate.config import config
@@ -92,6 +95,7 @@ app = FastAPI(
     description=app_description,
     version=config.APP_API_VERSION,
     openapi_tags=tags_metadata,
+    docs_url=None,
     redoc_url=None,
     contact={
         'name': 'Viacheslav Kolupaev',
@@ -103,6 +107,8 @@ app = FastAPI(
         'url': 'https://www.apache.org/licenses/LICENSE-2.0',
     },
 )
+
+app.mount(path='/static', app=StaticFiles(directory='static'), name='static')
 
 _module_logger.debug('Initializing Routers...')
 app.include_router(admin_controller.router)
@@ -138,3 +144,34 @@ async def shutdown() -> None:
 async def root() -> dict[str, str]:
     """API root endpoint."""
     return {'message': "Thanks, I'm fine!"}
+
+
+@app.get(
+    path='/favicon.ico',
+    include_in_schema=False,
+)
+async def favicon() -> FileResponse:
+    """Get `favicon.ico`."""
+    return FileResponse('static/favicon.ico')
+
+
+@app.get('/docs', include_in_schema=False)
+async def swagger_ui_html(req: Request) -> HTMLResponse:
+    root_path = req.scope.get('root_path', '').rstrip('/')
+    openapi_url = root_path + app.openapi_url
+    oauth2_redirect_url = app.swagger_ui_oauth2_redirect_url
+    if oauth2_redirect_url:
+        oauth2_redirect_url = root_path + oauth2_redirect_url
+    return get_swagger_ui_html(
+        openapi_url=openapi_url,
+        title=app.title + ' - Swagger UI',
+        oauth2_redirect_url=oauth2_redirect_url,
+        init_oauth=app.swagger_ui_init_oauth,
+        swagger_favicon_url='/static/favicon.ico',
+        swagger_ui_parameters=app.swagger_ui_parameters,
+    )
+
+
+@app.get('/')
+def docs():
+    return RedirectResponse('/docs')
