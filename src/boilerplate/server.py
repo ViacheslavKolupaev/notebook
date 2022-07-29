@@ -25,7 +25,7 @@ import uvicorn
 from src.boilerplate.app import app  # noqa: F401
 from src.boilerplate.config import config
 from src.boilerplate.custom_logger import CustomLogger
-from src.boilerplate.schemas.common import EnvState
+from src.boilerplate.schemas.common_schemas import EnvState
 
 _module_logger = CustomLogger().get_module_logger(
     name=__name__,

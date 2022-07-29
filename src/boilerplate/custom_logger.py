@@ -35,7 +35,7 @@ from typing import Any, Final, TypeAlias
 from typeguard import typechecked
 
 from src.boilerplate.config import config
-from src.boilerplate.schemas.common import EnvState  # type: ignore[import]
+from src.boilerplate.schemas.common_schemas import EnvState  # type: ignore[import]
 
 allowed_dict_val_types: TypeAlias = str | int | float | bool
 

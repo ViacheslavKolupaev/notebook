@@ -15,7 +15,7 @@
 """Module for local testing of the logging module."""
 
 from src.boilerplate.custom_logger import CustomLogger
-from src.boilerplate.schemas.common import MetadataOpt  # type: ignore[import]
+from src.boilerplate.schemas.common_schemas import MetadataOpt  # type: ignore[import]
 
 _module_logger = CustomLogger().get_module_logger(
     name=__name__,

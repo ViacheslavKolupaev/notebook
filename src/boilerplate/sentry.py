@@ -23,7 +23,7 @@ from typing import Any
 import sentry_sdk
 
 from src.boilerplate.config import config
-from src.boilerplate.schemas.common import EnvState
+from src.boilerplate.schemas.common_schemas import EnvState
 
 
 def _get_traces_sampler(sampling_context: dict[Any, Any]) -> float:

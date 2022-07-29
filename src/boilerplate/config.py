@@ -43,7 +43,7 @@ from typing import Optional, Union
 
 import pydantic
 
-from src.boilerplate.schemas.common import EnvState
+from src.boilerplate.schemas.common_schemas import EnvState
 
 
 def _get_path_to_dotenv_file(dotenv_filename: str, num_of_parent_dirs_up: int) -> Optional[Path]:

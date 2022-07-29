@@ -13,7 +13,7 @@
 #   limitations under the License.
 
 from src.boilerplate.custom_logger import CustomLogger
-from src.boilerplate.schemas.common import MetadataOpt
+from src.boilerplate.schemas.common_schemas import MetadataOpt
 
 _root_logger = CustomLogger().get_root_logger()
 _root_logger.info('The root logger has been initialized.')
