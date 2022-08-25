@@ -141,6 +141,13 @@ pipeline {
 
     triggers {
         pollSCM('* * * * *')
+        GenericTrigger (
+                causeString: 'Triggered by webhook',
+                regexpFilterExpression: '',
+                regexpFilterText: '',
+                token: '',
+                tokenCredentialId: 'jenkins-secret-text-notebook-generic-webhook-trigger-plugin-token'
+        )
     }
 
     /*
@@ -226,6 +233,7 @@ pipeline {
                 echo '| STAGE 0: CHECKOUT SCM | END |'
             }
         }
+
         stage('STAGE 1: PREPARING THE ENVIRONMENT') {
             when {
                 allOf {
