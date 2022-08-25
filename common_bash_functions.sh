@@ -208,6 +208,153 @@ function log_to_stderr() {
 }
 
 #######################################
+# Synchronize the project's virtual environment with the specified requirements files.
+# Arguments:
+#   req_compiled_file_full_path: Required. The full path to the compiled dependency file, with which to sync.
+#   project_root: Optional. If specified, will additionally sync with `01_app_requirements.txt`.
+#######################################
+function sync_venv_with_specified_requirements_files() {
+  echo ''
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' 'Bl'
+  log_to_stdout "Synchronizing the project's virtual environment with the specified requirements files..."
+
+  # Checking function arguments.
+  if [ -z "$1" ] || [ "$1" = '' ] || [[ "$1" = *' '* ]] ; then
+    log_to_stderr "Argument 'req_compiled_file_full_path' was not specified in the function call. Exit."
+    exit 1
+  else
+    local req_compiled_file_full_path
+    req_compiled_file_full_path=$1
+    readonly req_compiled_file_full_path
+    log_to_stdout "Argument requirements file 1 = ${req_compiled_file_full_path}"
+  fi
+
+  if [ -n "$2" ] ; then
+    local project_root
+    project_root=$2
+    readonly project_root
+    log_to_stdout "Argument requirements file 2 = ${project_root}/requirements/compiled/01_app_requirements.txt"
+
+    if ! pip-sync \
+        "${project_root}/requirements/compiled/01_app_requirements.txt" \
+        "${req_compiled_file_full_path}"; then
+      log_to_stderr 'Virtual environment synchronization error. Exit.'
+      exit 1
+    fi
+
+  else
+
+    if ! pip-sync "${req_compiled_file_full_path}"; then
+      log_to_stderr 'Virtual environment synchronization error. Exit.'
+      exit 1
+    fi
+
+  fi
+
+  log_to_stdout "The project virtual environment was successfully synchronized with the specified requirements files."
+  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' 'Bl'
+}
+
+#######################################
+# Activate the project's virtual environment.
+# Globals:
+#   PWD
+# Arguments:
+#   venv_scripts_dir_full_path: Full path to the virtual environment scripts directory (depends on OS type).
+#######################################
+function activate_virtual_environment() {
+  echo ''
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' 'Bl'
+  log_to_stdout "Activating the project's virtual environment..."
+
+  # Checking function arguments.
+  if [ -z "$1" ] || [ "$1" = '' ] || [[ "$1" = *' '* ]] ; then
+    log_to_stderr "Argument 'venv_scripts_dir_full_path' was not specified in the function call. Exit."
+    exit 1
+  else
+    local venv_scripts_dir_full_path
+    venv_scripts_dir_full_path=$1
+    readonly venv_scripts_dir_full_path
+    log_to_stdout "Argument 'venv_scripts_dir_full_path' = ${venv_scripts_dir_full_path}"
+  fi
+
+  # Change to the directory with venv scripts.
+  cd "${venv_scripts_dir_full_path}" || exit 1
+  log_to_stdout "Current PWD: '${PWD}'."
+
+  # venv activation.
+  if ! source activate; then
+    log_to_stderr 'Virtual environment activation error. Exit.'
+    exit 1
+  else
+    log_to_stdout 'Virtual environment successfully activated. Continue.' 'G'
+    log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' 'Bl'
+  fi
+}
+
+#######################################
+# Copy a file from the specified branch of the remote Git repo to the script directory.
+# Globals:
+#   PWD
+# Arguments:
+#  remote_git_repo
+#  branch_name
+#  path_to_file
+#######################################
+function copy_file_from_remote_git_repo() {
+  echo ''
+  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' 'Bl'
+  log_to_stdout 'Paths to the file in the target directory are preserved during copying.' 'C'
+
+  # Checking function arguments.
+  if [ -z "$1" ] || [ "$1" = '' ] || [[ "$1" = *' '* ]] ; then
+    log_to_stderr "Argument 'remote_git_repo' was not specified in the function call. Exit."
+    exit 1
+  else
+    local remote_git_repo
+    remote_git_repo=$1
+    readonly remote_git_repo
+    log_to_stdout "Argument 'remote_git_repo' = ${remote_git_repo}"
+  fi
+
+  if [ -z "$2" ] || [ "$2" = '' ] || [[ "$2" = *' '* ]] ; then
+    log_to_stderr "Argument 'branch_name' was not specified in the function call. Exit."
+    exit 1
+  else
+    local branch_name
+    branch_name=$2
+    readonly branch_name
+    log_to_stdout "Argument 'branch_name' = ${branch_name}"
+  fi
+
+  if [ -z "$3" ] || [ "$3" = '' ] || [[ "$3" = *' '* ]] ; then
+    log_to_stderr "Argument 'path_to_file' was not specified in the function call. Exit."
+    exit 1
+  else
+    local path_to_file
+    path_to_file=$3
+    readonly path_to_file
+    log_to_stdout "Argument 'path_to_file' = ${path_to_file}"
+  fi
+
+  # Copying.
+  log_to_stdout "Copying '${path_to_file}' file from remote Git repository '${remote_git_repo}'..."
+  if ! git archive \
+      --remote="${remote_git_repo}" \
+      --verbose \
+      "${branch_name}" \
+      "${path_to_file}" | tar -x; then
+    log_to_stderr "Error copying '${path_to_file}' from '${remote_git_repo}'. Contact the maintainer. Exit."
+    exit 1
+  else
+    log_to_stdout "'${path_to_file}' file successfully copied from '${remote_git_repo}'." 'G'
+    log_to_stdout "Current PWD: '${PWD}'."
+  fi
+
+  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' 'Bl'
+}
+
+#######################################
 # Check if Docker is running on the host.
 # Arguments:
 #  None
@@ -605,153 +752,6 @@ function docker_create_user_defined_bridge_network() {
     else
       log_to_stdout "The user-defined bridge network '${docker_image_name}-net' has been created. Continue." 'G'
     fi
-  fi
-
-  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' 'Bl'
-}
-
-#######################################
-# Synchronize the project's virtual environment with the specified requirements files.
-# Arguments:
-#   req_compiled_file_full_path: Required. The full path to the compiled dependency file, with which to sync.
-#   project_root: Optional. If specified, will additionally sync with `01_app_requirements.txt`.
-#######################################
-function sync_venv_with_specified_requirements_files() {
-  echo ''
-  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' 'Bl'
-  log_to_stdout "Synchronizing the project's virtual environment with the specified requirements files..."
-
-  # Checking function arguments.
-  if [ -z "$1" ] || [ "$1" = '' ] || [[ "$1" = *' '* ]] ; then
-    log_to_stderr "Argument 'req_compiled_file_full_path' was not specified in the function call. Exit."
-    exit 1
-  else
-    local req_compiled_file_full_path
-    req_compiled_file_full_path=$1
-    readonly req_compiled_file_full_path
-    log_to_stdout "Argument requirements file 1 = ${req_compiled_file_full_path}"
-  fi
-
-  if [ -n "$2" ] ; then
-    local project_root
-    project_root=$2
-    readonly project_root
-    log_to_stdout "Argument requirements file 2 = ${project_root}/requirements/compiled/01_app_requirements.txt"
-
-    if ! pip-sync \
-        "${project_root}/requirements/compiled/01_app_requirements.txt" \
-        "${req_compiled_file_full_path}"; then
-      log_to_stderr 'Virtual environment synchronization error. Exit.'
-      exit 1
-    fi
-
-  else
-
-    if ! pip-sync "${req_compiled_file_full_path}"; then
-      log_to_stderr 'Virtual environment synchronization error. Exit.'
-      exit 1
-    fi
-
-  fi
-
-  log_to_stdout "The project virtual environment was successfully synchronized with the specified requirements files."
-  log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' 'Bl'
-}
-
-#######################################
-# Activate the project's virtual environment.
-# Globals:
-#   PWD
-# Arguments:
-#   venv_scripts_dir_full_path: Full path to the virtual environment scripts directory (depends on OS type).
-#######################################
-function activate_virtual_environment() {
-  echo ''
-  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' 'Bl'
-  log_to_stdout "Activating the project's virtual environment..."
-
-  # Checking function arguments.
-  if [ -z "$1" ] || [ "$1" = '' ] || [[ "$1" = *' '* ]] ; then
-    log_to_stderr "Argument 'venv_scripts_dir_full_path' was not specified in the function call. Exit."
-    exit 1
-  else
-    local venv_scripts_dir_full_path
-    venv_scripts_dir_full_path=$1
-    readonly venv_scripts_dir_full_path
-    log_to_stdout "Argument 'venv_scripts_dir_full_path' = ${venv_scripts_dir_full_path}"
-  fi
-
-  # Change to the directory with venv scripts.
-  cd "${venv_scripts_dir_full_path}" || exit 1
-  log_to_stdout "Current PWD: '${PWD}'."
-
-  # venv activation.
-  if ! source activate; then
-    log_to_stderr 'Virtual environment activation error. Exit.'
-    exit 1
-  else
-    log_to_stdout 'Virtual environment successfully activated. Continue.' 'G'
-    log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' 'Bl'
-  fi
-}
-
-#######################################
-# Copy a file from the specified branch of the remote Git repo to the script directory.
-# Globals:
-#   PWD
-# Arguments:
-#  remote_git_repo
-#  branch_name
-#  path_to_file
-#######################################
-function copy_file_from_remote_git_repo() {
-  echo ''
-  log_to_stdout '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' 'Bl'
-  log_to_stdout 'Paths to the file in the target directory are preserved during copying.' 'C'
-
-  # Checking function arguments.
-  if [ -z "$1" ] || [ "$1" = '' ] || [[ "$1" = *' '* ]] ; then
-    log_to_stderr "Argument 'remote_git_repo' was not specified in the function call. Exit."
-    exit 1
-  else
-    local remote_git_repo
-    remote_git_repo=$1
-    readonly remote_git_repo
-    log_to_stdout "Argument 'remote_git_repo' = ${remote_git_repo}"
-  fi
-
-  if [ -z "$2" ] || [ "$2" = '' ] || [[ "$2" = *' '* ]] ; then
-    log_to_stderr "Argument 'branch_name' was not specified in the function call. Exit."
-    exit 1
-  else
-    local branch_name
-    branch_name=$2
-    readonly branch_name
-    log_to_stdout "Argument 'branch_name' = ${branch_name}"
-  fi
-
-  if [ -z "$3" ] || [ "$3" = '' ] || [[ "$3" = *' '* ]] ; then
-    log_to_stderr "Argument 'path_to_file' was not specified in the function call. Exit."
-    exit 1
-  else
-    local path_to_file
-    path_to_file=$3
-    readonly path_to_file
-    log_to_stdout "Argument 'path_to_file' = ${path_to_file}"
-  fi
-
-  # Copying.
-  log_to_stdout "Copying '${path_to_file}' file from remote Git repository '${remote_git_repo}'..."
-  if ! git archive \
-      --remote="${remote_git_repo}" \
-      --verbose \
-      "${branch_name}" \
-      "${path_to_file}" | tar -x; then
-    log_to_stderr "Error copying '${path_to_file}' from '${remote_git_repo}'. Contact the maintainer. Exit."
-    exit 1
-  else
-    log_to_stdout "'${path_to_file}' file successfully copied from '${remote_git_repo}'." 'G'
-    log_to_stdout "Current PWD: '${PWD}'."
   fi
 
   log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' 'Bl'
