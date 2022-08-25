@@ -1,7 +1,9 @@
 #!/bin/bash
 
 ##########################################################################################
-# Copyright (c) 2022. Viacheslav Kolupaev, https://vkolupaev.com/
+#  Copyright 2022 Viacheslav Kolupaev; author's website address:
+#
+#   https://vkolupaev.com/?utm_source=c&utm_medium=link&utm_campaign=notebook
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
 # file except in compliance with the License. You may obtain a copy of the License at
@@ -18,6 +20,9 @@
 # The script provides common bash functions.
 #
 # To use it, import it into your script with the `source` command.
+#
+# File in repo: https://gitlab.com/vkolupaev/notebook/-/blob/main/common_bash_functions.sh
+# Maintainer: Viacheslav Kolupaev
 ##########################################################################################
 
 
@@ -756,3 +761,37 @@ function docker_create_user_defined_bridge_network() {
 
   log_to_stdout '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' 'Bl'
 }
+
+#######################################
+# Definition of global variables for all library functions.
+# Globals:
+#   c_arg
+#   c_ok
+#   c_se
+#   c_w
+# Arguments:
+#  None
+#######################################
+function main() {
+  # 1. Declaring Local Variables.
+  local stdout_text_color_func_args
+  readonly stdout_text_color_func_args='Y'  # change color if necessary
+
+  local stdout_text_color_ok
+  readonly stdout_text_color_ok='G'  # change color if necessary
+
+  local stdout_text_color_start_end
+  readonly stdout_text_color_start_end='Bl'  # change color if necessary
+
+  local stdout_text_color_warning
+  readonly stdout_text_color_warning='C'  # change color if necessary
+
+  # 2. Attention! Declaring Global Variables.
+  # Variables are redefined with short names to save space on lines.
+  readonly c_arg="${stdout_text_color_func_args}"
+  readonly c_ok="${stdout_text_color_ok}"
+  readonly c_se="${stdout_text_color_start_end}"
+  readonly c_w="${stdout_text_color_warning}"
+}
+
+main "$@"
