@@ -24,11 +24,42 @@
 
 [tool.poetry]
 name = "notebook"
-version = "0.1.0"
-description = ""
-authors = ["Viacheslav Kolupaev <v.s.kolupaev@gmail.com>"]
+version = "0.1.0"  # Use semantic versioning within the scope of PEP 440.
+description = "This is the code repository associated with my development notes notebook."
+license = "Apache-2.0"
+authors = [
+    "Viacheslav Kolupaev <v.s.kolupaev@gmail.com>"
+]
+maintainers = ["Viacheslav Kolupaev <v.s.kolupaev@gmail.com>"]
+readme = "README.md"
+homepage = "https://vkolupaev.com/?utm_source=pyproject&utm_medium=link&utm_campaign=notebook"
+repository = "https://gitlab.com/vkolupaev/notebook"
+documentation = ""
+keywords = [
+    "python"
+]
+packages = [
+    { include = "boilerplate", from = "src" },
+]
+exclude = [
+    "kubernetes",
+    "package_scripts",
+    "tests",
+    "requirements"
+]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://gitlab.com/vkolupaev/notebook/-/issues"
 
 
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+##########################################################################################
+# Implicit main dependency group.
+##########################################################################################
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
 aiohttp = {extras = ["speedups"], version = "^3.8.3"}
@@ -52,6 +83,21 @@ orjson = "^3.8.1"
 pyhive = {extras = ["hive"], version = "^0.6.5"}
 
 
+##########################################################################################
+# Otional groups.
+#
+# By default, dependencies across all non-optional groups will be installed when
+# executing `poetry install`.
+#
+# Optional groups can be installed in addition to the `default` dependencies.
+# Use, for example: `poetry install --with dev --sync`.
+#
+# Optional group dependencies will still be resolved alongside other dependencies, so
+# special care should be taken to ensure they are compatible with each other.
+##########################################################################################
+[tool.poetry.group.type_test]
+optional = true
+
 [tool.poetry.group.type_test.dependencies]
 pydantic = {extras = ["dotenv"], version = "^1.10.2"}
 mypy = "0.931"
@@ -61,9 +107,15 @@ types-aiofiles = "^22.1.0"
 sqlalchemy = {extras = ["mypy"], version = "^1.4.42"}
 
 
+[tool.poetry.group.lint_test]
+optional = true
+
 [tool.poetry.group.lint_test.dependencies]
 wemake-python-styleguide = "^0.17.0"
 
+
+[tool.poetry.group.unit_test]
+optional = true
 
 [tool.poetry.group.unit_test.dependencies]
 pytest = "^7.2.0"
@@ -77,6 +129,9 @@ hypothesis = "^6.56.4"
 typeguard = "^2.13.3"
 python-dateutil = "^2.8.2"
 
+
+[tool.poetry.group.dev]
+optional = true
 
 [tool.poetry.group.dev.dependencies]
 mypy = "0.931"
@@ -98,11 +153,7 @@ coverage = {extras = ["toml"], version = "^6.5.0"}
 hypothesis = "^6.56.4"
 typeguard = "^2.13.3"
 python-dateutil = "^2.8.2"
-
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+commitizen = "^2.37.0"
 
 
 [tool.mypy]
