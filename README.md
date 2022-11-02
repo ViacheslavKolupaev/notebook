@@ -5,6 +5,12 @@ notebook
 ![GitLab tag (latest by SemVer)](https://img.shields.io/gitlab/v/tag/vkolupaev/notebook)
 ![Python](https://img.shields.io/static/v1?label=Python&message=3.10&color=informational&logo=python&logoColor=white)
 
+## What is this repository?
+This is the code repository associated with my development notes notebook.
+
+I need it to improve development efficiency. I study concepts, prototype solutions, save
+them here along with their comments. When needed, I know where I can
+quickly find code examples to reuse.
 
 ## Some useful commands
 
@@ -41,6 +47,14 @@ http://127.0.0.1:8000/)
 
 ## CI/CD notes
 1. Service directories of the CI server should be excluded from `mypy` and `flake8` checks.
+
+## I have an error or have a question or idea💡. What to do?
+There are two options:
+1. Create an Issue and describe the situation:
+   1. GitLab: [https://gitlab.com/vkolupaev/notebook/-/issues](https://gitlab.com/vkolupaev/notebook/-/issues)
+   2. GitHub: [https://github.com/ViacheslavKolupaev/notebook/issues](https://github.com/ViacheslavKolupaev/notebook/issues)
+2. Please feel free to write to me. My contacts are listed below 👇.
+
 
 ---
 
