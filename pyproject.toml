@@ -24,7 +24,7 @@
 
 [tool.poetry]
 name = "notebook"
-version = "0.1.0"  # Use semantic versioning within the scope of PEP 440.
+version = "v0.1.0"  # Use semantic versioning within the scope of PEP 440.
 description = "This is the code repository associated with my development notes notebook."
 license = "Apache-2.0"
 authors = [
@@ -48,13 +48,43 @@ exclude = [
     "requirements"
 ]
 
+
+
 [tool.poetry.urls]
 "Bug Tracker" = "https://gitlab.com/vkolupaev/notebook/-/issues"
+
+
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.1.0"
+version_files = [
+    "src/__version__.py",
+    "pyproject.toml:version"
+]
+tag_format = "v$version"
+update_changelog_on_bump = true
+gpg_sign = true
+major_version_zero = true
+style = [
+    ["qmark", "fg:#ff9d00 bold"],
+    ["question", "bold"],
+    ["answer", "fg:#ff9d00 bold"],
+    ["pointer", "fg:#ff9d00 bold"],
+    ["highlighted", "fg:#ff9d00 bold"],
+    ["selected", "fg:#cc5454"],
+    ["separator", "fg:#cc5454"],
+    ["instruction", ""],
+    ["text", ""],
+    ["disabled", "fg:#858585 italic"]
+]
+
 
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
 
 
 ##########################################################################################
