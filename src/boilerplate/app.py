@@ -141,7 +141,10 @@ async def shutdown() -> None:
     _module_logger.debug('Shutdown operations completed.')
 
 
-@app.get('/')
+@app.get(
+    path='/',
+    include_in_schema=False,
+)
 async def root() -> RedirectResponse:
     """API root endpoint."""
     return RedirectResponse('/docs')
@@ -156,16 +159,20 @@ async def favicon() -> FileResponse:
     return FileResponse('static/favicon.ico')
 
 
-@app.get('/docs', include_in_schema=False)
+@app.get(
+    path='/docs',
+    include_in_schema=False,
+)
 async def swagger_ui_html(req: Request) -> HTMLResponse:
     root_path = req.scope.get('root_path', '').rstrip('/')
     openapi_url = root_path + app.openapi_url
     oauth2_redirect_url = app.swagger_ui_oauth2_redirect_url
     if oauth2_redirect_url:
         oauth2_redirect_url = root_path + oauth2_redirect_url
+
     return get_swagger_ui_html(
         openapi_url=openapi_url,
-        title=app.title + ' - Swagger UI',
+        title='{app_title} - Swagger UI'.format(app_title=app.title),
         oauth2_redirect_url=oauth2_redirect_url,
         init_oauth=app.swagger_ui_init_oauth,
         swagger_favicon_url='/static/favicon.ico',
