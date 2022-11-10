@@ -44,7 +44,6 @@ def run_server() -> None:
             app=app,
             host=config.ASGI_HOST.exploded,
             port=config.ASGI_PORT,
-            debug=config.IS_DEBUG,
             reload=True,
         )
     elif config.APP_ENV_STATE == EnvState.staging:
@@ -52,7 +51,6 @@ def run_server() -> None:
             app=app,
             host=config.ASGI_HOST.exploded,
             port=config.ASGI_PORT,
-            debug=config.IS_DEBUG,
             reload=False,
         )
     elif config.APP_ENV_STATE == EnvState.production:
@@ -60,7 +58,6 @@ def run_server() -> None:
             app=app,
             host=config.ASGI_HOST.exploded,
             port=config.ASGI_PORT,
-            debug=config.IS_DEBUG,
             reload=False,
         )
     else:
