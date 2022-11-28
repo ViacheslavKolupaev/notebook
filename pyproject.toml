@@ -24,7 +24,7 @@
 
 [tool.poetry]
 name = "notebook"
-version = "v0.1.0"  # Use semantic versioning within the scope of PEP 440.
+version = "v0.1.1"  # Use semantic versioning within the scope of PEP 440.
 description = "This is the code repository associated with my development notes notebook."
 license = "Apache-2.0"
 authors = [
@@ -57,9 +57,8 @@ exclude = [
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.1.0"
+version = "0.1.1"
 version_files = [
-    "src/__version__.py",
     "pyproject.toml:version"
 ]
 tag_format = "v$version"
@@ -125,6 +124,7 @@ pyhive = {extras = ["hive"], version = "^0.6.5"}
 # Optional group dependencies will still be resolved alongside other dependencies, so
 # special care should be taken to ensure they are compatible with each other.
 ##########################################################################################
+aiokafka = "^0.7.2"
 [tool.poetry.group.type_test]
 optional = true
 
