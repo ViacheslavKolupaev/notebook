@@ -149,11 +149,17 @@ function main() {
   local docker_user_name
   readonly docker_user_name='vkolupaev'
 
+  local dockerfile_dir
+  dockerfile_dir="${HOME}/PycharmProjects/notebook/"  # double-check the path
+  readonly dockerfile_dir
+
   local docker_image_name
   readonly docker_image_name='boilerplate'  # refers to `${project_root}/src/boilerplate`
 
+  # Get the current branch tag in Git.
   local docker_image_tag
-  readonly docker_image_tag='latest'
+  docker_image_tag="$(git -C ${dockerfile_dir} describe --tags --abbrev=0)"
+  readonly docker_image_tag
 
   local service_port
   readonly service_port=50000
@@ -168,9 +174,9 @@ function main() {
   check_if_docker_is_running
 
   # A login to the registry is needed to try to download a locally missing image.
-  docker_login_to_registry \
-    "${docker_registry}" \
-    "${docker_user_name}"
+#  docker_login_to_registry \
+#    "${docker_registry}" \
+#    "${docker_user_name}"
 
   docker_stop_and_remove_containers_by_name "${docker_image_name}"
   docker_stop_and_remove_containers_by_ancestor \
