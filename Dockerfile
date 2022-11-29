@@ -64,7 +64,6 @@ ENV PYPROJECT_BASE_DIR="/opt"
 # pip.
 ####################
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
-#ENV PIP_NO_CACHE_DIR=1
 ENV PIP_CONFIG_FILE=pip.conf
 
 ####################
@@ -86,6 +85,13 @@ ENV POETRY_VIRTUALENVS_IN_PROJECT=true
 # Do not install `setuptools` in the environment.
 # https://python-poetry.org/docs/configuration/#virtualenvsoptionsno-setuptools
 ENV POETRY_VIRTUALENVS_OPTIONS_NO_SETUPTOOLS=true
+
+# Do not install `pip` in the environment.
+# https://python-poetry.org/docs/configuration/#virtualenvsoptionsno-pip
+ENV POETRY_VIRTUALENVS_OPTIONS_NO_PIP=true
+
+# https://python-poetry.org/docs/configuration/#cache-dir
+ENV POETRY_CACHE_DIR="/root/.cache/pypoetry"
 
 ####################
 # Paths.
@@ -129,8 +135,8 @@ FROM python-base as builder-base
 # Cache apt packages reference:
 # https://docs.docker.com/engine/reference/builder/#run---mounttypecache
 RUN rm -f /etc/apt/apt.conf.d/docker-clean; \
-  echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' \
-  > /etc/apt/apt.conf.d/keep-cache
+    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' \
+    > /etc/apt/apt.conf.d/keep-cache
 
 # Installing some auxiliary utilities, see:
 # https://manpages.ubuntu.com/manpages/focal/en/man8/apt-get.8.html
@@ -138,6 +144,9 @@ RUN rm -f /etc/apt/apt.conf.d/docker-clean; \
 # Official Debian and Ubuntu images automatically run `apt-get` clean, so explicit
 # invocation is not required, see:
 # https://github.com/moby/moby/blob/03e2923e42446dbb830c654d0eec323a0b4ef02a/contrib/mkimage/debootstrap#L82-L105
+#
+# Contents of the cache directories persists between builder invocations without
+# invalidating the instruction cache.
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update \
@@ -154,8 +163,7 @@ COPY pip.conf ./
 
 # https://python-poetry.org/docs/#ci-recommendations
 RUN python3 -m venv ${POETRY_HOME}
-RUN --mount=type=cache,target=/root/.cache/pip \
-    ${POETRY_HOME}/bin/pip install "poetry==${POETRY_VERSION}"
+RUN ${POETRY_HOME}/bin/pip install --no-cache-dir "poetry==${POETRY_VERSION}"
 
 # The WORKDIR instruction sets the working directory for any RUN, CMD, ENTRYPOINT, COPY
 # and ADD instructions that follow it in the Dockerfile.
@@ -166,10 +174,7 @@ WORKDIR ${PYPROJECT_PATH}
 COPY poetry.lock pyproject.toml ./
 
 # Installing dependencies. Uses `${POETRY_VIRTUALENVS_IN_PROJECT}` internally.
-# Contents of the cache directories persists between builder invocations without
-# invalidating the instruction cache.
-RUN --mount=type=cache,target=/root/.cache/pypoetry \
-    poetry install --only main --no-interaction --no-ansi --no-root
+RUN poetry install --only main --no-interaction --no-ansi --no-root
 
 # Deleting files that are no longer needed.
 RUN rm -f poetry.lock pyproject.toml
@@ -196,8 +201,8 @@ LABEL author="Viacheslav Kolupaev" \
 ENV VCS_REF=${VCS_REF}
 
 # Create a user group 'app_group'. Create a user 'app_user' under 'app_group'.
-RUN addgroup --system app_group && \
-    adduser --system --home ${APP_ROOT} --ingroup app_group app_user
+RUN addgroup --system app_group \
+    && adduser --system --home ${APP_ROOT} --ingroup app_group app_user
 
 # Switch to non-root user.
 USER app_user
