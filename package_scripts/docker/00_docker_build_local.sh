@@ -118,6 +118,7 @@ function docker_build_boilerplate_image() {
   # See about `DOCKER_SCAN_SUGGEST`: https://github.com/docker/scan-cli-plugin/issues/149#issuecomment-823969364
   if ! DOCKER_BUILDKIT=1 DOCKER_SCAN_SUGGEST=false docker build \
        --progress=plain \
+       --pull \
        --file "${dockerfile_dir}/Dockerfile" \
        --build-arg PYTHON_IMAGE_TAG="${python_image_tag}" \
        --build-arg VCS_REF="${git_rev_short_sha}" \
@@ -154,8 +155,10 @@ function main() {
   docker_image_tag="$(git -C ${dockerfile_dir} describe --tags --abbrev=0)"
   readonly docker_image_tag
 
+  # `bullseye` — Debian 11 based, full. Change if necessary.
+  # Supported tags and respective Dockerfile links: https://hub.docker.com/_/python/
   local python_image_tag
-  readonly python_image_tag='3.10.6-slim'  # change if necessary
+  readonly python_image_tag='3.10-bullseye'
 
   # 2. Import the library of common bash functions.
   import_library_of_common_bash_functions
