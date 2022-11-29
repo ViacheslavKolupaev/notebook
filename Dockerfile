@@ -20,13 +20,22 @@
 ##########################################################################################
 # Dockerfile with instructions for building the Docker image of the application.
 #
-# Dockerfile reference: https://docs.docker.com/engine/reference/builder/
+# Docs:
+#    1. Dockerfile reference:
+#       https://docs.docker.com/engine/reference/builder/
+#    2. Best practices for writing Dockerfiles:
+#       https://docs.docker.com/develop/develop-images/dockerfile_best-practices/
+#    3. Optimizing builds with cache management:
+#       https://docs.docker.com/build/building/cache/
+#    4. "docker poetry best practices":
+#       https://github.com/python-poetry/poetry/discussions/1879?sort=new
 ##########################################################################################
 
 # Dockerfile syntax definition. Required to mount package manager cache directories.
 # See Dockerfile syntax tags here: https://hub.docker.com/r/docker/dockerfile
 # Reference: https://docs.docker.com/engine/reference/builder/#syntax
 # syntax=docker/dockerfile:1
+
 
 ##########################################################################################
 # STAGE 1: PYTHON-BASE
@@ -44,7 +53,6 @@ FROM ${DOCKER_REGISTRY}/python:${PYTHON_IMAGE_TAG} AS python-base
 ARG APP_NAME
 ARG VCS_REF
 
-# TODO: https://github.com/python-poetry/poetry/discussions/1879?sort=new
 # Adding some environment variables.
 ####################
 # File system.
@@ -56,7 +64,7 @@ ENV PYPROJECT_BASE_DIR="/opt"
 # pip.
 ####################
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
-ENV PIP_NO_CACHE_DIR=1
+#ENV PIP_NO_CACHE_DIR=1
 ENV PIP_CONFIG_FILE=pip.conf
 
 ####################
@@ -66,9 +74,9 @@ ENV PIP_CONFIG_FILE=pip.conf
 # Pin poetry version.
 ENV POETRY_VERSION=1.2.2
 
-# Make poetry install to this location.
-# https://python-poetry.org/docs/configuration/#data-directory
-# https://python-poetry.org/docs/#ci-recommendations
+# Make poetry install to this location, see:
+#     1. https://python-poetry.org/docs/configuration/#data-directory
+#     2. https://python-poetry.org/docs/#ci-recommendations
 ENV POETRY_HOME="${PYPROJECT_BASE_DIR}/poetry"
 
 # Create the virtualenv inside the project’s root directory: `{project-dir}/.venv`
@@ -124,25 +132,30 @@ RUN rm -f /etc/apt/apt.conf.d/docker-clean; \
   echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' \
   > /etc/apt/apt.conf.d/keep-cache
 
-# Installing some auxiliary utilities.
-# Docs: https://manpages.ubuntu.com/manpages/focal/en/man8/apt-get.8.html
+# Installing some auxiliary utilities, see:
+# https://manpages.ubuntu.com/manpages/focal/en/man8/apt-get.8.html
+#
+# Official Debian and Ubuntu images automatically run `apt-get` clean, so explicit
+# invocation is not required, see:
+# https://github.com/moby/moby/blob/03e2923e42446dbb830c654d0eec323a0b4ef02a/contrib/mkimage/debootstrap#L82-L105
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-  --mount=type=cache,target=/var/lib/apt,sharing=locked \
-  apt-get update \
-  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    # https://packages.ubuntu.com/jammy/build-essential
-    build-essential \
-    libsasl2-dev \
-  && apt-get autoremove -yqq --purge \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/*
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+      # https://packages.debian.org/bullseye/build-essential
+      build-essential=12.9 \
+      # https://packages.debian.org/bullseye/libsasl2-dev
+      libsasl2-dev=2.1.27+dfsg-2.1+deb11u1 \
+    && apt-get autoremove -yqq --purge \
+    && rm -rf /var/lib/apt/lists/*
 
 # `pip` configuration before installing dependencies.
 COPY pip.conf ./
 
 # https://python-poetry.org/docs/#ci-recommendations
 RUN python3 -m venv ${POETRY_HOME}
-RUN ${POETRY_HOME}/bin/pip install "poetry==${POETRY_VERSION}"
+RUN --mount=type=cache,target=/root/.cache/pip \
+    ${POETRY_HOME}/bin/pip install "poetry==${POETRY_VERSION}"
 
 # The WORKDIR instruction sets the working directory for any RUN, CMD, ENTRYPOINT, COPY
 # and ADD instructions that follow it in the Dockerfile.
@@ -152,13 +165,15 @@ WORKDIR ${PYPROJECT_PATH}
 # copy project requirement files here to ensure they will be cached.
 COPY poetry.lock pyproject.toml ./
 
-# install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
-# --mount=type=cache,target=/root/.cache/pypoetry/cache \
-# --mount=type=cache,target=/root/.cache/pypoetry/artifacts \
-RUN poetry install --only main --no-interaction --no-ansi --no-root
+# Installing dependencies. Uses `${POETRY_VIRTUALENVS_IN_PROJECT}` internally.
+# Contents of the cache directories persists between builder invocations without
+# invalidating the instruction cache.
+RUN --mount=type=cache,target=/root/.cache/pypoetry \
+    poetry install --only main --no-interaction --no-ansi --no-root
 
 # Deleting files that are no longer needed.
 RUN rm -f poetry.lock pyproject.toml
+
 
 ##########################################################################################
 # STAGE 3: DEVELOPMENT
@@ -168,13 +183,11 @@ RUN rm -f poetry.lock pyproject.toml
 # The final image, will appear as `image_name:image_tag` (`docker build -t` option)
 FROM python-base as development
 
-####################
 # Adding labels.
-####################
-LABEL author="Viacheslav Kolupaev"
-LABEL stage=development
-LABEL app_name=${APP_NAME}
-LABEL vcs_ref=${VCS_REF}
+LABEL author="Viacheslav Kolupaev" \
+      stage=development \
+      app_name=${APP_NAME} \
+      vcs_ref=${VCS_REF}
 
 ####################
 # Adding frequently changing environment variables.
@@ -207,4 +220,9 @@ WORKDIR ${APP_ROOT}
 RUN rm -f poetry.lock pyproject.toml pip.conf
 
 # Server start.
-ENTRYPOINT ["/bin/bash", "docker_entrypoint.sh"]
+ENTRYPOINT ["/bin/bash"]
+
+# The main purpose of a CMD is to provide defaults for an executing container.
+# Dockerfile reference for the CMD instruction:
+# https://docs.docker.com/engine/reference/builder/#cmd
+CMD ["docker_entrypoint.sh"]
