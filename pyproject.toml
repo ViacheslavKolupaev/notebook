@@ -24,7 +24,7 @@
 
 [tool.poetry]
 name = "notebook"
-version = "v0.1.1"  # Use semantic versioning within the scope of PEP 440.
+version = "v0.1.2"  # Use semantic versioning within the scope of PEP 440.
 description = "This is the code repository associated with my development notes notebook."
 license = "Apache-2.0"
 authors = [
@@ -57,7 +57,7 @@ exclude = [
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.1.1"
+version = "0.1.2"
 version_files = [
     "pyproject.toml:version"
 ]
