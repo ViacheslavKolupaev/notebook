@@ -118,6 +118,7 @@ function docker_build_boilerplate_image() {
   # See about `DOCKER_SCAN_SUGGEST`: https://github.com/docker/scan-cli-plugin/issues/149#issuecomment-823969364
   if ! DOCKER_BUILDKIT=1 DOCKER_SCAN_SUGGEST=false docker build \
        --progress=plain \
+       --no-cache \
        --pull \
        --file "${dockerfile_dir}/Dockerfile" \
        --build-arg PYTHON_IMAGE_TAG="${python_image_tag}" \
