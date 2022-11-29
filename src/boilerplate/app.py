@@ -1,18 +1,23 @@
 # ########################################################################################
-#  Copyright (c) 2022. Viacheslav Kolupaev, https://vkolupaev.com/
+#  Copyright (c) 2022 Viacheslav Kolupaev; author's website address:
 #
-#  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
-#  file except in compliance with the License. You may obtain a copy of the License at
+#      https://vkolupaev.com/?utm_source=c&utm_medium=link&utm_campaign=notebook
 #
-#    https://www.apache.org/licenses/LICENSE-2.0
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
 #
-#  Unless required by applicable law or agreed to in writing, software distributed under
-#  the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-#  KIND, either express or implied. See the License for the specific language governing
-#  permissions and limitations under the License.
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
 # ########################################################################################
 
 """FastAPI application initialization module."""
+from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.gzip import GZipMiddleware
@@ -20,7 +25,6 @@ from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
-from starlette.responses import RedirectResponse
 
 from src.boilerplate.config import config
 from src.boilerplate.custom_logger import CustomLogger
@@ -109,7 +113,9 @@ app = FastAPI(
     },
 )
 
-app.mount(path='/static', app=StaticFiles(directory='static'), name='static')
+# Static Files: https://fastapi.tiangolo.com/tutorial/static-files/
+static_dir_path = Path(__file__).parent.absolute().joinpath('static')
+app.mount(path='/static', app=StaticFiles(directory=static_dir_path), name='static')
 
 _module_logger.debug('Initializing Routers...')
 app.include_router(admin_controller.router)
@@ -152,11 +158,16 @@ async def root() -> RedirectResponse:
 
 @app.get(
     path='/favicon.ico',
-    include_in_schema=False,
+    include_in_schema=True,
+    response_class=FileResponse,
 )
 async def favicon() -> FileResponse:
     """Get `favicon.ico`."""
-    return FileResponse('static/favicon.ico')
+    return FileResponse(
+        path=Path(static_dir_path).absolute().joinpath('favicon.ico'),
+        media_type='image/x-icon',
+        filename='favicon.ico',
+    )
 
 
 @app.get(
@@ -164,6 +175,7 @@ async def favicon() -> FileResponse:
     include_in_schema=False,
 )
 async def swagger_ui_html(req: Request) -> HTMLResponse:
+    """Get custom Swagger UI HTML."""
     root_path = req.scope.get('root_path', '').rstrip('/')
     openapi_url = root_path + app.openapi_url
     oauth2_redirect_url = app.swagger_ui_oauth2_redirect_url
