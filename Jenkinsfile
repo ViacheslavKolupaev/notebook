@@ -140,7 +140,7 @@ pipeline {
     }
 
     triggers {
-        pollSCM('* * * * *')
+        pollSCM('0 12 * * *')
         GenericTrigger (
                 causeString: 'Triggered by webhook',
                 genericVariables: [[defaultValue: '', key: 'branch', regexpFilter: '', value: '$.branch']],
