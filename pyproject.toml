@@ -109,7 +109,9 @@ uvicorn = {extras = ["standard"], version = "^0.19.0"}
 fastapi = "^0.85.2"
 tenacity = "^8.1.0"
 orjson = "^3.8.1"
-pyhive = {extras = ["hive"], version = "^0.6.5"}
+aiokafka = "^0.7.2"
+prophet = "^1.1.1"
+thrift = "^0.16.0"
 
 
 ##########################################################################################
@@ -124,7 +126,7 @@ pyhive = {extras = ["hive"], version = "^0.6.5"}
 # Optional group dependencies will still be resolved alongside other dependencies, so
 # special care should be taken to ensure they are compatible with each other.
 ##########################################################################################
-aiokafka = "^0.7.2"
+toml = "^0.10.2"
 [tool.poetry.group.type_test]
 optional = true
 
