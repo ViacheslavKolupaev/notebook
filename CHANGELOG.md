@@ -1,3 +1,9 @@
+## v0.2.0 (2023-03-10)
+
+### Feat
+
+- **misc**: add scripts about the mechanics of imports
+
 ## v0.1.2 (2022-11-29)
 
 ### Fix
